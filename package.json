@@ -1,6 +1,10 @@
 {
-  "name": "octagt",
-  "version": "0.0.0",
+  "name": "octagt365",
+  "version": "1.0.0",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/esantizooctagt/octagt.git"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
