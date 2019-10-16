@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthenticationService } from './_services';
-import { User, Role } from './_models';
+import { AuthService } from '@app/_services';
+import { User } from '@app/_models';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +15,13 @@ export class AppComponent {
 
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthService
   ) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
 
   get isAdmin() {
-    return this.currentUser && this.currentUser.role === Role.Admin;
+    return this.currentUser && this.currentUser.isAdmin === 1;
   }
 
   logout() {
