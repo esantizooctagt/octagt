@@ -5,5 +5,5 @@ export class User {
     isAdmin?: number;
     companyId?: string;
     storeId?: string;
-    status?: number;
+    status?: number
 }
