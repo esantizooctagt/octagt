@@ -1,0 +1,11 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<nav class="navbar navbar-expand sticky-top navbar-dark bg-dark" *ngIf="currentUser">
+    <div class="navbar-nav">
+        <a class="nav-item nav-link" routerLink="/">
+            <img src="https://v4-alpha.getbootstrap.com/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+            <span class="menu-collapsed"> OCTAGT 365</span>
+        </a>
+        <a class="nav-item nav-link" routerLink="/admin" *ngIf="isAdmin">Admin</a>
+        <a class="nav-item nav-link" (click)="logout()">Logout</a>
+    </div>
+</nav>

@@ -17,12 +17,18 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from '@modules/login/login.component';
 import { HomeComponent } from '@modules/home/home.component';
+import { MainMenuComponent } from './modules/main-menu/main-menu.component';
+import { SideBarComponent } from './modules/main-menu/side-bar/side-bar.component';
+import { MenuBarComponent } from './modules/main-menu/menu-bar/menu-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent
+    HomeComponent,
+    MainMenuComponent,
+    SideBarComponent,
+    MenuBarComponent
   ],
   imports: [
     BrowserModule,
