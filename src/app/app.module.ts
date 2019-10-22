@@ -16,19 +16,25 @@ import { JwtInterceptor, ErrorInterceptor } from '@app/core/interceptors';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from '@modules/login/login.component';
-import { HomeComponent } from '@modules/home/home.component';
 import { MainMenuComponent } from './modules/main-menu/main-menu.component';
 import { SideBarComponent } from './modules/main-menu/side-bar/side-bar.component';
 import { MenuBarComponent } from './modules/main-menu/menu-bar/menu-bar.component';
+import { TaxesComponent } from './modules/taxes/taxes.component';
+import { TaxComponent } from './modules/taxes/tax/tax.component';
+import { TaxListComponent } from './modules/taxes/tax-list/tax-list.component';
+import { TaxDeleteComponent } from './modules/taxes/tax-delete/tax-delete.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent,
     MainMenuComponent,
     SideBarComponent,
-    MenuBarComponent
+    MenuBarComponent,
+    TaxesComponent,
+    TaxComponent,
+    TaxListComponent,
+    TaxDeleteComponent
   ],
   imports: [
     BrowserModule,

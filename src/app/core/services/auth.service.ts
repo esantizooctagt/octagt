@@ -33,9 +33,8 @@ export class AuthService {
     }
 
     login(email: string, password: string) {
-        return this.http.post<any>(this.apiURL + 'users/login', { email, password })
+        return this.http.post<any>(this.apiURL + '/users/login', { email, password })
             .pipe(map(user => {
-                console.log(user);
                 if (user && user.token) {
                     // store user details in local storage to keep user logged in
                     sessionStorage.setItem('OCT_USS', JSON.stringify(user.user));

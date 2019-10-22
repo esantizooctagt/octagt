@@ -3,12 +3,15 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Componenets**/
-import { LoginComponent, HomeComponent, MainMenuComponent } from '@modules/index';
+import { LoginComponent, MainMenuComponent, TaxesComponent } from '@modules/index';
 
 const routes: Routes = [
   { 
     path: '', 
-    component: MainMenuComponent, canActivate: [AuthGuard] 
+    component: MainMenuComponent, canActivate: [AuthGuard],
+    children: [
+      { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] }
+    ]
   },
   { 
     path: 'login', 

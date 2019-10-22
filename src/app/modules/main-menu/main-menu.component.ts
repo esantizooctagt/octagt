@@ -37,7 +37,7 @@ export class MainMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadAllUsers();
+    //this.loadAllUsers();
     $(document).ready(() => {
       // Hide submenus
       $('#body-row .collapse').collapse('hide'); 
