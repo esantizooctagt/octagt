@@ -1,13 +1,63 @@
-<p>Taxes</p>
-<div>
-    <input type="hidden" id="taxId">
-    <label for="name">Name</label>
-    <input type="text" id="name" aria-describedby="emailHelp" placeholder="Name">
-    <label for="percentage">Percentage</label>
-    <input type="text" id="percentage" aria-describedby="emailHelp" placeholder="Percentage">
-    <input type="checkbox" value="" id="includeTax">
-    <label for="includeTax">
-        Base Price Include Taxes
-    </label>
-    <input type="button" id="save" value="Save">
+<div class="container-fluid">
+    <!--h1>Taxes</h1>
+    {{ taxForm.value | json }}
+    <hr />
+    {{ taxClass | json }}
+    <form #taxForm="ngForm">
+        <div class="form-group">
+            <label for="name">Tax Id</label>
+            <input type="text" id="taxId" #taxId="ngModel" class="form-control" name="taxId" [(ngModel)]="taxClass.Tax_Id">{{ taxId }}
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" #name="ngModel" required aria-describedby="emailHelp" name="name" placeholder="Name" class="form-control" [(ngModel)]="taxClass.Name">
+        </div>
+        <div class="form-group">
+            <label for="percentage">Percentage</label>
+            <input type="text" id="percentage" #percentage="ngModel" required aria-describedby="emailHelp" name="percentage" placeholder="Percentage" class="form-control" [(ngModel)]="taxClass.Percentage">
+        </div>
+        <div class="form-check">
+            <input type="checkbox" value="" #includeTax="ngModel" id="includeTax" name="includeTax" class="form-check-input" [(ngModel)]="taxClass.Include_Tax">
+            <label for="includeTax" class="form-check-label">
+                Base Price Include Taxes
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="status"  required class="form-check-label">Status</label>
+            <input type="text" #status="ngModel" id="status" name="status" class="form-control" [(ngModel)]="taxClass.Status">
+        </div>
+        <input type="submit" id="save" value="Save" class="btn btn-primary">
+    </form-->
+    <h1>Taxes</h1>
+    <form [formGroup]="taxForm" (ngSubmit)="onSubmit()">
+        <!-- <div class="form-group">
+            <label>Tax Id</label>
+            <input type="text" formControlName="Tax_Id" class="form-control">{{ taxId }}
+        </div> -->
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="Name.invalid &&
+                                                                                               Name.touched">
+            <div *ngIf="Name.invalid && Name.touched">
+                <small *ngIf="Name.errors?.required" class="text-danger">Name is required</small>
+                <small *ngIf="Name.errors?.minlength" class="text-danger">Minimun length 3</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Percentage</label>
+            <input type="text" formControlName="Percentage" class="form-control">
+        </div>
+        <div class="form-check">
+            <input type="checkbox" formControlName="Include_Tax" value="" class="form-check-input">
+            <label class="form-check-label">
+                Base Price Include Taxes
+            </label>
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <input type="text" formControlName="Status" class="form-control">
+        </div>
+        <input type="submit" id="save" value="Save" class="btn btn-primary" [disabled]="!taxForm.valid">
+        {{ taxForm.value | json }}
+    </form>
 </div>

@@ -1,13 +1,14 @@
 <p>tax-list works!</p>
-<div class="list-group">
-    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" *ngFor="let tax of taxes"> 
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{ 'Tax Id: ' + tax.TaxId }}</h5>
-            <small>Edit</small>
-            <small>Delete</small>
-        </div>
-        <p class="mb-1">{{ 'Name: ' + tax.Name }}</p>
-        <p class="mb-1">{{ 'Company Id: ' + tax.CompanyId }}</p>
-        <p class="mb-1">{{ 'Include Tax: ' + tax.Include_Tax === false ? 'No' : 'Si' }}</p>
-    </a>
+<div class="card" *ngFor="let tax of taxes">
+    <div class="card-body"> 
+        <h2>{{ 'Name: ' + tax.Name }}</h2>
+        <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
+        <p class="mb-1">{{ 'Company Id: ' + tax.Company_Id }}</p>
+        <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
+        <p class="mb-1">{{ 'Tax Id: ' + tax.Tax_Id }}</p>
+        <ul class="items">
+            <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
+            <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+        </ul>
+    </div>
 </div>

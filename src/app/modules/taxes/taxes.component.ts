@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Tax } from '@app/_models';
 
 @Component({
   selector: 'app-taxes',
@@ -7,9 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TaxesComponent implements OnInit {
 
+  public clickedTax: Tax;
+
   constructor() { }
 
   ngOnInit() {
+  }
+
+  childTaxClicked(tax: Tax) {
+    this.clickedTax = tax;
   }
 
 }

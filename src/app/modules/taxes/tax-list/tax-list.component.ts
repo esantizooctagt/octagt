@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 //import { ToastrService } from 'ngx-toastr';
-//import { FormBuilder } from '@angular/forms';
+import { AuthService } from '@core/services';
 import { Tax } from '@app/_models';
 import { TaxService } from "@app/services";
 
@@ -11,9 +11,15 @@ import { TaxService } from "@app/services";
   styleUrls: ['./tax-list.component.css']
 })
 export class TaxListComponent implements OnInit {
+
+  @Output() childEvent = new EventEmitter<Tax>();
+
   public taxes: Tax[] = [];
   constructor(
-    public taxService: TaxService
+    private authService: AuthService,
+    private router: Router,
+    //private userService: UserService,
+    private taxService: TaxService
     //private toastr: ToastrService,
   ) { }
 
@@ -22,27 +28,20 @@ export class TaxListComponent implements OnInit {
   }
 
   loadTaxes(){
-    this.taxService.getTaxes().subscribe((res: any) => {
-      this.taxes = res;
-      //this.parseTaxes();
-      console.log(this.taxes);
+    let companyId = this.authService.CompanyId();
+    this.taxService.getTaxes(companyId).subscribe((res: any) => {
+      if (res.length > 0) {
+        this.taxes = res;
+      }
     },
     err => {
       console.log(err);
     });
   }
 
-  /*parseTaxes(){
-    this.allTaxes.forEach((e) => {
-      var tax = new Tax();
-      tax.taxId = e.taxId;
-      tax.companyId = e.compnayId;
-      tax.name = e.name;
-      tax.percentage = e.percentage;
-      tax.include_tax = e.include_tax;
-      tax.status = e.status;
-
-      this.taxes.push(tax);
-    });
-  }*/
+  onSelect(tax: Tax){
+    this.childEvent.emit(tax);
+    //to send parameters between components
+    // this.router.navigate(['/taxes', tax.Tax_Id]);
+  }
 }

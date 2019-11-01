@@ -32,8 +32,8 @@ export class AuthService {
         return this.currentUserTknSubject.value;
     }
 
-    login(email: string, password: string) {
-        return this.http.post<any>(this.apiURL + '/users/login', { email, password })
+    login(userName: string, password: string) {
+        return this.http.post<any>(this.apiURL + '/users/login', { userName, password })
             .pipe(map(user => {
                 if (user && user.token) {
                     // store user details in local storage to keep user logged in
@@ -45,6 +45,11 @@ export class AuthService {
 
                 return user;
             }));
+    }
+
+    CompanyId() {
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Company_Id;
     }
 
     logout() {

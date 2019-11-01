@@ -1,10 +1,10 @@
 export class Tax {
-    taxId: String;
-    companyId: String;
-    name: String;
-    percentage: Number;
-    include_tax: String;
-    status: Number;
-    //create_date: Date;
-    //modified_date: Date;
+    constructor (
+        public Tax_Id: string,
+        public Company_Id: string,
+        public Name: string,
+        public Percentage: number,
+        public Include_Tax: boolean,
+        public Status: Number
+    ){}
 }
