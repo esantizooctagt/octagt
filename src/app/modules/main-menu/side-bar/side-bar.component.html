@@ -77,7 +77,7 @@
                     <span class="menu-collapsed">Company</span>
                 </div>
             </a>
-            <a href="#" class="bg-dark list-group-item list-group-item-action">
+            <!-- <a href="#" class="bg-dark list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span class="fa fa-question fa-fw mr-3"></span>
                     <span class="menu-collapsed">Stores</span>
@@ -94,7 +94,7 @@
                     <span class="fa fa-question fa-fw mr-3"></span>
                     <span class="menu-collapsed">Documents</span>
                 </div>
-            </a> 
+            </a>  -->
             <a href="#" class="bg-dark list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span class="fa fa-question fa-fw mr-3"></span>
@@ -129,13 +129,6 @@
         <!--div class="container"-->
             <h1>Hi {{currentUser.email}}!</h1>
             <router-outlet></router-outlet>
-            <h3>All registered users:</h3>
-            <ul>
-                <li *ngFor="let user of users">
-                    {{user.userName}} ({{user.email}} {{user.companyId}})
-                    - <a (click)="deleteUser(user.userName)" class="text-danger">Delete</a>
-                </li>
-            </ul>
         <!--/div-->
     </div><!-- Main Col END -->
 </div><!-- body-row END -->

@@ -1,14 +1,38 @@
-<p>tax-list works!</p>
-<div class="card" *ngFor="let tax of taxes">
-    <div class="card-body"> 
-        <h2>{{ 'Name: ' + tax.Name }}</h2>
-        <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-        <p class="mb-1">{{ 'Company Id: ' + tax.Company_Id }}</p>
-        <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
-        <p class="mb-1">{{ 'Tax Id: ' + tax.Tax_Id }}</p>
-        <ul class="items">
-            <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
-            <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+<app-search placeholder="Search by name"
+(setValue)="filterList($event)"></app-search>
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item" *ngFor="let tax of taxes">
+        <div class="card">
+            <div class="card-body"> 
+                <h2>{{ 'Name: ' + tax.Name }}</h2>
+                <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
+                <!-- <p class="mb-1">{{ 'Company Id: ' + tax.Company_Id }}</p> -->
+                <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
+                <!-- <p class="mb-1">{{ 'Tax Id: ' + tax.Tax_Id }}</p> -->
+                <ul class="items">
+                    <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
+                    <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+                </ul>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<app-pagination
+      [setPagination]="{'itemsCount': totalRows,'pageSize': 2}"
+      (goToPage)="goToPage($event)"
+></app-pagination>
+<!-- <nav aria-label="Page navigation example">
+    <ul class="pagination" *ngIf="pages?.length > 0 else unique">
+        <li class="page-item"><a class="page-link" (click)="goToPage(page-1)" *ngIf="page > 1" href="javascript:void(0);">Previous</a></li>
+        <li class="page-item" [ngClass]="{'disabled': page==nopage+1}"
+        *ngFor="let nopage of pages"><a class="page-link" (click)="goToPage(nopage+1)" href="javascript:void(0);">{{ nopage+1 }}</a></li>
+        <li class="page-item"><a class="page-link" (click)="goToPage((page*1)+1)" href="javascript:void(0);" *ngIf="pages?.length > 0 && page <= pages?.length-1">Next</a></li>
+    </ul>
+    <ng-template #unique>
+        <ul class="pagination">
+            <li class="page-item active"><a class="page-link" href="#">01</a></li>
         </ul>
-    </div>
-</div>
+    </ng-template>
+</nav> -->

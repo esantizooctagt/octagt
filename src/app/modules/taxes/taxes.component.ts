@@ -9,7 +9,6 @@ import { Tax } from '@app/_models';
 export class TaxesComponent implements OnInit {
 
   public clickedTax: Tax;
-
   constructor() { }
 
   ngOnInit() {
@@ -18,5 +17,4 @@ export class TaxesComponent implements OnInit {
   childTaxClicked(tax: Tax) {
     this.clickedTax = tax;
   }
-
 }

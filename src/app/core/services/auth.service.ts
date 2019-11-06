@@ -47,9 +47,13 @@ export class AuthService {
             }));
     }
 
-    CompanyId() {
+    companyId() {
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.Company_Id;
+    }
+
+    currentToken() {
+        return this.currentUserTknSubject.value;
     }
 
     logout() {

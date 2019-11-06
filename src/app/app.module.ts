@@ -15,11 +15,17 @@ import { JwtInterceptor, ErrorInterceptor } from '@app/core/interceptors';
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AlertComponent } from '@shared/alert/alert.component';
+import { SearchComponent } from '@shared/search/search.component';
+import { PaginationComponent } from '@shared/pagination/pagination.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    routingComponents
+    routingComponents,
+    AlertComponent,
+    SearchComponent,
+    PaginationComponent
   ],
   imports: [
     BrowserModule,

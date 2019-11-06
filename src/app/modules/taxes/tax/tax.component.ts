@@ -1,10 +1,14 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { Tax } from '@app/_models/index';
 import { FormBuilder, Validators } from '@angular/forms';
+import { TaxService } from "@app/services";
+import { AuthService } from '@core/services';
+import { Router } from '@angular/router';
+import { MonitorService } from "@shared/monitor.service";
+import { AlertService  } from "@shared/alert";
 
 // to send parameters between components
 // import { ActivatedRoute } from '@angular/router';
-// import { TaxService } from "@app/services";
 // import { AuthService } from '@core/services';
 
 @Component({
@@ -19,13 +23,21 @@ export class TaxComponent implements OnInit {
   get Name(){
     return this.taxForm.get('Name');
   }
-  //to send parameters between components
+
+  message: string='';
+  submitted = false;
+  companyId: string='';
+  // to send parameters between components
   // public taxId;
 
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private taxService: TaxService,
+    private router: Router,
+    private data: MonitorService,
+    private alertService: AlertService 
     // to send parameters between components
-    // private taxService: TaxService,
     // private authService: AuthService,
     // private route: ActivatedRoute
   ) { }
@@ -38,12 +50,14 @@ export class TaxComponent implements OnInit {
     Include_Tax: [''],
     Status: ['']
   })
-  ngOnInit() {      
-    //to send parameters between components
+  
+  ngOnInit() {    
+    this.companyId = this.authService.companyId();  
+    // to send parameters between components
     // let id = this.route.snapshot.paramMap.get('idTax');
     // if (id != undefined) {
     //   this.taxId = id;
-    //let tokenId = this.authService.tokenId();
+    //   let tokenId = this.authService.tokenId();
     //   this.taxService.getTax('',this.taxId).subscribe((res: any) => {
     //     if (res.length > 0) {
     //       this.taxes = res;
@@ -55,6 +69,10 @@ export class TaxComponent implements OnInit {
     //   });
     //   console.log(this.taxData);
     // }
+    this.data.monitorMessage
+      .subscribe((message: any) => {
+        this.message = message;
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -73,6 +91,46 @@ export class TaxComponent implements OnInit {
   }
 
   onSubmit(){
-    console.log(this.taxForm.value);
+    let taxId = this.taxForm.value.Tax_Id;
+    let tokenValue = this.authService.currentToken();
+    this.submitted = true;
+    if (taxId !== '' && taxId !== null) {  
+      let dataForm = this.taxForm.value;
+      delete dataForm.Tax_Id; 
+      delete dataForm.Company_Id;
+      this.taxService.updateTax(taxId, tokenValue, dataForm)
+        .subscribe(
+          response =>  {
+            this.submitted = false;
+            this.taxForm.reset();
+            this.data.changeData('change');
+            this.alertService.success('Tax created successful');
+          },
+          error => { 
+            this.alertService.error('Error ! ' + error);
+          }
+        );
+    } else {
+      let dataForm = this.taxForm.value;
+      delete dataForm.Tax_Id;
+      dataForm.Company_Id = this.companyId;
+      this.taxService.postTax(tokenValue, dataForm)
+        .subscribe(
+          response => {
+            this.submitted = false;
+            this.taxForm.reset();
+            this.data.changeData('change');
+            this.alertService.success('Tax updated successful');
+          },
+          error => { 
+            this.alertService.error('Error ! ' + error);
+          }
+        );
+    }
+  }
+
+  onCancel(){
+    this.submitted = true;
+    this.taxForm.reset();
   }
 }

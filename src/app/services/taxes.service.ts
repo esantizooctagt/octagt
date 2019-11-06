@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { Tax } from '@app/_models';
 import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 @Injectable({ 
   providedIn: 'root' 
@@ -12,32 +13,32 @@ export class TaxService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
   
-    getTaxes(companyId): Observable<Tax[]> {
-      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + companyId)
+    getTaxes(companyId, page, search): Observable<Tax[]> {
+      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + companyId + '/' + page + (search != '' ? '/' + search : ''))
                       .pipe(catchError(this.errorHandler));
     }
   
-    getTax(token, taxId): Observable<Tax> {
-      return this.http.get<Tax>(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Basic ' + token) })
+    getTax(taxId, token): Observable<Tax> {
+      return this.http.get<Tax>(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
                       .pipe(catchError(this.errorHandler));
     }
   
     postTax(token, formData) {
-        return this.http.post(this.apiURL + '/taxes', formData, { headers: new HttpHeaders().set('Authorization', 'Basic ' + token) })
+        return this.http.post(this.apiURL + '/taxes', formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
                         .pipe(catchError(this.errorHandler));
     }
 
-    putTax(taxId, token, formData) {
-      return this.http.patch(this.apiURL + '/taxes'  + taxId, formData, { headers: new HttpHeaders().set('Authorization', 'Basic ' + token) })
+    updateTax(taxId, token, formData) {
+      return this.http.patch(this.apiURL + '/taxes/'  + taxId, formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
                       .pipe(catchError(this.errorHandler));
     }
   
-    deleteTax(token, taxId) {
-      return this.http.delete(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Basic ' + token) })
+    deleteTax(taxId, token) {
+      return this.http.delete(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
                       .pipe(catchError(this.errorHandler));
     }
 
     errorHandler(error: HttpErrorResponse){
-      return Observable.throw(error.message || 'Server Error');
+      return throwError(error.message || 'Server Error');
     }
   }
