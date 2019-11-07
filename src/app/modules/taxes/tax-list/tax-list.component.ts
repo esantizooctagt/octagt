@@ -1,11 +1,11 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { AuthService } from '@core/services';
 import { Tax } from '@app/_models';
 import { TaxService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { AlertService  } from "@shared/alert";
-import { SearchComponent } from '@shared/search/search.component';
-import { PaginationComponent } from '@shared/pagination/pagination.component';
+// import { SearchComponent } from '@shared/search/search.component';
+// import { PaginationComponent } from '@shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-tax-list',
@@ -16,6 +16,7 @@ export class TaxListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Tax>();
   public totalRows: number = 0;
+  public itemsNumber: number = 1;
   public taxes: Tax[] = [];
   public pages: number[];
   // public page: number = 0;
@@ -35,18 +36,18 @@ export class TaxListComponent implements OnInit {
 
   ngOnInit() {
     this.companyId = this.authService.companyId();
-    this.loadTaxes(this._currentPage, this._currentSearchValue);
+    this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
     this.data.monitorMessage
       .subscribe((message: any) => {
         if (message === 'change') {
           this.message = message;
-          this.loadTaxes(this._currentPage, this._currentSearchValue);
+          this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
         } 
       });
   }
-
-  loadTaxes(crPage, crValue){
-    this.taxService.getTaxes(this.companyId, crPage, crValue).subscribe((res: any) => {
+  
+  loadTaxes(crPage, crNumber, crValue){
+    this.taxService.getTaxes(this.companyId, crPage, crNumber, crValue).subscribe((res: any) => {
       if (res != null) {
         this.taxes = res.taxes;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
@@ -63,6 +64,7 @@ export class TaxListComponent implements OnInit {
     this._currentSearchValue = searchParam;
     this.loadTaxes(
       this._currentPage,
+      this.itemsNumber,
       this._currentSearchValue
     );
   }
@@ -79,6 +81,7 @@ export class TaxListComponent implements OnInit {
       response =>  {
         this.loadTaxes(
           this._currentPage,
+          this.itemsNumber,
           this._currentSearchValue
         );
         this.alertService.success('Tax deleted successful');
@@ -92,6 +95,17 @@ export class TaxListComponent implements OnInit {
     this._currentPage = page;
     this.loadTaxes(
       this._currentPage,
+      this.itemsNumber,
+      this._currentSearchValue
+    );
+  }
+  
+  public onChangeNumber(elements: number){
+    this.itemsNumber = elements;
+    this._currentPage = 1;
+    this.loadTaxes(
+      this._currentPage,
+      this.itemsNumber,
       this._currentSearchValue
     );
   }

@@ -1,5 +1,11 @@
 <app-search placeholder="Search by name"
 (setValue)="filterList($event)"></app-search>
+<select class="list-number" [(ngModel)]="itemsNumber" #listNumber (change)='onChangeNumber(listNumber.value)'>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="5">5</option>
+</select>
 
 <ul class="list-group list-group-flush">
     <li class="list-group-item" *ngFor="let tax of taxes">
@@ -20,19 +26,6 @@
 </ul>
 
 <app-pagination
-      [setPagination]="{'itemsCount': totalRows,'pageSize': 2}"
+      [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}"
       (goToPage)="goToPage($event)"
 ></app-pagination>
-<!-- <nav aria-label="Page navigation example">
-    <ul class="pagination" *ngIf="pages?.length > 0 else unique">
-        <li class="page-item"><a class="page-link" (click)="goToPage(page-1)" *ngIf="page > 1" href="javascript:void(0);">Previous</a></li>
-        <li class="page-item" [ngClass]="{'disabled': page==nopage+1}"
-        *ngFor="let nopage of pages"><a class="page-link" (click)="goToPage(nopage+1)" href="javascript:void(0);">{{ nopage+1 }}</a></li>
-        <li class="page-item"><a class="page-link" (click)="goToPage((page*1)+1)" href="javascript:void(0);" *ngIf="pages?.length > 0 && page <= pages?.length-1">Next</a></li>
-    </ul>
-    <ng-template #unique>
-        <ul class="pagination">
-            <li class="page-item active"><a class="page-link" href="#">01</a></li>
-        </ul>
-    </ng-template>
-</nav> -->

@@ -13,8 +13,8 @@ export class TaxService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
   
-    getTaxes(companyId, page, search): Observable<Tax[]> {
-      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + companyId + '/' + page + (search != '' ? '/' + search : ''))
+    getTaxes(companyId, page, perPage, search): Observable<Tax[]> {
+      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + companyId + '/' + page + '/' + perPage + (search != '' ? '/' + search : ''))
                       .pipe(catchError(this.errorHandler));
     }
   

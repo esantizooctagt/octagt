@@ -47,9 +47,10 @@ export class TaxComponent implements OnInit {
     Company_Id: [''],
     Name: ['', [Validators.required, Validators.minLength(3)]],
     Percentage: [''],
-    Include_Tax: [''],
-    Status: ['']
+    Include_Tax: [false],
+    Status: [0]
   })
+  // this.taxForm.get('Status') ? 1:0
   
   ngOnInit() {    
     this.companyId = this.authService.companyId();  
@@ -73,6 +74,18 @@ export class TaxComponent implements OnInit {
       .subscribe((message: any) => {
         this.message = message;
       });
+      this.onValueChanges();
+  }
+
+  onValueChanges(): void {
+    this.taxForm.valueChanges.subscribe(val=>{
+      if (val.Status === true) {
+        this.taxForm.controls["Status"].setValue(1);
+      }
+      if (val.Status === false){
+        this.taxForm.controls["Status"].setValue(0);
+      }
+    })
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -102,7 +115,7 @@ export class TaxComponent implements OnInit {
         .subscribe(
           response =>  {
             this.submitted = false;
-            this.taxForm.reset();
+            this.taxForm.reset({Include_Tax:false, Status:0});
             this.data.changeData('change');
             this.alertService.success('Tax created successful');
           },
@@ -118,7 +131,7 @@ export class TaxComponent implements OnInit {
         .subscribe(
           response => {
             this.submitted = false;
-            this.taxForm.reset();
+            this.taxForm.reset({Include_Tax:false, Status:0});
             this.data.changeData('change');
             this.alertService.success('Tax updated successful');
           },
@@ -131,6 +144,7 @@ export class TaxComponent implements OnInit {
 
   onCancel(){
     this.submitted = true;
-    this.taxForm.reset();
+    this.taxForm.reset({Include_Tax:false, Status:0});
+    this.data.changeData('change');
   }
 }

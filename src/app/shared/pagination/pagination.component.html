@@ -19,38 +19,3 @@
         </li>
     </ul>
 </nav>
-<!-- <div class="pagination" >
-    <span *ngIf="currentPage !== 1"(click)="setPage(currentPage - 1)">
-    &lt; 
-    </span>
-    <ng-container *ngIf="pagesArray.length <= 10" >
-        <span *ngFor="let page of pagesArray; let index = index" [ngClass]="{ 'active': currentPage === index + 1 }"
-        (click)="setPage(index + 1)">
-        {{ index + 1 }}
-        </span>
-    </ng-container>
-    <ng-container *ngIf="pagesArray.length > 10" >
-        <select [ngModel]="currentPage" (ngModelChange)="selectPage($event.target.value)">
-          <option *ngFor="let p of pagesArray; let index = index" [value]="(index + 1)" >
-            {{ index + 1 }}
-          </option>
-        </select>
-    </ng-container>
-    <span  *ngIf="currentPage !== pagesArray.length" (click)="setPage(currentPage + 1)">
-    &gt; 
-    </span>
-</div> -->
-
-<!-- <nav aria-label="Page navigation example">
-    <ul class="pagination" *ngIf="pages?.length > 0 else unique">
-        <li class="page-item"><a class="page-link" (click)="goToPage(page-1)" *ngIf="page > 1" href="javascript:void(0);">Previous</a></li>
-        <li class="page-item" [ngClass]="{'disabled': page==nopage+1}"
-        *ngFor="let nopage of pages"><a class="page-link" (click)="goToPage(nopage+1)" href="javascript:void(0);">{{ nopage+1 }}</a></li>
-        <li class="page-item"><a class="page-link" (click)="goToPage((page*1)+1)" href="javascript:void(0);" *ngIf="pages?.length > 0 && page <= pages?.length-1">Next</a></li>
-    </ul>
-    <ng-template #unique>
-        <ul class="pagination">
-            <li class="page-item active"><a class="page-link" href="#">01</a></li>
-        </ul>
-    </ng-template>
-</nav> -->
