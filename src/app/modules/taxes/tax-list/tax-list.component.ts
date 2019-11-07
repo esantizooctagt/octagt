@@ -109,18 +109,4 @@ export class TaxListComponent implements OnInit {
       this._currentSearchValue
     );
   }
-
-
-  // goToPage(noPage){
-  //   this.taxService.getTaxes(this.companyId, '/'+this._currentPage, '/'+this._currentSearchValue).subscribe((res: any) => {
-  //     if (res != null) {
-  //       this.taxes = res.taxes;
-  //       this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-  //       this.page = res.pagesTotal.page;
-  //     }
-  //   },
-  //   err => {
-  //     console.log(err);
-  //   });
-  // }
 }

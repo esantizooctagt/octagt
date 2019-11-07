@@ -7,15 +7,46 @@
                 <a class="page-link">{{ index + 1 }}</a>
             </li>
         </ng-container>
-        <ng-container *ngIf="pagesArray.length > 10" >
+        <ng-container *ngIf="currentPage <= 6 && pagesArray.length > 10">
+            <li class="page-item" *ngFor="let page of pagesArray | slice:0:10 let index = index" [ngClass]="{ 'active': currentPage === index + 1 }"
+                (click)="setPage(index + 1)">
+                <a class="page-link">{{ index + 1 }}</a>
+            </li>
+        </ng-container>
+        <ng-container *ngIf="currentPage > 6  && currentPage+4 >= pagesArray.length && pagesArray.length > 10">
+            <li class="page-item" *ngFor="let page of pagesArray | slice:pagesArray.length-9-1:pagesArray.length let index = index" [ngClass]="{ 'active': currentPage === index + pagesArray.length-9 }"
+                (click)="setPage(index + pagesArray.length-9)">
+                <a class="page-link">{{ index + pagesArray.length-9 }}</a>
+            </li>
+        </ng-container>
+        <ng-container *ngIf="currentPage > 6 && currentPage+4 < pagesArray.length && pagesArray.length > 10">
+            <li class="page-item" *ngFor="let page of pagesArray | slice: currentPage-5-1:currentPage+4 let index = index" [ngClass]="{ 'active': currentPage === index + currentPage-5 }"
+                (click)="setPage(index + currentPage-5)">
+                <a class="page-link">{{ index + currentPage-5 }}</a>
+            </li>
+        </ng-container>
+        <!-- <ng-container *ngIf="pagesArray.length > 10" >
             <select [ngModel]="currentPage" (ngModelChange)="selectPage($event.target.value)">
               <option *ngFor="let p of pagesArray; let index = index" [value]="(index + 1)" >
                 {{ index + 1 }}
               </option>
             </select>
-        </ng-container>
+        </ng-container> -->
         <li class="page-item" *ngIf="currentPage !== pagesArray.length" (click)="setPage(currentPage + 1)">
             <a class="page-link">Next</a> 
         </li>
     </ul>
 </nav>
+
+<!-- /*
+if (currentPage <= 6) {
+    startPage = 1;
+    endPage = 10;
+} else if (currentPage + 4 >= totalPages) {
+    startPage = totalPages - 9;
+    endPage = totalPages;
+} else {
+    startPage = currentPage - 5;
+    endPage = currentPage + 4;
+}
+*/ -->
