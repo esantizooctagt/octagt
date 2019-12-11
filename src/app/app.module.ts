@@ -18,6 +18,8 @@ import { AppComponent } from './app.component';
 import { AlertComponent } from '@shared/alert/alert.component';
 import { SearchComponent } from '@shared/search/search.component';
 import { PaginationComponent } from '@shared/pagination/pagination.component';
+import { SpinnerComponent } from '@shared/spinner/spinner.component';
+import { AppSpinnerDirective } from '@shared/app-spinner.directive';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { PaginationComponent } from '@shared/pagination/pagination.component';
     routingComponents,
     AlertComponent,
     SearchComponent,
-    PaginationComponent
+    PaginationComponent,
+    SpinnerComponent,
+    AppSpinnerDirective
   ],
   imports: [
     BrowserModule,
@@ -36,11 +40,13 @@ import { PaginationComponent } from '@shared/pagination/pagination.component';
     FormsModule
   ],
   providers: [
-        // TaxService,
         InterceptorService,
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
-      ],
+  ],
+  entryComponents: [
+    SpinnerComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,31 +1,44 @@
-<app-search placeholder="Search by name"
-(setValue)="filterList($event)"></app-search>
-<select class="list-number" [(ngModel)]="itemsNumber" #listNumber (change)='onChangeNumber(listNumber.value)'>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="5">5</option>
-</select>
-
-<ul class="list-group list-group-flush">
-    <li class="list-group-item" *ngFor="let tax of taxes">
-        <div class="card">
-            <div class="card-body"> 
+<div class="container-fluid" *ngIf="dispLoading">
+    <div *appSpinner="dispLoading; message: 'Loading Taxes'">
+    </div>
+</div>
+<app-search placeholder="Search by name" (setValue)="filterList($event)" (setNumber)="onChangeNumber($event)">
+</app-search>
+<button (click)="setView(true)">List</button><button (click)="setView(false)">Grid</button>
+<span>Results: {{totalRows}}</span>
+<div class="list-cards" *ngIf="listView" style="height: 600px; overflow-y:scroll;">
+    <ul class="list-group list-group-flush" *ngIf="onError==''">
+        <li class="list-group-item" *ngFor="let tax of taxes">
+            <h2>{{ 'Name: ' + tax.Name }}</h2>
+            <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
+            <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
+            <ul class="items">
+                <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
+                <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+            </ul>
+        </li>
+    </ul>
+    <div *ngIf="onError!=''">
+        <span>{{onError}}</span>
+    </div>
+</div>
+<div class="grid-cards" *ngIf="!listView" style="height: 600px; overflow-y:scroll;">
+    <div class="card-columns" *ngIf="onError==''">
+        <div class="card" *ngFor="let tax of taxes">
+            <div class="card-body">
                 <h2>{{ 'Name: ' + tax.Name }}</h2>
                 <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-                <!-- <p class="mb-1">{{ 'Company Id: ' + tax.Company_Id }}</p> -->
                 <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
-                <!-- <p class="mb-1">{{ 'Tax Id: ' + tax.Tax_Id }}</p> -->
                 <ul class="items">
                     <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
                     <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
                 </ul>
             </div>
         </div>
-    </li>
-</ul>
-
-<app-pagination
-      [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}"
-      (goToPage)="goToPage($event)"
-></app-pagination>
+    </div>
+    <div *ngIf="onError!=''">
+        <span>{{onError}}</span>
+    </div>
+</div>
+<app-pagination [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}" (goToPage)="goToPage($event)">
+</app-pagination>

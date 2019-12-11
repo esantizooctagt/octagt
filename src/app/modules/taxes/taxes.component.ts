@@ -12,6 +12,7 @@ export class TaxesComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    
   }
 
   childTaxClicked(tax: Tax) {

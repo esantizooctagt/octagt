@@ -13,32 +13,32 @@ export class TaxService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
   
-    getTaxes(companyId, page, perPage, search): Observable<Tax[]> {
-      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + companyId + '/' + page + '/' + perPage + (search != '' ? '/' + search : ''))
+    getTaxes(formData): Observable<Tax[]> {
+      return this.http.get<Tax[]>(this.apiURL + '/taxes?' + formData)
                       .pipe(catchError(this.errorHandler));
     }
   
     getTax(taxId, token): Observable<Tax> {
-      return this.http.get<Tax>(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+      return this.http.get<Tax>(this.apiURL + '/tax/' + taxId, { headers: new HttpHeaders().set('Authorization', token) })
                       .pipe(catchError(this.errorHandler));
     }
   
     postTax(token, formData) {
-        return this.http.post(this.apiURL + '/taxes', formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+        return this.http.post(this.apiURL + '/tax', formData, { headers: new HttpHeaders().set('Authorization', token) })
                         .pipe(catchError(this.errorHandler));
     }
 
     updateTax(taxId, token, formData) {
-      return this.http.patch(this.apiURL + '/taxes/'  + taxId, formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+      return this.http.patch(this.apiURL + '/tax/'  + taxId, formData, { headers: new HttpHeaders().set('Authorization', token) })
                       .pipe(catchError(this.errorHandler));
     }
   
     deleteTax(taxId, token) {
-      return this.http.delete(this.apiURL + '/taxes/' + taxId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+      return this.http.delete(this.apiURL + '/tax/' + taxId, { headers: new HttpHeaders().set('Authorization', token) })
                       .pipe(catchError(this.errorHandler));
     }
 
-    errorHandler(error: HttpErrorResponse){
-      return throwError(error.message || 'Server Error');
+    errorHandler(error) {
+      return throwError(error || 'Server Error');
     }
   }

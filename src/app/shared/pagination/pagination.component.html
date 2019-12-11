@@ -25,13 +25,6 @@
                 <a class="page-link">{{ index + currentPage-5 }}</a>
             </li>
         </ng-container>
-        <!-- <ng-container *ngIf="pagesArray.length > 10" >
-            <select [ngModel]="currentPage" (ngModelChange)="selectPage($event.target.value)">
-              <option *ngFor="let p of pagesArray; let index = index" [value]="(index + 1)" >
-                {{ index + 1 }}
-              </option>
-            </select>
-        </ng-container> -->
         <li class="page-item" *ngIf="currentPage !== pagesArray.length" (click)="setPage(currentPage + 1)">
             <a class="page-link">Next</a> 
         </li>

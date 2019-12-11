@@ -33,7 +33,7 @@ export class AuthService {
     }
 
     login(userName: string, password: string) {
-        return this.http.post<any>(this.apiURL + '/users/login', { userName, password })
+        return this.http.post<any>(this.apiURL + '/user/login', { "UserName": userName, "Password": password })
             .pipe(map(user => {
                 if (user && user.token) {
                     // store user details in local storage to keep user logged in

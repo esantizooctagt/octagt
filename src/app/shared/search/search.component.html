@@ -1,4 +1,10 @@
-<input
-  type="text"
-  (keyup)="updateSearch($event.target.value)"
-/>
+<input type="text" [(ngModel)]="searchValue" [placeholder]="placeholder" (keyup)="updateSearchUp($event, $event.target.value)"/>
+<button [disabled]="loading" class="btn btn-primary" (click)="updateSearch(searchValue)">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+    Search
+</button>
+<select class="list-number" #listNumber (change)='onChangeNumber(listNumber.value)'>
+  <option value="10">10</option>
+  <option value="25">25</option>
+  <option value="50">50</option>
+</select>

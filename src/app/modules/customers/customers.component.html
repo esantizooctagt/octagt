@@ -1,0 +1,5 @@
+<div class="container-fluid">
+    <app-customer [customer]="clickedCustomer"></app-customer>
+    <app-alert></app-alert>
+    <app-customer-list (childEvent)="childCustomerClicked($event)"></app-customer-list>
+</div>

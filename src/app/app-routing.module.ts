@@ -10,15 +10,22 @@ import { SideBarComponent } from '@modules/main-menu/side-bar/side-bar.component
 import { MenuBarComponent } from '@modules/main-menu/menu-bar/menu-bar.component';
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
 import { TaxListComponent } from '@modules/taxes/tax-list/tax-list.component';
-import { TaxDeleteComponent } from '@modules/taxes/tax-delete/tax-delete.component';
 import { NotFoundComponent } from './modules/not-found/not-found.component';
+import { CustomersComponent } from './modules/customers/customers.component';
+import { CustomerComponent } from './modules/customers/customer/customer.component';
+import { CustomerListComponent } from './modules/customers/customer-list/customer-list.component';
+import { ProductsComponent } from './modules/products/products.component';
+import { ProductComponent } from './modules/products/product/product.component';
+import { ProductListComponent } from './modules/products/product-list/product-list.component';
 
 const routes: Routes = [
   { 
     path: '', 
     component: MainMenuComponent, canActivate: [AuthGuard],
     children: [
-      { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] }
+      { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] },
+      { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
+      { path: 'products', component: ProductsComponent, canActivate: [AuthGuard] }
       //to send parameters between components
       // { path: 'taxes/:idTax', component: TaxComponent, canActivate: [AuthGuard] }
     ]
@@ -48,8 +55,13 @@ export const routingComponents = [
   TaxesComponent,
   TaxComponent,
   TaxListComponent,
-  TaxDeleteComponent,
   SideBarComponent,
   MenuBarComponent,
-  NotFoundComponent
+  NotFoundComponent,
+  CustomersComponent,
+  CustomerComponent,
+  CustomerListComponent,
+  ProductsComponent,
+  ProductComponent,
+  ProductListComponent
 ]

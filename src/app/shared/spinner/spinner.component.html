@@ -1,0 +1,13 @@
+<div class="spinner-container">
+    <div id="spinner-content">
+        <div class="spinner-border loading" style="width: 6rem; height: 6rem;" role="status">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p class="spinner-message" *ngIf="message && message !== ''">
+            {{message}}
+        </p>
+    </div>
+</div>

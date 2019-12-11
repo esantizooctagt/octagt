@@ -1,0 +1,32 @@
+<app-search placeholder="Search by name"
+(setValue)="filterList($event)"></app-search>
+<select class="list-number" [(ngModel)]="itemsNumber" #listNumber (change)='onChangeNumber(listNumber.value)'>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="5">5</option>
+</select>
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item" *ngFor="let product of products">
+        <div class="card">
+            <div class="card-body"> 
+                <h2>{{ 'Name: ' + product.Name }}</h2>
+                <p class="mb-1">{{ 'Unit Price: ' + product.Unit_Price }}</p>
+                <p class="mb-1">{{ 'Unit Cost: ' + product.Unit_Cost }}</p>
+                <p class="mb-1">{{ 'Qty : ' + product.Qty }}</p>
+                <p class="mb-1">{{ 'Type: ' + product.Type }}</p>
+                <p class="mb-1">{{ 'Img Path: ' + product.Img_Path }}</p>
+                <ul class="items">
+                    <li (click)="onSelect(product)" class="btn btn-primary">Edit</li>
+                    <li (click)="onDelete(product)" class="btn btn-danger">Delete</li>
+                </ul>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<app-pagination
+    [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}"
+    (goToPage)="goToPage($event)">
+</app-pagination>

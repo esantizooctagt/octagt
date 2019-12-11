@@ -19,13 +19,13 @@
             <a href="#" class="bg-dark list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span class="fa fa-tasks fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Customers</span>    
+                    <a [routerLink]="['/customers']" routerLinkActive="menu-active"><span class="menu-collapsed">Customers</span></a>
                 </div>
             </a>
             <a href="#" class="bg-dark list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span class="fa fa-tasks fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Products</span>    
+                    <a [routerLink]="['/products']" routerLinkActive="menu-active"><span class="menu-collapsed">Products</span></a>
                 </div>
             </a>
             <a href="#submenu2" data-toggle="collapse" aria-expanded="false" class="bg-dark list-group-item list-group-item-action flex-column align-items-start">
@@ -98,7 +98,7 @@
             <a href="#" class="bg-dark list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-start align-items-center">
                     <span class="fa fa-question fa-fw mr-3"></span>
-                    <a routerLink="taxes" routerLinkActive="menu-active"><span class="menu-collapsed">Taxes</span></a>
+                    <a [routerLink]="['/taxes']" routerLinkActive="menu-active"><span class="menu-collapsed">Taxes</span></a>
                 </div>
             </a> 
             <li class="list-group-item sidebar-separator menu-collapsed"></li>            

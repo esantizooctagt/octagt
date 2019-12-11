@@ -1,11 +1,10 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '@core/services';
 import { Tax } from '@app/_models';
 import { TaxService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
-import { AlertService  } from "@shared/alert";
-// import { SearchComponent } from '@shared/search/search.component';
-// import { PaginationComponent } from '@shared/pagination/pagination.component';
+import { AlertService } from "@shared/alert";
+import { delay } from 'q';
 
 @Component({
   selector: 'app-tax-list',
@@ -16,48 +15,63 @@ export class TaxListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Tax>();
   public totalRows: number = 0;
-  public itemsNumber: number = 1;
+  public itemsNumber: number = 10;
   public taxes: Tax[] = [];
   public pages: number[];
-  // public page: number = 0;
+  public listView:boolean=false;
+  public onError: string='';
 
   private _currentPage: number = 1;
   private _currentSearchValue: string = '';
 
   companyId: string = '';
-  message:string;
+  message: string;
+  dispLoading: boolean = false;
 
   constructor(
     private authService: AuthService,
     private data: MonitorService,
     private taxService: TaxService,
-    private alertService: AlertService 
+    private alertService: AlertService
   ) { }
 
   ngOnInit() {
-    this.companyId = this.authService.companyId();
-    this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        if (message === 'change') {
-          this.message = message;
-          this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
-        } 
-      });
+    (async () => {
+      this.dispLoading = true;
+      // Do something before delay
+      console.log('before delay')
+      await delay(50);
+      // Do something after
+      console.log('after delay')
+      this.companyId = this.authService.companyId();
+      this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
+      this.data.monitorMessage
+        .subscribe((message: any) => {
+          if (message === 'change') {
+            this.message = message;
+            this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
+          }
+        });
+    })();
   }
-  
-  loadTaxes(crPage, crNumber, crValue){
-    this.taxService.getTaxes(this.companyId, crPage, crNumber, crValue).subscribe((res: any) => {
+
+  loadTaxes(crPage, crNumber, crValue) {
+    this.onError = '';
+    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+
+    this.taxService.getTaxes(data).subscribe((res: any) => {
       if (res != null) {
         this.taxes = res.taxes;
-        this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-        // this.page = res.pagesTotal.page;
+        this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
         this.totalRows = res.pagesTotal.count;
+        this.dispLoading = false;
       }
     },
-    error => {
-      this.alertService.error('Error ! ' + error);
-    });
+      error => {
+        // this.alertService.error('Error ! ' + error.Message);
+        this.onError = error.Message;
+        this.dispLoading = false;
+      });
   }
 
   public filterList(searchParam: string): void {
@@ -69,16 +83,16 @@ export class TaxListComponent implements OnInit {
     );
   }
 
-  onSelect(tax: Tax){
+  onSelect(tax: Tax) {
     this.childEvent.emit(tax);
     //to send parameters between components
     // this.router.navigate(['/taxes', tax.Tax_Id]);
   }
 
-  onDelete(tax: Tax){
+  onDelete(tax: Tax) {
     let tokenValue = this.authService.currentToken();
     this.taxService.deleteTax(tax.Tax_Id, tokenValue).subscribe(
-      response =>  {
+      response => {
         this.loadTaxes(
           this._currentPage,
           this.itemsNumber,
@@ -99,8 +113,12 @@ export class TaxListComponent implements OnInit {
       this._currentSearchValue
     );
   }
-  
-  public onChangeNumber(elements: number){
+
+  public setView(value){
+    this.listView = value;
+  }
+
+  public onChangeNumber(elements: number) {
     this.itemsNumber = elements;
     this._currentPage = 1;
     this.loadTaxes(

@@ -6,6 +6,7 @@ import { AuthService } from '@core/services';
 import { Router } from '@angular/router';
 import { MonitorService } from "@shared/monitor.service";
 import { AlertService  } from "@shared/alert";
+// import { decimalValueValidator } from "@app/validators";
 
 // to send parameters between components
 // import { ActivatedRoute } from '@angular/router';
@@ -22,6 +23,10 @@ export class TaxComponent implements OnInit {
 
   get Name(){
     return this.taxForm.get('Name');
+  }
+
+  get Percentage(){
+    return this.taxForm.get('Percentage');
   }
 
   message: string='';
@@ -44,13 +49,12 @@ export class TaxComponent implements OnInit {
 
   taxForm = this.fb.group({
     Tax_Id: [''],
-    Company_Id: [''],
+    CompanyId: [''],
     Name: ['', [Validators.required, Validators.minLength(3)]],
-    Percentage: [''],
-    Include_Tax: [false],
+    Percentage: ['', [Validators.required, Validators.max(99.90), Validators.min(0.01), Validators.maxLength(5)]],
+    Include_Tax: [0],
     Status: [0]
   })
-  // this.taxForm.get('Status') ? 1:0
   
   ngOnInit() {    
     this.companyId = this.authService.companyId();  
@@ -74,7 +78,7 @@ export class TaxComponent implements OnInit {
       .subscribe((message: any) => {
         this.message = message;
       });
-      this.onValueChanges();
+    this.onValueChanges();
   }
 
   onValueChanges(): void {
@@ -85,6 +89,12 @@ export class TaxComponent implements OnInit {
       if (val.Status === false){
         this.taxForm.controls["Status"].setValue(0);
       }
+      if (val.Include_Tax === true) {
+        this.taxForm.controls["Include_Tax"].setValue(1);
+      }
+      if (val.Include_Tax === false) {
+        this.taxForm.controls["Include_Tax"].setValue(0);
+      }
     })
   }
 
@@ -92,14 +102,19 @@ export class TaxComponent implements OnInit {
     // changes.prop contains the old and the new value...
     if (changes.tax.currentValue != undefined) {
       let taxResult = changes.tax.currentValue;
-      this.taxForm.setValue({
-        Tax_Id: taxResult.Tax_Id,
-        Name: taxResult.Name,
-        Company_Id: taxResult.Company_Id,
-        Percentage: taxResult.Percentage,
-        Include_Tax: taxResult.Include_Tax,
-        Status: taxResult.Status
-      });
+      let tokenValue = this.authService.currentToken();
+      this.taxService.getTax(taxResult.Tax_Id, tokenValue).subscribe((res: any) => {
+        if (res != null) {
+          this.taxForm.setValue({
+            Tax_Id: res.Tax_Id,
+            Name: res.Name,
+            CompanyId: res.Company_Id,
+            Percentage: res.Percentage,
+            Include_Tax: res.Include_Tax,
+            Status: res.Status
+          });  
+        }
+      })
     }
   }
 
@@ -108,32 +123,40 @@ export class TaxComponent implements OnInit {
     let tokenValue = this.authService.currentToken();
     this.submitted = true;
     if (taxId !== '' && taxId !== null) {  
+      let perc = +this.taxForm.value.Percentage;
+      this.taxForm.controls["Percentage"].setValue(perc);
       let dataForm = this.taxForm.value;
       delete dataForm.Tax_Id; 
-      delete dataForm.Company_Id;
+      delete dataForm.CompanyId;
       this.taxService.updateTax(taxId, tokenValue, dataForm)
         .subscribe(
           response =>  {
             this.submitted = false;
             this.taxForm.reset({Include_Tax:false, Status:0});
             this.data.changeData('change');
-            this.alertService.success('Tax created successful');
+            setTimeout( () => {
+              this.alertService.success('Tax created successful');
+            }, 2000);
           },
           error => { 
             this.alertService.error('Error ! ' + error);
           }
         );
     } else {
+      let perc = +this.taxForm.value.Percentage;
+      this.taxForm.controls["Percentage"].setValue(perc);
       let dataForm = this.taxForm.value;
       delete dataForm.Tax_Id;
-      dataForm.Company_Id = this.companyId;
+      dataForm.CompanyId = this.companyId;
       this.taxService.postTax(tokenValue, dataForm)
         .subscribe(
           response => {
             this.submitted = false;
             this.taxForm.reset({Include_Tax:false, Status:0});
             this.data.changeData('change');
-            this.alertService.success('Tax updated successful');
+            setTimeout( () => {
+              this.alertService.success('Tax updated successful');
+            }, 2000);
           },
           error => { 
             this.alertService.error('Error ! ' + error);
@@ -147,4 +170,20 @@ export class TaxComponent implements OnInit {
     this.taxForm.reset({Include_Tax:false, Status:0});
     this.data.changeData('change');
   }
+
+  // allow only digits and dot
+  onKeyPress(event, value): boolean { 
+    const charCode = (event.which) ? event.which : event.keyCode;
+    let perc: string = value.toString();
+    var count = (perc.match(/[.]/g) || []).length;
+    if (count  == 1) {
+      if (charCode == 46) return false;
+    }
+    if (charCode == 46) return true;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      return false;
+    }
+    return true;
+  }
+
 }

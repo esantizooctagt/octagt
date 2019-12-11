@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -16,7 +16,18 @@ export class ErrorInterceptor implements HttpInterceptor {
                 this.authService.logout();
                 location.reload(true);
             }
-            const error = err.error.message || err.statusText;
+            let message = err.error.message || err.statusText;
+            if (err.status === 404) {
+                message = err.error.Message;
+                // console.log('Error interceptor before throw' + err.message);
+                // console.log(JSON.stringify(next));
+                // error = "No mames pinche buey";
+            }
+            let error = {  
+                'Message': message,
+                'Status' : err.status
+            };
+            //console.log('Variable:'+JSON.stringify(err.error.Message));
             return throwError(error);
         }))
     }

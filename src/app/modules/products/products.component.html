@@ -1,0 +1,5 @@
+<div class="container-fluid">
+    <app-product [product]="clickedProduct"></app-product>
+    <app-alert></app-alert>
+    <app-product-list (childEvent)="childProductClicked($event)"></app-product-list>
+</div>
