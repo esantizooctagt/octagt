@@ -1,0 +1,30 @@
+.container-dropdown{
+    /* position: absolute; */
+    z-index: 1;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #f6f6f6;
+}
+.list-dropdown{
+    padding: 10px;
+    color: navy;
+}
+.list-dropdown:hover{
+    background:#c2c2c2;
+    cursor: pointer;
+}
+.form-typeahead{
+    width: 100%;
+}
+.input-dropdown{
+    width: 100%;
+}
+/* .ng-invalid:not(form)  {
+    border: 1px solid #dc3545;
+    border-color: #dc3545;
+    padding-right: calc(1.5em + .75rem);
+    background-repeat: no-repeat;
+    background-position: center right calc(.375em + .1875rem);
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+} */

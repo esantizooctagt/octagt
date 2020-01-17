@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { Tax } from '@app/_models';
@@ -18,23 +18,23 @@ export class TaxService {
                       .pipe(catchError(this.errorHandler));
     }
   
-    getTax(taxId, token): Observable<Tax> {
-      return this.http.get<Tax>(this.apiURL + '/tax/' + taxId, { headers: new HttpHeaders().set('Authorization', token) })
+    getTax(taxId): Observable<Tax> {
+      return this.http.get<Tax>(this.apiURL + '/tax/' + taxId)//, { headers: new HttpHeaders().set('Authorization', token) })
                       .pipe(catchError(this.errorHandler));
     }
   
-    postTax(token, formData) {
-        return this.http.post(this.apiURL + '/tax', formData, { headers: new HttpHeaders().set('Authorization', token) })
+    postTax(formData) {
+        return this.http.post(this.apiURL + '/tax', formData)
                         .pipe(catchError(this.errorHandler));
     }
 
-    updateTax(taxId, token, formData) {
-      return this.http.patch(this.apiURL + '/tax/'  + taxId, formData, { headers: new HttpHeaders().set('Authorization', token) })
+    updateTax(taxId, formData) {
+      return this.http.patch(this.apiURL + '/tax/'  + taxId, formData)
                       .pipe(catchError(this.errorHandler));
     }
   
-    deleteTax(taxId, token) {
-      return this.http.delete(this.apiURL + '/tax/' + taxId, { headers: new HttpHeaders().set('Authorization', token) })
+    deleteTax(taxId) {
+      return this.http.delete(this.apiURL + '/tax/' + taxId)
                       .pipe(catchError(this.errorHandler));
     }
 

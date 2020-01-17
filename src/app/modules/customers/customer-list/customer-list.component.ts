@@ -4,25 +4,32 @@ import { Customer } from '@app/_models';
 import { CustomerService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { AlertService  } from "@shared/alert";
+import { delay } from 'q';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-customer-list',
   templateUrl: './customer-list.component.html',
-  styleUrls: ['./customer-list.component.css']
+  styleUrls: ['./customer-list.component.scss']
 })
 export class CustomerListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Customer>();
   public totalRows: number = 0;
-  public itemsNumber: number = 1;
+  public itemsNumber: number = 10;
   public customers: Customer[] = [];
   public pages: number[];
+  public listView:boolean=false;
+  public onError: string='';
 
   private _currentPage: number = 1;
   private _currentSearchValue: string = '';
 
   companyId: string = '';
   message:string;
+  loading = false;
+  spinner: string = '';
+  dispLoading: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -32,27 +39,40 @@ export class CustomerListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.companyId = this.authService.companyId();
-    this.loadCustomers(this._currentPage, this.itemsNumber, this._currentSearchValue);
-    this.data.monitorMessage
+    (async () => {
+      this.dispLoading = true;
+      // Do something before delay
+      console.log('before delay')
+      await delay(50);
+      // Do something after
+      console.log('after delay')
+      this.companyId = this.authService.companyId();
+      this.loadCustomers(this._currentPage, this.itemsNumber, this._currentSearchValue);
+      this.data.monitorMessage
         .subscribe((message: any) => {
-          if (message === 'change') {
+          if (message === 'customers') {
             this.message = message;
             this.loadCustomers(this._currentPage, this.itemsNumber, this._currentSearchValue);
-          } 
+          }
         });
+    })();
   }
   
   loadCustomers(crPage, crNumber, crValue){
-    this.customerService.getCustomers(this.companyId, crPage, crNumber, crValue).subscribe((res: any) => {
+    this.onError = '';
+    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+
+    this.customerService.getCustomers(data).subscribe((res: any) => {
       if (res != null) {
         this.customers = res.customers;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
         this.totalRows = res.pagesTotal.count;
+        this.dispLoading = false;
       }
     },
     error => {
-      this.alertService.error('Error ! ' + error);
+      this.onError = error.Message;
+      this.dispLoading = false;
     });
   }
 
@@ -66,22 +86,32 @@ export class CustomerListComponent implements OnInit {
   }
 
   onSelect(customer: Customer){
+    this.spinner = 'spin_sel_'+customer.Customer_Id;
+    this.loading = true;
     this.childEvent.emit(customer);
+    this.loading = false;
+    this.spinner = '';
+    window.scroll(0,0);
   }
 
   onDelete(customer: Customer){
-    let tokenValue = this.authService.currentToken();
-    this.customerService.deleteCustomer(customer.Customer_Id, tokenValue).subscribe(
+    this.spinner = 'spin_del_'+customer.Customer_Id;
+    this.loading = true;
+    this.customerService.deleteCustomer(customer.Customer_Id).subscribe(
       response =>  {
         this.loadCustomers(
           this._currentPage,
           this.itemsNumber,
           this._currentSearchValue
         );
-        this.alertService.success('Customer deleted successful');
+        this.loading = false;
+        this.spinner = '';
+        this.alertService.success('Product deleted successful');
       },
       error => {
-        this.alertService.error('Error ! ' + error);
+        this.loading = false;
+        this.spinner = '';
+        this.alertService.error('Error ! ' + error.Message);
       });
   }
 
@@ -94,6 +124,10 @@ export class CustomerListComponent implements OnInit {
     );
   }
   
+  public setView(value){
+    this.listView = value;
+  }
+  
   public onChangeNumber(elements: number){
     this.itemsNumber = elements;
     this._currentPage = 1;
@@ -104,4 +138,7 @@ export class CustomerListComponent implements OnInit {
     );
   }
 
+  trackById(index: number, item: Customer) {
+    return item.Customer_Id;
+  }
 }

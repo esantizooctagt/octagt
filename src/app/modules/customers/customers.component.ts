@@ -4,7 +4,7 @@ import { Customer } from '@app/_models';
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
-  styleUrls: ['./customers.component.css']
+  styleUrls: ['./customers.component.scss']
 })
 export class CustomersComponent implements OnInit {
 

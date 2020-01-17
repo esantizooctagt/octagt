@@ -52,6 +52,11 @@ export class AuthService {
         return user.Company_Id;
     }
 
+    userId(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.User_Id;
+    }
+
     currentToken() {
         return this.currentUserTknSubject.value;
     }

@@ -1,12 +1,11 @@
 import { Component, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-// import { delay } from 'q';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
-  styleUrls: ['./search.component.css']
+  styleUrls: ['./search.component.scss']
 })
 export class SearchComponent implements OnDestroy {
   @Input() readonly placeholder: string = '';
@@ -45,11 +44,17 @@ export class SearchComponent implements OnDestroy {
   }
 
   public updateSearchUp(event, searchTextValue: string) {
-    if (event.key == "Enter") { 
+    // if (searchTextValue.length >= 3){
       this.loading = true;
+      debounceTime(500);
       this._searchSubject.next( searchTextValue );
       this.loading = false;
-    }
+    // }
+    // if (searchTextValue.length <= 3 && event.key == "Enter"){
+    //   this.loading = true;
+    //   this._searchSubject.next( searchTextValue );
+    //   this.loading = false;
+    // }
   }
 
   public onChangeNumber(num: number) {

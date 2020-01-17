@@ -11,7 +11,7 @@
     </div>
     <div class="form-group">
         <label>Percentage</label>
-        <input type="text" formControlName="Percentage" class="form-control" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,2}\.[0-9]{0,2}$" [class.is-invalid]="Percentage.invalid && 
+        <input type="text" formControlName="Percentage" class="form-control" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,2}\.?[0-9]{0,2}$" [class.is-invalid]="Percentage.invalid && 
                                                                                                 Percentage.touched">
         <div *ngIf="Percentage.invalid && Percentage.touched">
             <small *ngIf="Percentage.errors?.required" class="text-danger">Percentage invalid value</small>
@@ -22,15 +22,20 @@
     </div>
     <div class="form-check">
         <input type="checkbox" formControlName="Include_Tax" value="" class="form-check-input">
-        <label class="form-check-label">
-            Base Price Include Taxes
-        </label>
+        <label class="form-check-label" for="Include_Tax">Base Price Include Taxes</label>
     </div>
-    <div class="form-group">
+    <div class="form-check" *ngIf="country=='DEU'">
+        <input type="checkbox" formControlName="To_Go" value="" class="form-check-input">
+        <label class="form-check-label" for="To_Go">To Go</label>
+    </div>
+    <div class="form-check" *ngIf="taxForm.value.TaxId !== '' && taxForm.value.TaxId !== null">
         <input type="checkbox" formControlName="Status" value="" class="form-check-input" name="Status">  
-        <label>Status</label>
+        <label class="form-check-label" for="Status">Status</label>
     </div>
-    <input type="submit" id="save" value="Save" class="btn btn-primary" [disabled]="!taxForm.valid">
+    <button type="submit" id="save" class="btn btn-primary" [disabled]="!taxForm.valid">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+            Save
+    </button>
     <input type="button" id="cancel" value="Cancel" class="btn btn-danger" (click)="onCancel()">
     {{ taxForm.value | json }}
 </form>

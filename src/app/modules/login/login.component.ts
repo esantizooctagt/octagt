@@ -8,7 +8,7 @@ import { AuthService } from '@core/services';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
               this.router.navigate([this.returnUrl]);
           },
           error => {
-              this.error = error;
+              this.error = error.Message;
               this.loading = false;
           });
   }

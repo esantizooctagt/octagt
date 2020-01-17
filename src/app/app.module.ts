@@ -6,12 +6,10 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // services
-import { InterceptorService } from '@core/services/interceptor.service';
-// import { UserService } from '@modules/authentication/services/user.service';
-// import { TaxService } from '@app/services';
+import { NgxImageCompressService } from 'ngx-image-compress';
 
-// helpers
-import { JwtInterceptor, ErrorInterceptor } from '@app/core/interceptors';
+// helpers interceptors jwt, errors, cache
+import { JwtInterceptor, ErrorInterceptor, CacheInterceptor } from '@app/core/interceptors';
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,7 +17,17 @@ import { AlertComponent } from '@shared/alert/alert.component';
 import { SearchComponent } from '@shared/search/search.component';
 import { PaginationComponent } from '@shared/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/spinner/spinner.component';
+import { CropperComponent } from '@shared/cropper/cropper.component';
+import { TypeaheadComponent } from '@shared/typeahead/typeahead.component';
+
+// Directives
 import { AppSpinnerDirective } from '@shared/app-spinner.directive';
+import { ClickOutsideDirective } from '@shared/clickoutside.directive';
+
+// Custom Pipes
+import { SearchFilterPipe } from '@shared/filterpipe';
+import { FindrecordComponent } from '@shared/findrecord/findrecord.component';
+import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +37,13 @@ import { AppSpinnerDirective } from '@shared/app-spinner.directive';
     SearchComponent,
     PaginationComponent,
     SpinnerComponent,
-    AppSpinnerDirective
+    AppSpinnerDirective,
+    CropperComponent,
+    TypeaheadComponent,
+    ClickOutsideDirective,
+    SearchFilterPipe,
+    FindrecordComponent,
+    CustomerbasicComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +54,8 @@ import { AppSpinnerDirective } from '@shared/app-spinner.directive';
     FormsModule
   ],
   providers: [
-        InterceptorService,
+        NgxImageCompressService,
+        // { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],

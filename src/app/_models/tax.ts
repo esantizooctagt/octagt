@@ -5,6 +5,7 @@ export class Tax {
         public Name: string,
         public Percentage: number,
         public Include_Tax: boolean,
+        public To_Go: boolean,
         public Status: Number
     ){}
 }

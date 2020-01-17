@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { Customer } from '@app/_models';
@@ -10,36 +10,35 @@ import { throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class CustomerService {
-
-  readonly apiURL = environment.apiUrl;
+    readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
 
-    getCustomers(companyId, page, perPage, search): Observable<Customer[]> {
-      return this.http.get<Customer[]>(this.apiURL + '/customers/' + companyId + '/' + page + '/' + perPage + (search != '' ? '/' + search : ''))
+    getCustomers(formData): Observable<Customer[]> {
+      return this.http.get<Customer[]>(this.apiURL + '/customers?' + formData)
                       .pipe(catchError(this.errorHandler));
     }
 
-    getCustomer(customerId, token): Observable<Customer> {
-      return this.http.get<Customer>(this.apiURL + '/customers/' + customerId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+    getCustomer(customerId): Observable<Customer> {
+      return this.http.get<Customer>(this.apiURL + '/customer/' + customerId)
                       .pipe(catchError(this.errorHandler));
     }
 
-    postCustomer(token, formData) {
-        return this.http.post(this.apiURL + '/customers', formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+    postCustomer(formData) {
+        return this.http.post(this.apiURL + '/customer', formData)
                         .pipe(catchError(this.errorHandler));
     }
 
-    updateCustomer(customerId, token, formData) {
-      return this.http.patch(this.apiURL + '/customers/'  + customerId, formData, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+    updateCustomer(customerId, formData) {
+      return this.http.patch(this.apiURL + '/customer/'  + customerId, formData)
                       .pipe(catchError(this.errorHandler));
     }
 
-    deleteCustomer(customerId, token) {
-      return this.http.delete(this.apiURL + '/customers/' + customerId, { headers: new HttpHeaders().set('Authorization', 'Bearer ' + token) })
+    deleteCustomer(customerId) {
+      return this.http.delete(this.apiURL + '/customer/' + customerId)
                       .pipe(catchError(this.errorHandler));
     }
 
-    errorHandler(error: HttpErrorResponse){
-      return throwError(error.message || 'Server Error');
+    errorHandler(error){
+      return throwError(error || 'Server Error');
     }
 }

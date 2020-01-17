@@ -9,7 +9,7 @@ import { delay } from 'q';
 @Component({
   selector: 'app-tax-list',
   templateUrl: './tax-list.component.html',
-  styleUrls: ['./tax-list.component.css']
+  styleUrls: ['./tax-list.component.scss']
 })
 export class TaxListComponent implements OnInit {
 
@@ -27,6 +27,8 @@ export class TaxListComponent implements OnInit {
   companyId: string = '';
   message: string;
   dispLoading: boolean = false;
+  loading = false;
+  spinner = '';
 
   constructor(
     private authService: AuthService,
@@ -47,7 +49,7 @@ export class TaxListComponent implements OnInit {
       this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
       this.data.monitorMessage
         .subscribe((message: any) => {
-          if (message === 'change') {
+          if (message === 'taxes') {
             this.message = message;
             this.loadTaxes(this._currentPage, this.itemsNumber, this._currentSearchValue);
           }
@@ -84,24 +86,34 @@ export class TaxListComponent implements OnInit {
   }
 
   onSelect(tax: Tax) {
+    this.spinner = 'spin_sel_'+tax.Tax_Id;
+    this.loading = true;
     this.childEvent.emit(tax);
+    this.loading = false;
+    this.spinner = '';
+    window.scroll(0,0);
     //to send parameters between components
     // this.router.navigate(['/taxes', tax.Tax_Id]);
   }
 
   onDelete(tax: Tax) {
-    let tokenValue = this.authService.currentToken();
-    this.taxService.deleteTax(tax.Tax_Id, tokenValue).subscribe(
+    this.spinner = 'spin_del_'+tax.Tax_Id;
+    this.loading = true;
+    this.taxService.deleteTax(tax.Tax_Id).subscribe(
       response => {
         this.loadTaxes(
           this._currentPage,
           this.itemsNumber,
           this._currentSearchValue
         );
+        this.loading = false;
+        this.spinner = '';
         this.alertService.success('Tax deleted successful');
       },
       error => {
-        this.alertService.error('Error ! ' + error);
+        this.loading = false;
+        this.spinner = '';
+        this.alertService.error('Error ! ' + error.Message);
       });
   }
 
@@ -126,5 +138,9 @@ export class TaxListComponent implements OnInit {
       this.itemsNumber,
       this._currentSearchValue
     );
+  }
+
+  trackById(index: number, item: Tax) {
+    return item.Tax_Id;
   }
 }

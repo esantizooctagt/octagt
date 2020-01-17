@@ -1,1 +1,1 @@
-export * from './decimal-validator';
+export * from './arrayvalidators';

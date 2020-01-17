@@ -1,0 +1,18 @@
+<form [formGroup]="frmSearch">
+    <div class="form-typeahead">
+        <input id="searchList" placeholder="Search" clickOutside (clickOutside)="verifyDropDown()" (blur)="onBlur()"
+            (keydown)="onKeydown($event)" (click)="toggleDropDownValue()" formControlName="searchList"
+            class="form-control" [class.is-invalid]="fDropDown.searchList.invalid && fDropDown.searchList.touched" />
+        <div clickOutside (clickOutside)="toggleDropDown()" *ngIf="showDropDown" class="container-dropdown">
+            <div *ngFor="let list of dataSource | searchFilter:getSearchValue()" (click)="selectValue(list.n, list.c)"
+                class="list-dropdown">{{list.n}}</div>
+        </div>
+        <!-- <div>{{ frmSearch.get('searchList').errors | json }}</div> -->
+        <div *ngIf="fDropDown.searchList.invalid && fDropDown.searchList.touched">
+            <small *ngIf="fDropDown.searchList.errors?.required" class="text-danger">{{ dropDownName }} is
+                required</small>
+            <small *ngIf="fDropDown.searchList.errors?.invalid" class="text-danger">{{ dropDownName }} selected is not
+                valid</small>
+        </div>
+    </div>
+</form>

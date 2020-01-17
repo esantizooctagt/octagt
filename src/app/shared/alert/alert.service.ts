@@ -34,7 +34,7 @@ export class AlertService {
 
   // convenience methods
   success(message: string, alertId?: string) {
-      this.alert(new Alert({ message, type: AlertType.Success, alertId }));
+    this.alert(new Alert({ message, type: AlertType.Success, alertId }));
   }
 
   error(message: string, alertId?: string) {

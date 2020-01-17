@@ -4,7 +4,7 @@ import { Tax } from '@app/_models';
 @Component({
   selector: 'app-taxes',
   templateUrl: './taxes.component.html',
-  styleUrls: ['./taxes.component.css']
+  styleUrls: ['./taxes.component.scss']
 })
 export class TaxesComponent implements OnInit {
 
@@ -12,7 +12,6 @@ export class TaxesComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    
   }
 
   childTaxClicked(tax: Tax) {

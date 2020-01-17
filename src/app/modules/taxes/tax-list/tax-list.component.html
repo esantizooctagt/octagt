@@ -8,13 +8,19 @@
 <span>Results: {{totalRows}}</span>
 <div class="list-cards" *ngIf="listView" style="height: 600px; overflow-y:scroll;">
     <ul class="list-group list-group-flush" *ngIf="onError==''">
-        <li class="list-group-item" *ngFor="let tax of taxes">
+        <li class="list-group-item" *ngFor="let tax of taxes; trackBy: trackById">
             <h2>{{ 'Name: ' + tax.Name }}</h2>
             <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-            <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
+            <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
             <ul class="items">
-                <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
-                <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+                <button (click)="onSelect(tax)" class="btn btn-primary">
+                    <span id="{{'spin_sel_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_sel_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
+                    Edit
+                </button>
+                <button (click)="onDelete(tax)" class="btn btn-danger">
+                    <span id="{{'spin_del_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_del_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
+                    Delete
+                </button>
             </ul>
         </li>
     </ul>
@@ -24,14 +30,20 @@
 </div>
 <div class="grid-cards" *ngIf="!listView" style="height: 600px; overflow-y:scroll;">
     <div class="card-columns" *ngIf="onError==''">
-        <div class="card" *ngFor="let tax of taxes">
+        <div class="card" *ngFor="let tax of taxes; trackBy: trackById">
             <div class="card-body">
                 <h2>{{ 'Name: ' + tax.Name }}</h2>
                 <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-                <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === false ? 'No' : 'Si') }}</p>
+                <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
                 <ul class="items">
-                    <li (click)="onSelect(tax)" class="btn btn-primary">Edit</li>
-                    <li (click)="onDelete(tax)" class="btn btn-danger">Delete</li>
+                    <button (click)="onSelect(tax)" class="btn btn-primary">
+                        <span id="{{'spin_sel_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_sel_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
+                        Edit
+                    </button>
+                    <button (click)="onDelete(tax)" class="btn btn-danger">
+                        <span id="{{'spin_del_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_del_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
+                        Delete
+                    </button>
                 </ul>
             </div>
         </div>

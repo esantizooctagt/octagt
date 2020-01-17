@@ -1,0 +1,34 @@
+<form [formGroup]="customerBasicForm" *ngIf="!customerValue">
+    <div class="form-group">
+        <label>Name</label>
+        <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="fCustomer.Name.invalid 
+                                                                                        && fCustomer.Name.touched">
+        <div *ngIf="fCustomer.Name.invalid && fCustomer.Name.touched">
+            <small *ngIf="fCustomer.Name.errors?.required" class="text-danger">Name is required</small>
+            <small *ngIf="fCustomer.Name.errors?.minlength" class="text-danger">Minimun length 3</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Tax Number</label>
+        <input type="text" formControlName="Tax_Number" class="form-control" [class.is-invalid]="fCustomer.Tax_Number.invalid 
+                                                                                                && fCustomer.Tax_Number.touched">
+        <div *ngIf="fCustomer.Tax_Number.invalid && fCustomer.Tax_Number.touched">
+            <small *ngIf="fCustomer.Tax_Number.errors?.required" class="text-danger">Name is required</small>
+            <small *ngIf="fCustomer.Tax_Number.errors?.minlength" class="text-danger">Minimun length 2</small>
+        </div>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" formControlName="Is_Exent" value="" class="form-check-input" id="Is_Exent">
+        <label class="form-check-label" for="Is_Exent">Is Exent</label>
+    </div>
+    <div class="form-group" *ngIf="customerBasicForm.value.Is_Exent">
+        <label>Reason</label>
+        <input type="text" formControlName="Reason" class="form-control" [class.is-invalid]="fCustomer.Reason.invalid 
+                                                                                            && fCustomer.Reason.touched">
+        <div *ngIf="fCustomer.Reason.invalid && fCustomer.Reason.touched">
+            <small *ngIf="fCustomer.Reason.errors?.required" class="text-danger">Reason is required</small>
+            <small *ngIf="fCustomer.Reason.errors?.minlength" class="text-danger">Minimun length 3</small>
+        </div>
+    </div>
+    {{ customerBasicForm.value | json }}
+</form>    

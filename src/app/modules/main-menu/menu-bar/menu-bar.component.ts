@@ -7,7 +7,7 @@ import { UserService } from '@modules/authentication/services';
 @Component({
   selector: 'app-menu-bar',
   templateUrl: './menu-bar.component.html',
-  styleUrls: ['./menu-bar.component.css']
+  styleUrls: ['./menu-bar.component.scss']
 })
 export class MenuBarComponent implements OnInit {
   @Input() currentUser: User;
