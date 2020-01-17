@@ -1,0 +1,92 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+$md-navy: (
+    50 : #e1e7ec,
+    100 : #b5c3d0,
+    200 : #839bb1,
+    300 : #517392,
+    400 : #2c557a,
+    500 : #073763,
+    600 : #06315b,
+    700 : #052a51,
+    800 : #042347,
+    900 : #021635,
+    A100 : #6d97ff,
+    A200 : #3a73ff,
+    A400 : #074fff,
+    A700 : #0044ec,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #ffffff,
+        400 : #ffffff,
+        500 : #ffffff,
+        600 : #ffffff,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #ffffff,
+        A400 : #ffffff,
+        A700 : #ffffff,
+    )
+);
+
+$md-yell: (
+    50 : #fef8e7,
+    100 : #fceec4,
+    200 : #fbe39d,
+    300 : #f9d875,
+    400 : #f7cf58,
+    500 : #f6c73a,
+    600 : #f5c134,
+    700 : #f3ba2c,
+    800 : #f2b325,
+    900 : #efa618,
+    A100 : #ffffff,
+    A200 : #fff9ee,
+    A400 : #ffe6bb,
+    A700 : #ffdda1,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #000000,
+        800 : #000000,
+        900 : #000000,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$octagt-primary: mat-palette($md-navy);
+$octagt-accent: mat-palette($md-yell, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$octagt-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$octagt-theme: mat-light-theme($octagt-primary, $octagt-accent, $octagt-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($octagt-theme);
