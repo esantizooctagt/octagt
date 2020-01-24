@@ -1,0 +1,21 @@
+.values-right-align {
+    text-align: right;
+}
+input.values-right-align::-webkit-outer-spin-button,
+input.values-right-align::-webkit-inner-spin-button {
+    display: none;
+}
+input.values-right-align {
+    -moz-appearance: textfield;
+}
+.autocomplete-list{
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+.autocomplete-item{
+    flex-grow: 1;
+    flex: 1 1 33%;
+}

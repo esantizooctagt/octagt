@@ -1,41 +1,32 @@
-<h1>Taxes</h1>
+<h2>Taxes</h2>
 <form [formGroup]="taxForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-        <label>Name</label>
-        <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="Name.invalid &&
-                                                                                            Name.touched">
-        <div *ngIf="Name.invalid && Name.touched">
-            <small *ngIf="Name.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="Name.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinTax" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Tax...</mat-label>
     </div>
-    <div class="form-group">
-        <label>Percentage</label>
-        <input type="text" formControlName="Percentage" class="form-control" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,2}\.?[0-9]{0,2}$" [class.is-invalid]="Percentage.invalid && 
-                                                                                                Percentage.touched">
-        <div *ngIf="Percentage.invalid && Percentage.touched">
-            <small *ngIf="Percentage.errors?.required" class="text-danger">Percentage invalid value</small>
-            <small *ngIf="Percentage.errors?.pattern" class="text-danger">Incorrect value</small>
-            <small *ngIf="Percentage.errors?.min" class="text-danger">Minimun value is 0.01</small>
-            <small *ngIf="Percentage.errors?.max" class="text-danger">Maximun value is 99.90</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Name placeholder="Name" maxlength="50" formControlName="Name" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{Name.value?.length || 0}}/50</mat-hint>
+            <mat-error *ngIf="Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-check">
-        <input type="checkbox" formControlName="Include_Tax" value="" class="form-check-input">
-        <label class="form-check-label" for="Include_Tax">Base Price Include Taxes</label>
+    <div class="form-field">
+        <mat-form-field hintLabel="Only decimal values">
+            <input matInput placeholder="Percentage" min="0.01" max="99.90" type="number" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,2}\.?[0-9]{0,2}$" [errorStateMatcher]="confirmValidParentMatcher" formControlName="Percentage" class="values-right-align" required>
+            <mat-error *ngIf="Percentage.invalid">{{getErrorMessage('Percentage')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-check" *ngIf="country=='DEU'">
-        <input type="checkbox" formControlName="To_Go" value="" class="form-check-input">
-        <label class="form-check-label" for="To_Go">To Go</label>
+    <div class="form-field-check">
+        <mat-checkbox formControlName="Include_Tax">Price Include Taxes</mat-checkbox>
     </div>
-    <div class="form-check" *ngIf="taxForm.value.TaxId !== '' && taxForm.value.TaxId !== null">
-        <input type="checkbox" formControlName="Status" value="" class="form-check-input" name="Status">  
-        <label class="form-check-label" for="Status">Status</label>
+    <div class="form-field-check" *ngIf="country=='DEU'">
+        <mat-checkbox formControlName="To_Go">To Go</mat-checkbox>
     </div>
-    <button type="submit" id="save" class="btn btn-primary" [disabled]="!taxForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-            Save
-    </button>
-    <input type="button" id="cancel" value="Cancel" class="btn btn-danger" (click)="onCancel()">
-    {{ taxForm.value | json }}
+    <div class="form-field-check" *ngIf="taxForm.value.TaxId !== '' && taxForm.value.TaxId !== null">
+        <mat-checkbox formControlName="Status">Status</mat-checkbox>
+    </div>
+    <button mat-flat-button color="primary" id="save" [disabled]="!taxForm.valid" class="mr-3 mt-2">Save</button>
+    <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+    <!-- {{ taxForm.value | json }} -->
 </form>

@@ -1,6 +1,13 @@
 import { Component, OnInit, forwardRef, OnDestroy } from '@angular/core';
-import { FormBuilder, Validators, FormControl, NG_VALUE_ACCESSOR, NG_VALIDATORS, ControlValueAccessor, AbstractControl, ValidationErrors, FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { FormBuilder, Validators, FormControl, NG_VALUE_ACCESSOR, NG_VALIDATORS, ControlValueAccessor, FormGroup } from '@angular/forms';
+import { Subscription, Observable } from 'rxjs';
+import { Generic, Customers, CustomerList } from '@app/_models';
+import { ConfirmValidParentMatcher } from '@app/validators';
+import { debounceTime, tap, switchMap, finalize, map, catchError, filter } from 'rxjs/operators';
+import { CustomerService } from "@app/services";
+import { AuthService } from '@core/services';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-customerbasic',
@@ -21,18 +28,29 @@ import { Subscription } from 'rxjs';
 export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnDestroy {
   customerBasicForm: FormGroup;
   subscriptions: Subscription[] = [];
-
+  filteredCustomers: Customers[] = [];
+  blankList: CustomerList[];
+  companyId: string = '';
+  isLoading: boolean=false;
+  
   get fCustomer(){
     return this.customerBasicForm.controls;
   }
 
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+  
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private customerService: CustomerService,
+    private dialog: MatDialog
   ) {
     this.customerBasicForm = this.fb.group({
       Customer_Id: [''],
-      Name: ['', [Validators.required, Validators.minLength(3)]],
-      Tax_Number: ['', [Validators.required, Validators.minLength(2)]],
+      Name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
+      Address: ['', [Validators.minLength(3), Validators.maxLength(500)]],
+      State: ['', [Validators.maxLength(100), Validators.minLength(2)]],
+      Tax_Number: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       Is_Exent:[0],
       Reason: [''],
       Status: [1]
@@ -45,10 +63,134 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
         this.onTouched();
       })
     );
-   }
+  }
+
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
 
   ngOnInit() {
+    this.companyId = this.authService.companyId();  
     this.onValueChanges();
+    this.customerBasicForm.get('Name').valueChanges
+      .pipe(
+        debounceTime(500),
+        filter(customer => typeof customer === 'string' && customer != ''),
+        tap(() => this.isLoading = true),
+        switchMap(customer =>  
+          this.customerService.getCustomers("companyId=" + this.companyId + "&currPage=1&perPage=5&searchValue=" + customer)
+            .pipe(
+              finalize(() => this.isLoading = false),
+              catchError(error => {
+                if (error.Status === 404) {
+                  this.customerBasicForm.patchValue({
+                    'Customer_Id': '',
+                    'Address': '',
+                    'State': '',
+                    'Tax_Number': '',
+                    'Is_Exent': 0,
+                    'Reason': '',
+                    'Status': 1
+                  });
+                  return Observable.throw(error);
+                }
+              })
+            )
+        ),
+        map(customer => customer['customers'])
+      )
+      .subscribe((response: any) => { 
+        if (response != null) { 
+          this.filteredCustomers = response.map(res => {
+            return {
+              "Customer_Id": res.Customer_Id,
+              "Name": res.Name,
+              "Tax_Number": res.Tax_Number
+            }
+          }); 
+        } 
+      }, error => {
+        this.filteredCustomers.map(_ => {
+          return {
+            "Customer_Id": "",
+            "Name":"",
+            "Tax_Number":""
+          }
+        })
+      });
+  }
+
+  getCustomerSelected($event){
+    let customerId = $event.Customer_Id;
+    if (customerId != '') {
+      this.customerService.getCustomer(customerId).subscribe((res: any) => {
+        if (res != null) {
+          this.customerBasicForm.patchValue({
+            'Customer_Id': res.Customer_Id,
+            'Address': res.Address,
+            'State': res.State,
+            'Tax_Number': res.Tax_Number,
+            'Is_Exent': res.Is_Exent,
+            'Reason': res.Reason,
+            'Status': 1
+          });
+        }
+      },
+      error => { 
+        this.openDialog('Error !', error.Message, false, true, false);
+        this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
+      });
+    } else {
+      this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
+    }
+  }
+
+  displayFn(customer?: Generic): string | undefined {
+    return customer ? customer.Name : undefined;
+  }
+
+  getErrorMessage(component: string) {
+    if (component === 'Name'){
+      return this.fCustomer.Name.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.Name.hasError('minlength') ? 'Minimun length 3' :
+          this.fCustomer.Name.hasError('maxlength') ? 'Maximum length 500' :
+            '';
+    }
+    if (component === 'Address'){
+      return this.fCustomer.Address.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.Address.hasError('minlength') ? 'Minimun length 3' :
+          this.fCustomer.Address.hasError('maxlength') ? 'Maximum length 500' :
+            '';
+    }
+    if (component === 'State'){
+      return this.fCustomer.State.hasError('maxlength') ? 'Maximun length 100' :
+        this.fCustomer.State.hasError('minlength') ? 'Minimun length 2' :
+          '';
+    }
+    if (component === 'Tax_Number'){
+      return this.fCustomer.Tax_Number.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.Tax_Number.hasError('minlength') ? 'Minimun length 2' :
+          this.fCustomer.Tax_Number.hasError('maxlength') ? 'Maximun length 50' :
+            '';
+    }
+    if (component === 'Reason'){
+      return this.fCustomer.Reason.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.Reason.hasError('minlength') ? 'Minimun length 2' :
+          this.fCustomer.Reason.hasError('maxlength') ? 'Maximun length 500' :
+            '';
+    }
   }
 
   ngOnDestroy() {
@@ -73,8 +215,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   public onChange: any = () => {};
 
   writeValue(val: any): void {
-    console.log(val);
-    if (val === '' || val === null) { console.log('Borra datos'); this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); return; }
+    if (val === '' || val === null) { this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); return; }
     val && this.customerBasicForm.setValue(val, { emitEvent: false });
   }
   

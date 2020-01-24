@@ -30,13 +30,9 @@
             "styles": [{
                 "input": "src/assets/scss/theme.scss" 
               },
-              // "node_modules/bootstrap/scss/bootstrap.scss",
-              "src/assets/scss/styles.scss"
+              "src/styles.scss"
             ],
-            "scripts": [
-              // "node_modules/jquery/dist/jquery.js",
-              // "node_modules/bootstrap/dist/js/bootstrap.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -96,12 +92,9 @@
             "styles": [{
               "input": "src/assets/scss/theme.scss" 
             },
-              "src/assets/scss/styles.scss"
+              "src/styles.scss"
             ],
-            "scripts": [
-              // "node_modules/jquery/dist/jquery.js",
-              // "node_modules/bootstrap/dist/js/bootstrap.js"
-            ]
+            "scripts": []
           }
         },
         "lint": {

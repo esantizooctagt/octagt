@@ -6,6 +6,8 @@ import { MonitorService } from "@shared/monitor.service";
 import { AlertService  } from "@shared/alert";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-customer-list',
@@ -15,8 +17,8 @@ import { environment } from '@environments/environment';
 export class CustomerListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Customer>();
-  public totalRows: number = 0;
-  public itemsNumber: number = 10;
+  public length: number = 0;
+  public pageSize: number = 10;
   public customers: Customer[] = [];
   public pages: number[];
   public listView:boolean=false;
@@ -28,15 +30,34 @@ export class CustomerListComponent implements OnInit {
   companyId: string = '';
   message:string;
   loading = false;
-  spinner: string = '';
   dispLoading: boolean = false;
+  lastCustomer: Customer;
+  deleted: boolean = false;
+  displayYesNo: boolean = false;
 
   constructor(
     private authService: AuthService,
     private data: MonitorService,
     private customerService: CustomerService,
-    private alertService: AlertService 
+    private dialog: MatDialog
   ) { }
+
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
 
   ngOnInit() {
     (async () => {
@@ -47,12 +68,12 @@ export class CustomerListComponent implements OnInit {
       // Do something after
       console.log('after delay')
       this.companyId = this.authService.companyId();
-      this.loadCustomers(this._currentPage, this.itemsNumber, this._currentSearchValue);
+      this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
       this.data.monitorMessage
         .subscribe((message: any) => {
           if (message === 'customers') {
             this.message = message;
-            this.loadCustomers(this._currentPage, this.itemsNumber, this._currentSearchValue);
+            this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
           }
         });
     })();
@@ -66,7 +87,7 @@ export class CustomerListComponent implements OnInit {
       if (res != null) {
         this.customers = res.customers;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-        this.totalRows = res.pagesTotal.count;
+        this.length = res.pagesTotal.count;
         this.dispLoading = false;
       }
     },
@@ -80,62 +101,89 @@ export class CustomerListComponent implements OnInit {
     this._currentSearchValue = searchParam;
     this.loadCustomers(
       this._currentPage,
-      this.itemsNumber,
+      this.pageSize,
       this._currentSearchValue
     );
   }
 
   onSelect(customer: Customer){
-    this.spinner = 'spin_sel_'+customer.Customer_Id;
-    this.loading = true;
-    this.childEvent.emit(customer);
-    this.loading = false;
-    this.spinner = '';
+    if (this.lastCustomer != customer){
+      this.childEvent.emit(customer);
+      this.lastCustomer = customer;
+    } else {
+      let defCustomer: Customer;
+      (async () => {
+        this.childEvent.emit(defCustomer);
+        await delay(20);
+        this.childEvent.emit(customer);
+      })();
+    }
     window.scroll(0,0);
   }
 
   onDelete(customer: Customer){
-    this.spinner = 'spin_del_'+customer.Customer_Id;
-    this.loading = true;
-    this.customerService.deleteCustomer(customer.Customer_Id).subscribe(
-      response =>  {
-        this.loadCustomers(
-          this._currentPage,
-          this.itemsNumber,
-          this._currentSearchValue
-        );
-        this.loading = false;
-        this.spinner = '';
-        this.alertService.success('Product deleted successful');
-      },
-      error => {
-        this.loading = false;
-        this.spinner = '';
-        this.alertService.error('Error ! ' + error.Message);
-      });
+    this.displayYesNo = true;
+
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: 'Customer', 
+      message: 'Are you sure to delete this Customer?', 
+      success: false, 
+      error: false, 
+      warn: false,
+      ask: this.displayYesNo
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      if(result != undefined){
+        this.deleted = result;
+        if (this.deleted){
+          let delCustomer: Customer;
+          this.loading = true;
+          this.customerService.deleteCustomer(customer.Customer_Id).subscribe(
+            response =>  {
+              this.childEvent.emit(delCustomer);
+              this.loadCustomers(
+                this._currentPage,
+                this.pageSize,
+                this._currentSearchValue
+              );
+              this.loading = false;
+              window.scroll(0,0);
+              this.displayYesNo = false;
+              this.openDialog('Customer', 'Customer deleted successful', true, false, false);
+            },
+            error => {
+              this.loading = false;
+              this.displayYesNo = false;
+              this.openDialog('Error ! ', error.Message, false, true, false);
+            });
+        }
+      }
+    });
   }
 
-  public goToPage(page: number): void {
-    this._currentPage = page;
+  public goToPage(page: number, elements: number): void {
+    if (this.pageSize != elements){
+      this.pageSize = elements;
+      this._currentPage = 1;
+    } else {
+      this._currentPage = page+1;
+    }
     this.loadCustomers(
       this._currentPage,
-      this.itemsNumber,
+      this.pageSize,
       this._currentSearchValue
     );
   }
   
   public setView(value){
     this.listView = value;
-  }
-  
-  public onChangeNumber(elements: number){
-    this.itemsNumber = elements;
-    this._currentPage = 1;
-    this.loadCustomers(
-      this._currentPage,
-      this.itemsNumber,
-      this._currentSearchValue
-    );
   }
 
   trackById(index: number, item: Customer) {

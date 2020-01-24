@@ -2,55 +2,70 @@
     <div *appSpinner="dispLoading; message: 'Loading Taxes'">
     </div>
 </div>
-<app-search placeholder="Search by name" (setValue)="filterList($event)" (setNumber)="onChangeNumber($event)">
+<app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)">
 </app-search>
-<button (click)="setView(true)">List</button><button (click)="setView(false)">Grid</button>
-<span>Results: {{totalRows}}</span>
-<div class="list-cards" *ngIf="listView" style="height: 600px; overflow-y:scroll;">
-    <ul class="list-group list-group-flush" *ngIf="onError==''">
-        <li class="list-group-item" *ngFor="let tax of taxes; trackBy: trackById">
-            <h2>{{ 'Name: ' + tax.Name }}</h2>
-            <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-            <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
-            <ul class="items">
-                <button (click)="onSelect(tax)" class="btn btn-primary">
-                    <span id="{{'spin_sel_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_sel_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                    Edit
-                </button>
-                <button (click)="onDelete(tax)" class="btn btn-danger">
-                    <span id="{{'spin_del_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_del_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                    Delete
-                </button>
-            </ul>
-        </li>
-    </ul>
+<div class="overlay" *ngIf="loading">
+    <mat-progress-spinner id="spinTax" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+    <mat-label class="label-overlay">Deleting Tax...</mat-label>
+</div>
+<div class="list-cards" *ngIf="listView=='list'">
+    <mat-list *ngIf="onError==''">
+        <ng-container *ngFor="let tax of taxes; trackBy: trackById">
+            <mat-list-item>
+                <div class="pr-0 pl-0">
+                    <h3 class="mb-1" mat-line>{{ 'Name: ' + tax.Name }}</h3>
+                    <p class="mb-1" mat-line>{{ 'Percentage: ' + tax.Percentage }}</p>
+                    <p class="mb-1" mat-line>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                    <mat-action-list class="" mat-line>
+                        <button mat-icon-button color="primary" (click)="onSelect(tax)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="onDelete(tax)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </mat-action-list>
+                </div>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+        </ng-container>
+    </mat-list>
     <div *ngIf="onError!=''">
         <span>{{onError}}</span>
     </div>
 </div>
-<div class="grid-cards" *ngIf="!listView" style="height: 600px; overflow-y:scroll;">
-    <div class="card-columns" *ngIf="onError==''">
-        <div class="card" *ngFor="let tax of taxes; trackBy: trackById">
-            <div class="card-body">
-                <h2>{{ 'Name: ' + tax.Name }}</h2>
-                <p class="mb-1">{{ 'Percentage: ' + tax.Percentage }}</p>
-                <p class="mb-1">{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
-                <ul class="items">
-                    <button (click)="onSelect(tax)" class="btn btn-primary">
-                        <span id="{{'spin_sel_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_sel_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                        Edit
+<div class="list-cards" *ngIf="listView=='grid'">
+    <div class="row" *ngIf="onError==''">
+        <ng-container class="col-sm" *ngFor="let tax of taxes; trackBy: trackById">
+            <mat-card class="grid-card col-md-3 ml-3 mt-3 mr-3 mb-3">
+                <!-- <mat-card-header>  col-sm ml-3 mt-3 mr-3 mb-3-->
+                    <!-- <div mat-card-avatar class="example-header-image"></div> -->
+                    <!-- <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title> -->
+                    <!--<mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+                <!-- </mat-card-header> -->
+                <!-- <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu"> -->
+                <mat-card-content>
+                    <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title>
+                    <!-- <h2>{{ 'Name: ' + tax.Name }}</h2> -->
+                    <p>{{ 'Percentage: ' + tax.Percentage }}</p>
+                    <p>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-icon-button color="primary" (click)="onSelect(tax)">
+                        <mat-icon>edit</mat-icon>
                     </button>
-                    <button (click)="onDelete(tax)" class="btn btn-danger">
-                        <span id="{{'spin_del_'+tax.Tax_Id}}" *ngIf="loading && spinner == 'spin_del_'+tax.Tax_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                        Delete
+                    <button mat-icon-button color="warn" (click)="onDelete(tax)">
+                        <mat-icon>delete</mat-icon>
                     </button>
-                </ul>
-            </div>
-        </div>
+                </mat-card-actions>
+            </mat-card>
+        </ng-container>
     </div>
     <div *ngIf="onError!=''">
         <span>{{onError}}</span>
     </div>
 </div>
-<app-pagination [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}" (goToPage)="goToPage($event)">
-</app-pagination>
+<mat-paginator [length]="length"
+              [pageSize]="pageSize"
+              [pageSizeOptions]= "[5, 10, 25, 100]"
+              (page)="goToPage($event.pageIndex, $event.pageSize)">
+</mat-paginator>

@@ -1,77 +1,86 @@
-<h1>Customers</h1>
+<h2>Customers</h2>
 <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-        <label>Name</label>
-        <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="fCustomer.Name.invalid 
-                                                                                        && fCustomer.Name.touched">
-        <div *ngIf="fCustomer.Name.invalid && fCustomer.Name.touched">
-            <small *ngIf="fCustomer.Name.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="fCustomer.Name.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinProd" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Customer...</mat-label>
     </div>
-    <div class="form-group">
-        <label>Address</label>
-        <input type="text" formControlName="Address" class="form-control">
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Name placeholder="Name" maxlength="500" minlength="3" formControlName="Name" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Name.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="fCustomer.Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>House No</label>
-        <input type="text" formControlName="House_No" class="form-control">
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Address placeholder="Address" maxlength="500" minlength="3" formControlName="Address" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Address.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="fCustomer.Name.invalid">{{getErrorMessage('Address')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>State</label>
-        <input type="text" formControlName="State" class="form-control">
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #House_No placeholder="House No" maxlength="10" formControlName="House_No" [errorStateMatcher]="confirmValidParentMatcher">
+            <mat-hint align="end">{{fCustomer.House_No.value?.length || 0}}/10</mat-hint>
+            <mat-error *ngIf="fCustomer.House_No.invalid">{{getErrorMessage('House_No')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Phone</label>
-        <input type="text" formControlName="Phone" class="form-control">
+    <div class="form-field">
+        <mat-form-field>
+            <input type="text" placeholder="Country" matInput formControlName="Country" [matAutocomplete]="auto" [errorStateMatcher]="confirmValidParentMatcher">
+            <mat-error *ngIf="fCustomer.Country.invalid">{{getErrorMessage('Country')}}</mat-error>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" activeOption="activeOption">
+                <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
+                {{country.n}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Postal Code</label>
-        <input type="text" formControlName="Postal_Code" class="form-control">
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #State placeholder="State" minlength="2" maxlength="100" formControlName="State" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-error *ngIf="fCustomer.State.invalid">{{getErrorMessage('State')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <!-- <div>{{ customerForm.get('Tax_Number').errors | json }}</div>  -->
-        <label>Tax Number</label>
-        <input type="text" formControlName="Tax_Number" class="form-control" [class.is-invalid]="fCustomer.Tax_Number.invalid 
-                                                                                                && fCustomer.Tax_Number.touched">
-        <div *ngIf="fCustomer.Tax_Number.invalid && fCustomer.Tax_Number.touched">
-            <small *ngIf="fCustomer.Tax_Number.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="fCustomer.Tax_Number.errors?.minlength" class="text-danger">Minimun length 5</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #Phone placeholder="Phone" maxlength="30" formControlName="Phone" [errorStateMatcher]="confirmValidParentMatcher">
+            <mat-error *ngIf="fCustomer.Phone.invalid">{{getErrorMessage('Phone')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-check">
-        <input type="checkbox" formControlName="Is_Exent" value="" class="form-check-input" name="Is_Exent">
-        <label class="form-check-label" for="Is_Exent">Is Exent</label>
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #Postal_Code placeholder="Postal Code" maxlength="30" formControlName="Postal_Code" [errorStateMatcher]="confirmValidParentMatcher">
+            <mat-error *ngIf="fCustomer.Postal_Code.invalid">{{getErrorMessage('Postal_Code')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group" *ngIf="customerForm.value.Is_Exent">
-        <label>Reason</label>
-        <input type="text" formControlName="Reason" class="form-control" [class.is-invalid]="fCustomer.Reason.invalid 
-                                                                                            && fCustomer.Reason.touched">
-        <div *ngIf="fCustomer.Reason.invalid && fCustomer.Reason.touched">
-            <small *ngIf="fCustomer.Reason.errors?.required" class="text-danger">Reason is required</small>
-            <small *ngIf="fCustomer.Reason.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 2 characters">
+            <input matInput #Tax_Number placeholder="Tax Number" minlength="2" maxlength="50" formControlName="Tax_Number" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Tax_Number.value?.length || 0}}/50</mat-hint>
+            <mat-error *ngIf="fCustomer.Tax_Number.invalid">{{getErrorMessage('Tax_Number')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Email</label>
-        <input type="text" formControlName="Email" class="form-control" [class.is-invalid]="fCustomer.Email.invalid 
-                                                                                        && fCustomer.Email.touched"> 
-        <div *ngIf="fCustomer.Email.invalid && fCustomer.Email.touched">
-            <small *ngIf="fCustomer.Email.errors.email" class="text-danger">Email must be a valid email address</small>
-        </div>
+    <div class="form-field-check">
+        <mat-checkbox formControlName="Is_Exent">Is Exent</mat-checkbox>
     </div>
-    <div class="form-check" *ngIf="customerForm.value.CustomerId !== '' && customerForm.value.CustomerId !== null">
-        <input type="checkbox" formControlName="Status" value="" class="form-check-input" name="Status">  
-        <label class="form-check-label" for="Status">Status</label>
+    <div class="form-field" *ngIf="customerForm.value.Is_Exent">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Reason placeholder="Reason" maxlength="500" minlength="3" formControlName="Reason" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Reason.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="fCustomer.Reason.invalid">{{getErrorMessage('Reason')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="from-group">
-        <label>Country Code: </label>
-        <app-typeahead formControlName="Country" [requiredValue]="requiredCountry" [dropDownName]="nameList" [dataSource]="loadList" name="Country"></app-typeahead>
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #Email placeholder="Email" maxlength="250" formControlName="Email" [errorStateMatcher]="confirmValidParentMatcher">
+            <mat-error *ngIf="fCustomer.Email.invalid">{{getErrorMessage('Email')}}</mat-error>
+        </mat-form-field>
     </div>
-    <button type="submit" id="save" class="btn btn-primary" [disabled]="!customerForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-        Save
-    </button>
-    <input type="button" id="cancel" value="Cancel" class="btn btn-danger" (click)="onCancel()">
+    <div class="form-field-check" *ngIf="customerForm.value.CustomerId !== '' && customerForm.value.CustomerId !== null">
+        <mat-checkbox formControlName="Status">Status</mat-checkbox>
+    </div>
+    <button mat-flat-button color="primary" id="save" [disabled]="!customerForm.valid" class="mr-3 mt-2">Save</button>
+    <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
     {{ customerForm.value | json }}
 </form>    

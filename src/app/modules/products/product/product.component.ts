@@ -3,12 +3,12 @@ import { Product } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ProductService } from "@app/services";
 import { AuthService } from '@core/services';
-import { Router } from '@angular/router';
 import { MonitorService } from "@shared/monitor.service";
-import { AlertService  } from "@shared/alert";
 import { NgxImageCompressService } from 'ngx-image-compress';
 import { environment } from '@environments/environment';
-// import { HttpClient } from '@angular/common/http';
+import { ConfirmValidParentMatcher } from '@app/validators';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-product',
@@ -50,13 +50,14 @@ export class ProductComponent implements OnInit {
   imageSize = 0;
   file: any;
 
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private productService: ProductService,
-    private router: Router,
     private data: MonitorService,
-    private alertService: AlertService,
+    private dialog: MatDialog,
     private imageCompress: NgxImageCompressService
   ) { }
 
@@ -135,6 +136,22 @@ export class ProductComponent implements OnInit {
     this.fileString = $event;
   }
 
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
+
   ngOnInit() {
     this.companyId = this.authService.companyId();  
     this.data.monitorMessage
@@ -142,6 +159,36 @@ export class ProductComponent implements OnInit {
         this.message = message;
       });
     this.onValueChanges();
+  }
+
+  getErrorMessage(component: string) {
+    if (component === 'Name'){
+      console.log(this.Name.hasError);
+      return this.Name.hasError('required') ? 'You must enter a value' :
+          this.Name.hasError('minlength') ? 'Minimun length 3' :
+              '';
+    }
+    if (component === 'Unit_Price'){
+      return this.Unit_Price.hasError('required') ? 'You must enter a value' :
+          this.Unit_Price.hasError('min') ? 'Minimun value 0.01' :
+            this.Unit_Price.hasError('max') ? 'Maximun value 99999999.90':
+              this.Unit_Price.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
+    if (component === 'Unit_Cost'){
+      return this.Unit_Cost.hasError('required') ? 'You must enter a value' :
+          this.Unit_Cost.hasError('min') ? 'Minimun value 0.0001' :
+            this.Unit_Cost.hasError('max') ? 'Maximun value 99999999.9990':
+              this.Unit_Cost.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
+    if (component === 'Qty'){
+      return this.Qty.hasError('required') ? 'You must enter a value' :
+          this.Qty.hasError('min') ? 'Minimun value 0.0001' :
+            this.Qty.hasError('max') ? 'Maximun value 99999999.9990':
+              this.Qty.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
   }
 
   onValueChanges(): void {
@@ -157,6 +204,7 @@ export class ProductComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.product.currentValue != undefined) {
+      this.loading = true;
       let prodResult = changes.product.currentValue;
       this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
       this.fileString = null;
@@ -173,15 +221,18 @@ export class ProductComponent implements OnInit {
             Type: res.Type,
             Status: res.Status
           });
-          // this.productForm.markAsPending();
+          this.loading = false;
           if (res.Img_Path != ''){
             this.fileString = 'data:image/png;base64,'+res.Img_Path;
           }
         }
       },
       error => { 
-        this.alertService.error('Error ! ' + error.Message);
+        this.loading = false;
+        this.openDialog('Error !', error.Message, false, true, false);
       });
+    } else {
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
     }
   }
 
@@ -206,16 +257,16 @@ export class ProductComponent implements OnInit {
       this.productService.updateProduct(productId, fd)
         .subscribe(
           response =>  {
-            this.alertService.success('Product created successful');
             this.submitted = false;
             this.loading = false;
+            this.openDialog('Products', 'Product updated successful', true, false, false);
             this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
             this.fileString = null;
             this.data.changeData('products');
           },
           error => { 
             this.loading = false;
-            this.alertService.error('Error ! ' + error.Message);
+            this.openDialog('Error !', error.Message, false, true, false);
           }
         );
     } else {
@@ -232,32 +283,27 @@ export class ProductComponent implements OnInit {
       this.productService.postProduct(fd)
       .subscribe(
         response => {
-          this.alertService.success('Product updated successful');
           this.submitted = false;
           this.loading = false;
+          this.openDialog('Products', 'Product created successful', true, false, false);
           this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
           this.fileString = null;
           this.data.changeData('products');
         },
         error => { 
           this.loading = false;
-          this.alertService.error('Error ! ' + error.Message);
-        }
-      );
+          this.openDialog('Error !', error.Message, false, true, false);
+        });
     }
   }
 
   onCancel(){
+  //   this.productForm.get('Type').setValue(e.target.value, {
+  //     onlySelf: true
+  //  })
     this.submitted = true;
     this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
-    this.data.changeData('products');
     this.fileString = null;
-  }
-
-  changeType(e) {
-    this.productForm.get('Type').setValue(e.target.value, {
-       onlySelf: true
-    })
   }
 
   public handleError = (controlName: string, errorName: string) => {
@@ -280,30 +326,3 @@ export class ProductComponent implements OnInit {
   }
 
 }
-//FileReader
-  //fileInput: any
-    // this.fileString = '';
-    // this.fileData = <File>fileInput.target.files[0];
-
-    // var mimeType = this.fileData.type;
-    // if (mimeType.match(/image\/*/) == null) {
-    //   return;
-    // }
-
-    // let reader = new FileReader();
-    // reader.readAsDataURL(this.fileData);
-    // reader.onload = (_event) => {
-    //   this.fileString = reader.result;
-    //  }
-// const imageType = fileTemp.split(';')[0].replace('data:','');
-// const imageBlob = this.dataURItoBlob(fileTemp.replace('data:image/jpeg;base64,','').replace('data:image/png;base64,','').replace('data:image/jpg;base64,',''));
-// const imageFile = new File([imageBlob], 'image-temp.'+imageType.split('/')[1], { type: imageType });
-// console.log('Print File');
-// console.warn(imageFile);
-// let reader = new FileReader();
-// reader.readAsDataURL(imageFile);
-// reader.onload = (_event) => { 
-//   this.fileString = reader.result;
-//   console.log('Re converted file');
-//   console.log(this.fileString);
-// }

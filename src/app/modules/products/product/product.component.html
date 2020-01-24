@@ -1,70 +1,58 @@
-<h1>Product</h1>
+<h2>Product</h2>
 <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-        <label>Name</label>
-        <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="Name.invalid 
-                                                                                        && Name.touched">
-        <div *ngIf="Name.invalid && Name.touched">
-            <small *ngIf="Name.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="Name.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinProd" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Product...</mat-label>
     </div>
-    <div class="form-group">
-        <label>Unit Price</label>
-        <input type="text" formControlName="Unit_Price" class="form-control" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" [class.is-invalid]="Unit_Price.invalid 
-                                                                                                                                                                                       && Unit_Price.touched">
-        <div *ngIf="Unit_Price.invalid && Unit_Price.touched">
-            <small *ngIf="Unit_Price.errors?.required" class="text-danger">Unit Price invalid value</small>
-            <small *ngIf="Unit_Price.errors?.pattern" class="text-danger">Incorrect value</small>
-            <small *ngIf="Unit_Price.errors?.min" class="text-danger">Minimun value is 0.01</small>
-            <small *ngIf="Unit_Price.errors?.max" class="text-danger">Maximun value is 99,999,999.90</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Name placeholder="Name" maxlength="50" formControlName="Name" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{Name.value?.length || 0}}/50</mat-hint>
+            <mat-error *ngIf="Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Unit Cost</label>
-        <input type="text" formControlName="Unit_Cost" class="form-control" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,6}$" [class.is-invalid]="Unit_Cost.invalid 
-                                                                                                                                                                                      && Unit_Cost.touched">
-        <div *ngIf="Unit_Cost.invalid && Unit_Cost.touched">
-            <small *ngIf="Unit_Cost.errors?.required" class="text-danger">Unit Cost invalid value</small>
-            <small *ngIf="Unit_Cost.errors?.pattern" class="text-danger">Incorrect value</small>
-            <small *ngIf="Unit_Cost.errors?.min" class="text-danger">Minimun value is 0.01</small>
-            <small *ngIf="Unit_Cost.errors?.max" class="text-danger">Maximun value is 99,999,999.90</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Only decimal values">
+            <input matInput placeholder="Unit Price" min="0.01" max="99999999.90" type="number" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Price" class="values-right-align" required>
+            <mat-error *ngIf="Unit_Price.invalid">{{getErrorMessage('Unit_Price')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Quantity</label>
-        <input type="text" formControlName="Qty" class="form-control"  (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" [class.is-invalid]="Qty.invalid 
-                                                                                                                                                                                 && Qty.touched">
-        <div *ngIf="Qty.invalid && Qty.touched">
-            <small *ngIf="Qty.errors?.required" class="text-danger">Qty invalid value</small>
-            <small *ngIf="Qty.errors?.pattern" class="text-danger">Incorrect value</small>
-            <small *ngIf="Qty.errors?.min" class="text-danger">Minimun value is 0.01</small>
-            <small *ngIf="Qty.errors?.max" class="text-danger">Maximun value is 99,999,999.90</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Only decimal values">
+            <input matInput placeholder="Unit Cost" min="0.0001" max="99999999.9990" type="number" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,4}$" [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Cost" class="values-right-align" required>
+            <mat-error *ngIf="Unit_Cost.invalid">{{getErrorMessage('Unit_Cost')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="from-group">
-        <label for="Type">Type</label>
-        <select class="form-control" id="Type" formControlName="Type" (change)="changeType($event)">
-            <option>goods</option>
-            <option>services</option>
-        </select>
-        <div class="error-block" *ngIf="submitted && handleError('Type', 'required')">You must provide a value!</div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Only decimal values">
+            <input matInput placeholder="Quantity" min="0.0001" max="99999999.9990" type="number" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,4}$" [errorStateMatcher]="confirmValidParentMatcher" formControlName="Qty" class="values-right-align" required>
+            <mat-error *ngIf="Qty.invalid">{{getErrorMessage('Quantity')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-check" *ngIf="productForm.value.ProductId !== '' && productForm.value.ProductId !== null">
-        <input type="checkbox" formControlName="Status" value="" class="form-check-input" name="Status">  
-        <label class="form-check-label" for="Status">Status</label>
-    </div>         
-    <div class="form-group" [className]="fileString ? 'imgTemp' : 'imgInit'">
-        <label>Choose File</label><br/>
+    <div class="from-field">
+        <mat-form-field>
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="Type">
+                <mat-option value="goods">
+                goods
+                </mat-option>
+                <mat-option value="services">
+                services
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>      
+    <div class="form-field-check" *ngIf="productForm.value.ProductId !== '' && productForm.value.ProductId !== null">
+        <mat-checkbox formControlName="Status">Status</mat-checkbox>
+    </div>
+    <div class="form-field" [className]="fileString ? 'imgTemp' : 'imgInit'">
+        <mat-label>Choose File</mat-label><br/>
         <input type="file" value="Choose File" id="image-input" accept=".jpg,.png,.jpeg" (change)="selectFile($event)" />
         <div class="image-preview mb-3" *ngIf="fileString">
             <app-cropper [src]="fileString" (cropImage)="loadCropImage($event)" *ngIf="fileString"></app-cropper>       
         </div>
     </div>
-    <button type="submit" id="save" class="btn btn-primary" [disabled]="!productForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-        Save
-    </button>
-    <input type="button" id="cancel" value="Cancel" class="btn btn-danger" (click)="onCancel()">
-    {{ productForm.value | json }}
+    <button mat-flat-button color="primary" id="save" [disabled]="!productForm.valid" class="mr-3 mt-2">Save</button>
+    <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+    <!-- {{ productForm.value | json }} -->
 </form>        

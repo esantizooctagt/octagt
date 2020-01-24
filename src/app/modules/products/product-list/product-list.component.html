@@ -2,69 +2,76 @@
     <div *appSpinner="dispLoading; message: 'Loading Products'">
     </div>
 </div>
-<app-search placeholder="Search by name" (setValue)="filterList($event)" (setNumber)="onChangeNumber($event)">
+<app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)" [salesView]="checkOut" (searchStep)="sendStep($event)">
 </app-search>
-<button (click)="setView(true)">List</button><button (click)="setView(false)">Grid</button>
-<span>Results: {{totalRows}}</span>
-<div class="list-cards" *ngIf="listView" style="height: 600px; overflow-y:scroll;">
-    <ul class="list-group list-group-flush" *ngIf="onError==''">
-        <li class="list-group-item" *ngFor="let product of products; trackBy: trackById">
-            <h2>{{ 'Name: ' + product.Name }}</h2>
-            <p class="mb-1">{{ 'Unit Price: ' + product.Unit_Price }}</p>
-            <p class="mb-1">{{ 'Qty : ' + product.Qty }}</p>
-            <ul class="items" *ngIf="!view">
-                <button (click)="onSelect(product)" class="btn btn-primary">
-                    <span id="{{'spin_sel_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_sel_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                    Edit
-                </button>
-                <button (click)="onDelete(product)" class="btn btn-danger">
-                    <span id="{{'spin_del_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_del_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                    Delete
-                </button>
-            </ul>
-            <ul class="items" *ngIf="view">
-                <button (click)="onSelect(product)" class="btn btn-primary">
-                    <span id="{{'spin_sel_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_sel_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                    Select
-                </button>
-            </ul>
-        </li>
-    </ul>
+<div class="overlay" *ngIf="loading">
+    <mat-progress-spinner id="spinProduct" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+    <mat-label class="label-overlay">Deleting Product...</mat-label>
+</div>
+<div class="list-cards" *ngIf="listView=='list'">
+    <mat-list *ngIf="onError==''">
+        <ng-container *ngFor="let product of products; trackBy: trackById">
+            <mat-list-item>
+                <div class="pr-0 pl-0">
+                    <h3 matLine class="mb-1">{{ 'Name: ' + product.Name }}</h3>
+                    <p matLine class="mb-1">{{ 'Unit Price: ' + product.Unit_Price }}</p>
+                    <p matLine class="mb-1">{{ 'Qty : ' + product.Qty }}</p>
+                    <mat-action-list class="" matLine *ngIf="!view">
+                        <button mat-icon-button color="primary" (click)="onSelect(product)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="onDelete(product)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </mat-action-list>
+                    <mat-action-list class="" matLine *ngIf="view">
+                        <button type="button" mat-icon-button color="primary" (click)="onSelect(product)">
+                            <mat-icon>add_shopping_cart</mat-icon>
+                        </button>
+                    </mat-action-list>
+                </div>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+        </ng-container>
+    </mat-list>
     <div *ngIf="onError!=''">
         <span>{{onError}}</span>
     </div>
 </div>
-<div class="grid-cards" *ngIf="!listView" style="height: 600px; overflow-y:scroll;">
-    <div class="card-columns" *ngIf="onError==''">
-        <div class="card" *ngFor="let product of products; trackBy: trackById">
-            <img class="card-img-top" *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
-            <div class="card-body">
-                <h2>{{ 'Name: ' + product.Name }}</h2>
-                <p class="mb-1">{{ 'Unit Price: ' + product.Unit_Price }}</p>
-                <p class="mb-1">{{ 'Qty : ' + product.Qty }}</p>
-                <ul class="items" *ngIf="!view">
-                    <button (click)="onSelect(product)" class="btn btn-primary">
-                        <span id="{{'spin_sel_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_sel_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                        Edit
+<div class="list-cards" *ngIf="listView=='grid'">
+    <div class="row" *ngIf="onError==''">
+        <ng-container class="col-sm" *ngFor="let product of products; trackBy: trackById">
+            <mat-card class="grid-card col-md-3 ml-3 mt-3 mr-3 mb-3">
+                <mat-card-header>
+                    <mat-card-title>{{ 'Name: ' + product.Name }}</mat-card-title>
+                </mat-card-header>
+                <img mat-card-image *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
+                <mat-card-content>
+                    <p>{{ 'Unit Price: ' + product.Unit_Price }}</p>
+                    <p>{{ 'Qty : ' + product.Qty }}</p>
+                </mat-card-content>
+                <mat-card-actions align="end" *ngIf="!view">
+                    <button mat-icon-button color="primary" (click)="onSelect(product)">
+                        <mat-icon>edit</mat-icon>
                     </button>
-                    <button (click)="onDelete(product)" class="btn btn-danger">
-                        <span id="{{'spin_del_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_del_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                        Delete
+                    <button mat-icon-button color="warn" (click)="onDelete(product)">
+                        <mat-icon>delete</mat-icon>
                     </button>
-                </ul>
-                <ul class="items" *ngIf="view">
-                    <button (click)="onSelect(product)" class="btn btn-primary">
-                        <span id="{{'spin_sel_'+product.Product_Id}}" *ngIf="loading && spinner == 'spin_sel_'+product.Product_Id" class="spinner-border spinner-border-sm mr-1"></span>
-                        Select
+                </mat-card-actions>
+                <mat-card-actions align="end" *ngIf="view">
+                    <button type="button" mat-icon-button color="primary" (click)="onSelect(product)">
+                        <mat-icon>add_shopping_cart</mat-icon>
                     </button>
-                </ul>
-            </div>
-        </div>
+                </mat-card-actions>
+            </mat-card>
+        </ng-container>
     </div>
     <div *ngIf="onError!=''">
         <span>{{onError}}</span>
     </div>
 </div>
-<app-pagination [setPagination]="{'itemsCount': totalRows,'pageSize': itemsNumber}" (goToPage)="goToPage($event)">
-</app-pagination>
-<!-- salesView -->
+<mat-paginator [length]="length"
+              [pageSize]="pageSize"
+              [pageSizeOptions]="[5, 10, 25, 100]"
+              (page)="goToPage($event.pageIndex, $event.pageSize)">
+</mat-paginator>

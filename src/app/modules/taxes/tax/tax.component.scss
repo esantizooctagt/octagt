@@ -1,5 +1,11 @@
-/* input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
-} */
+.values-right-align {
+  text-align: right;
+}
+
+input.values-right-align::-webkit-outer-spin-button,
+input.values-right-align::-webkit-inner-spin-button {
+  display: none;
+}
+input.values-right-align {
+  -moz-appearance: textfield;
+}

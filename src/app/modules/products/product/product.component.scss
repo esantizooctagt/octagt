@@ -4,3 +4,13 @@
 .imgInit{
     height: 100px;
 }
+.values-right-align {
+    text-align: right;
+}
+input.values-right-align::-webkit-outer-spin-button,
+input.values-right-align::-webkit-inner-spin-button {
+    display: none;
+}
+input.values-right-align {
+    -moz-appearance: textfield;
+}

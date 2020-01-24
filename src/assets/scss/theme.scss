@@ -8,6 +8,8 @@
 // Be sure that you only ever include this mixin once!
 @include mat-core();
 
+@import '../../styles.scss';
+
 $md-navy: (
     50 : #e1e7ec,
     100 : #b5c3d0,
@@ -77,8 +79,9 @@ $md-yell: (
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$octagt-primary: mat-palette($md-navy);
-$octagt-accent: mat-palette($md-yell, A200, A100, A400);
+$octagt-primary: mat-palette($mat-indigo);
+    //$md-navy);
+$octagt-accent: mat-palette($mat-orange, A200, A100, A400);  //$md-yell
 
 // The warn palette is optional (defaults to red).
 $octagt-warn: mat-palette($mat-red);
@@ -90,3 +93,4 @@ $octagt-theme: mat-light-theme($octagt-primary, $octagt-accent, $octagt-warn);
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($octagt-theme);
+@include snackBar-theme($octagt-theme);

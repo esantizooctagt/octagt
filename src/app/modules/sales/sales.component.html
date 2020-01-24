@@ -1,113 +1,117 @@
+<h2>Sales</h2>
 <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-        <label>Customer</label>
-        <app-findrecord placeholder="Search Customer..." (customerCode)="getCustomerSelected($event)" [data]="listCustomers"
-            [reset]="custId" (entryValue)="getCustomers($event)"></app-findrecord>
-        <br />
-        <div class="record-selected" *ngIf="salesForm.value.customerInfo.Customer_Id">
-            <p>Name: {{ salesForm.value.customerInfo.Name }}</p>
-            <p>Tax Number: {{ salesForm.value.customerInfo.Tax_Number }}</p>
-            <p>Is Exent: {{ salesForm.value.customerInfo.Is_Exent }}</p>
-            <p *ngIf="salesForm.value.customerInfo.Is_Exent">Reason: {{ salesForm.value.customerInfo.Reason }}</p>
-        </div>
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinSales" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Sales...</mat-label>
     </div>
-    <mat-form-field color="warn">
-        <input matInput [matDatepicker]="picker" placeholder="Choose a date" disabled>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker disabled="false"></mat-datepicker>
-    </mat-form-field>
-    <app-customerbasic *ngIf="!salesForm.value.customerInfo.Customer_Id" formControlName="customerInfo"></app-customerbasic>
-    <ng-container formArrayName="detail" *ngFor="let item of salesForm.get('detail').controls; let i = index;">
-        <ng-container [formGroupName]="i" *ngIf="salesForm.value.detail.length-1==i">
-            <div class="from-group">
-                <label>Name: {{item.value.Name}}</label>
+    <app-product-list *ngIf="step == 1" (childEvent)="productSelected($event)" view="salesView"
+        (newStep)="setStep($event)"></app-product-list>
+    <div class="detail-form" *ngIf="step == 2">
+        <mat-list *ngIf="onError==''">
+            <mat-list-item formArrayName="detail" *ngFor="let item of salesForm.get('detail').controls; let i = index;">
+                <ng-container [formGroupName]="i">
+                    <div class="pr-0 pl-0">
+                        <h3 matLine class="mb-1">{{item.value.Name}}</h3>
+                        <p matLine class="mb-1">Unit Price: {{item.value.Unit_Price | number: '.2' }}</p>
+                        <div matLine class="form-field">
+                            <mat-form-field hintLabel="Only decimal values">
+                                <input id="{{'detailQty'+i}}" matInput placeholder="Quantity" min="0.0001"
+                                    max="99999999.9990" type="number" (keypress)="onKeyPress($event, $event.target.value)"
+                                    pattern="^[0-9]{0,8}\.?[0-9]{0,4}$" [errorStateMatcher]="confirmValidParentMatcher"
+                                    formControlName="Qty" class="values-right-align" required>
+                                <mat-error *ngIf="item.get('Qty').invalid">{{getErrorMessage('Quantity', i)}}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div matLine class="form-field">
+                            <mat-form-field hintLabel="Only decimal values">
+                                <input id="{{'detailDiscount'+i}}" matInput placeholder="Discount" min="0.00"
+                                    max="99999999.90" type="number" (keypress)="onKeyPress($event, $event.target.value)"
+                                    pattern="^[0-9]{0,8}\.?[0-9]{0,4}$" [errorStateMatcher]="confirmValidParentMatcher"
+                                    formControlName="Discount" class="values-right-align">
+                                <mat-error *ngIf="item.get('Discount').invalid">{{getErrorMessage('Discount', i)}}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <ng-container *ngIf="country==='DEU'">
+                            <div matLine class="form-field-check">
+                                <mat-checkbox (change)="setTax($event, i)" id="{{'detailToGo'+i}}" formControlName="ToGo">To
+                                    Go</mat-checkbox>
+                            </div>
+                            <div matLine class="form-field">
+                                <mat-form-field color="warn">
+                                    <input matInput [matDatepicker]="picker" minDate="minDeliveryDate"
+                                        id="{{'deliveryDate'+i}}" formControlName="Delivery_Date"
+                                        placeholder="Delivery date">
+                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker disabled="false"></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                        </ng-container>
+                        <div matLine class="from-field" *ngIf="country!='DEU'">
+                            <mat-form-field>
+                                <mat-label>Tax Id:</mat-label>
+                                <mat-select id="{{'detailTaxId'+i}}" formControlName="Tax_Id"
+                                    (selectionChange)="changeTax($event, i)">
+                                    <mat-option *ngFor="let res of taxes" [value]="res.Tax_Id">
+                                        {{res.Name}}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="item.get('Tax_Id').invalid">{{getErrorMessage('Tax_Id', i)}}
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <small matLine class="text-muted">Total: {{item.value.Total | number: '.2'}}</small>
+                        <small matLine class="text-muted">Total Tax: {{item.value.Total_Tax | number: '.2'}}</small>
+                        <mat-action-list class="" matLine>
+                            <button mat-icon-button color="warn" (click)="removeItem(i)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </mat-action-list>
+                    </div>
+                </ng-container>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+        </mat-list>
+        <p>Total Discount: {{salesForm.value.Total_Discount | number: '.2'}}</p>
+        <p>Total Tax: {{salesForm.value.Total_Taxes | number: '.2'}}</p>
+        <p>Total: {{salesForm.value.Total | number: '.2'}}</p>
+        <button type="button" mat-flat-button color="accent" (click)="step=1" class="mr-3 mt-2">Back</button>
+        <button type="button" mat-flat-button color="primary" (click)="step=3" class="mr-3 mt-2">Next</button>
+    </div>
+    <div *ngIf="step == 3">
+        <app-customerbasic formControlName="customerInfo"></app-customerbasic>
+        <div class="payment-form">
+            <div class="payment-type">
+                <button type="button" id="Cash" class="btn btn-primary" (click)="paymentMethod('cash')">Cash</button>
+                <button type="button" id="Credit" class="btn btn-primary"
+                    (click)="paymentMethod('credit')">Credit</button>
             </div>
-            <div class="from-group">
-                <label>Unit Price:</label>
-                <input type="text" class="form-control" formControlName="Unit_Price" placeholder="Unit Price" id="{{'detailUnitPrice'+i}}" 
-                    (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" [class.is-invalid]="item.get('Unit_Price').invalid && item.get('Unit_Price').touched">
-                <div *ngIf="item.get('Unit_Price').invalid && item.get('Unit_Price').touched">
-                    <small *ngIf="item.get('Unit_Price').errors?.required" class="text-danger">Unit Price is required</small>
-                </div>
-            </div>
-            <div class="from-group">
-                <label>Qty:</label>
-                <input type="text" class="form-control" formControlName="Qty" placeholder="Qty" id="{{'detailQty'+i}}" 
-                    (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" [class.is-invalid]="item.get('Qty').invalid && item.get('Qty').touched">
-                <div *ngIf="item.get('Qty').invalid && item.get('Qty').touched">
-                    <small *ngIf="item.get('Qty').errors?.required" class="text-danger">Qty is required</small>
-                </div>
-            </div>
-            <div class="from-group">
-                <label>Disc:</label>
-                <input type="text" class="form-control" formControlName="Discount" placeholder="Discount" id="{{'detailDiscount'+i}}" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$">
-            </div>
-            <ng-container *ngIf="country=='DEU'">
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" (click)="setTax($event, i)" formControlName="ToGo" placeholder="To Go" id="{{'detailToGo'+i}}">
-                    <label class="form-check-label" for="{{'detailToGo'+i}}">To Go</label>
-                </div>
-            </ng-container>
-            <div class="from-group" *ngIf="country!='DEU'">
-                <label>Tax Id:</label>
-                <select class="form-control" id="{{'detailTaxId'+i}}" formControlName="Tax_Id" (change)="changeTax($event, i)" [class.is-invalid]="item.get('Tax_Id').invalid 
-                                                                                                                                              && item.get('Tax_Id').touched">
-                    <option *ngFor="let res of taxes" [value]="res.Tax_Id">{{res.Name}}</option>
-                </select>
-                <div *ngIf="item.get('Tax_Id').invalid && item.get('Tax_Id').touched">
-                    <small *ngIf="item.get('Tax_Id').errors?.required" class="text-danger">Tax Id is required</small>
-                </div>
-            </div>
-            <button type="button" class="btn btn-primary" (click)="addItem()" [disabled]="salesForm.get('detail').invalid || item.value.Name === ''">Add Item</button>
-        </ng-container>
-    </ng-container>
-    Chosen name: {{ salesForm.value | json }}
+            <!-- <div class="calculator" *ngIf="cash">
+                <div class="mainDisplay" name="mainDisp">{{ingresado}}</div>
+                <div class="numberCalc" (click)="pressKey('1')">1</div>
+                <div class="numberCalc" (click)="pressKey('2')">2</div>
+                <div class="numberCalc" (click)="pressKey('3')">3</div>
+                <div class="numberCalc" (click)="pressKey('4')">4</div>
+                <div class="numberCalc" (click)="pressKey('5')">5</div>
+                <div class="numberCalc" (click)="pressKey('6')">6</div>
+                <div class="numberCalc" (click)="pressKey('7')">7</div>
+                <div class="numberCalc" (click)="pressKey('8')">8</div>
+                <div class="numberCalc" (click)="pressKey('9')">9</div>
+                <div class="numberCalc" (click)="pressKey('.')">.</div>
+                <div class="numberCalc" (click)="pressKey('0')">0</div>
+                <div class="numberCalc" (click)="pressKey('AC')">AC</div>
+                <div>Vuelto: {{ingresado-salesForm.value.Total | number: '.2'}}</div>
+            </div> -->
+        </div>
+        <button type="button" mat-flat-button color="accent" (click)="step=2" class="mr-3 mt-2">Back</button>
+        <button type="submit" mat-flat-button color="primary" id="save" [disabled]="!salesForm.valid"
+            class="mr-3 mt-2">Save</button>
+        Chosen name: {{ salesForm.value | json }}
+        Chosen name: {{ salesForm.state | json }}
+    </div>
+
     <!--<label>Unit Price:</label>
         <input type="text" class="" [ngModelOptions]="{standalone: true}" [(ngModel)]="unitPrice" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" />
     -->
-    <app-product-list (childEvent)="productSelected($event)" view="salesView"></app-product-list>
-    <div class="detail-form">
-        <div class="list-group">
-            <a class="list-group-item list-group-item-action" *ngFor="let item of salesForm.get('detail').value; let i = index;">
-                <div class="list-element" *ngIf="item.Line_No>0">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{item.Name}}</h5>
-                        <button class="text-muted" (click)="removeItem(i)">Remove</button>
-                    </div>
-                    <p class="mb-1">Qty: {{item.Qty | number: '.2' }}</p>
-                    <p class="mb-1"> Discount: {{item.Discount | number: '.2'}}</p>
-                    <small class="text-muted">Total: {{item.Total | number: '.2'}}</small>
-                </div>
-            </a>
-        </div>
-        <p>Total: {{salesForm.value.Total | number: '.2'}}</p>
-    </div>
-    <div class="payment-form">
-        <div class="payment-type">
-            <button type="button" id="Cash" class="btn btn-primary" (click)="paymentMethod('cash')">Cash</button>
-            <button type="button" id="Credit" class="btn btn-primary" (click)="paymentMethod('credit')">Credit</button>
-        </div>
-        <div class="calculator" *ngIf="cash">
-            <div class="mainDisplay" name="mainDisp">{{ingresado}}</div>
-            <div class="numberCalc" (click)="pressKey('1')">1</div>
-            <div class="numberCalc" (click)="pressKey('2')">2</div>
-            <div class="numberCalc" (click)="pressKey('3')">3</div>
-            <div class="numberCalc" (click)="pressKey('4')">4</div>
-            <div class="numberCalc" (click)="pressKey('5')">5</div>
-            <div class="numberCalc" (click)="pressKey('6')">6</div>
-            <div class="numberCalc" (click)="pressKey('7')">7</div>
-            <div class="numberCalc" (click)="pressKey('8')">8</div>
-            <div class="numberCalc" (click)="pressKey('9')">9</div>
-            <div class="numberCalc" (click)="pressKey('.')">.</div>
-            <div class="numberCalc" (click)="pressKey('0')">0</div>
-            <div class="numberCalc">&nbsp;</div>
-            <div>Vuelto: {{ingresado-salesForm.value.Total | number: '.2'}}</div>
-        </div>
-    </div>
-    <br/>
-    <app-alert></app-alert>
-    <button type="submit" id="save" class="btn btn-primary" [disabled]="!salesForm.valid">
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-        Save
-    </button>
 </form>

@@ -1,13 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Customer, Detail, Product, Tax } from '@app/_models';
+import { Product, Tax } from '@app/_models';
 import { ArrayValidators } from '@app/validators';
 import { CustomerService, ProductService, CompanyService, TaxService, SalesService } from "@app/services";
 import { Generic } from '@app/_models';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
-import { AlertService  } from "@shared/alert";
 import { formatDate } from '@angular/common';
+import { ConfirmValidParentMatcher } from '@app/validators';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
+
 import * as cloneDeep  from 'lodash/cloneDeep';
+import { Observable } from 'rxjs';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-sales',
@@ -15,12 +20,11 @@ import * as cloneDeep  from 'lodash/cloneDeep';
   styleUrls: ['./sales.component.scss']
 })
 export class SalesComponent implements OnInit {
-  listCustomers: Generic[]=[];
   taxes: Tax[]=[];
   onError: string='';
   loading: boolean=false;
+  minDeliveryDate = new Date();
 
-  custId: string='None';
   invoiceDate: Date = new Date();
   customerId: string='';
   companyId: string = '';
@@ -28,13 +32,19 @@ export class SalesComponent implements OnInit {
   country: string = '';
   dispLoading: boolean;
   cash: string='';
+  step: number=1;
+  filteredCustomers: Observable<Generic[]>;
 
   ingresado: string='';
   lineNo: number=0;
-  
+  index: number=0;
+
   get fSales(){
     return this.salesForm.controls;
   }
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+  
   constructor(
     private customerService: CustomerService,
     private taxeService: TaxService,
@@ -43,7 +53,8 @@ export class SalesComponent implements OnInit {
     private productService: ProductService,
     private companyService: CompanyService,
     private fb: FormBuilder,
-    private alertService: AlertService
+    private dialog: MatDialog,
+    private _snackBar: MatSnackBar
   ) { }
 
   salesForm = this.fb.group({
@@ -70,14 +81,13 @@ export class SalesComponent implements OnInit {
       Tax_Id: ['', [Validators.required]],
       Percentage: [0],
       Include_Tax: [0],
-      Qty: [0, [Validators.required]],
-      Unit_Price: [0, [Validators.required]],
+      Qty: [0, [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]],
+      Unit_Price: [0, [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]],
       ToGo: [0],
-      Discount: [0],
+      Discount: [0, [Validators.max(99999999.90), Validators.min(0.00), Validators.maxLength(11)]],
       Total: [0],
       Total_Tax: [0],
-      Delivery_Date: [''],
-      Added: [0]
+      Delivery_Date: ['']
     });
     items.valueChanges
       .subscribe(data => this.onValueChanged(data));
@@ -113,7 +123,7 @@ export class SalesComponent implements OnInit {
       }
     },
     error => {
-      this.alertService.error('Error ! ' + error.Message);
+      this.openDialog('Error !', error.Message, false, true, false);
     });
 
     this.companyService.getCompany(this.companyId).subscribe((res: any) => {
@@ -122,15 +132,53 @@ export class SalesComponent implements OnInit {
       }
     },
     error => { 
-      this.alertService.error('Error ! ' + error.Message);
+      this.openDialog('Error !', error.Message, false, true, false);
     });
 
     this.salesForm.controls['User_Id'].setValue(this.userId);
     this.salesForm.controls['Company_Id'].setValue(this.companyId);
   }
 
-  getCustomers($event){
-    this.loadCustomers($event);
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
+
+  getErrorMessage(component: string, index: number) {
+    if (component === 'Unit_Price'){
+      let unitPrice = (<FormArray>this.salesForm.get('detail')).controls[index].get('Unit_Price');
+      return unitPrice.hasError('required') ? 'You must enter a value' :
+        unitPrice.hasError('min') ? 'Minimun value 0.01' :
+          unitPrice.hasError('max') ? 'Maximun value 99999999.90':
+            unitPrice.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
+    if (component === 'Quantity'){
+      let qty = (<FormArray>this.salesForm.get('detail')).controls[index].get('Qty');
+      return qty.hasError('required') ? 'You must enter a value' :
+        qty.hasError('min') ? 'Minimun value 0.0001' :
+          qty.hasError('max') ? 'Maximun value 99999999.9990':
+            qty.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
+    if (component === 'Discount'){
+      let disc = (<FormArray>this.salesForm.get('detail')).controls[index].get('Discount');
+      return disc.hasError('min') ? 'Minimun value 0.00' :
+        disc.hasError('max') ? 'Maximun value 99999999.90':
+          disc.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
   }
 
   productSelected(product: Product) {
@@ -138,8 +186,29 @@ export class SalesComponent implements OnInit {
       if (res != null) {
         const item = this.salesForm.controls.detail as FormArray;
         let values = this.taxes.filter(res => res.To_Go == false); 
-        item.at(this.lineNo).setValue({
-          'Line_No': this.lineNo+1,
+        if (this.lineNo == 0) {
+          this.lineNo = 1;
+          this.index = 0;
+        } else {
+          //ADD NEW ROW AT THE END
+          (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
+
+          this.lineNo += 1;
+          this.index += 1;
+        }
+        let totalTax: number;
+        let total: number;
+        let percentage: number;
+        percentage = values[0].Percentage;
+        total = +res.Unit_Price.toFixed(2);
+        if (values[0].Include_Tax == false){
+          totalTax = +((total-0)*(percentage/100)).toFixed(2);
+          total = +(total-0)+totalTax;
+        } else {
+          totalTax = +((total-0)-((total-0)/(1+(percentage/100)))).toFixed(2);
+        }
+        item.at(this.index).setValue({
+          'Line_No': this.lineNo,
           'Product_Id': res.Product_Id,
           'Name': res.Name,
           'Unit_Price': +res.Unit_Price.toFixed(2),
@@ -147,81 +216,55 @@ export class SalesComponent implements OnInit {
           'Discount': 0,
           'ToGo': 0,
           'Tax_Id': values[0].Tax_Id,
-          'Percentage': values[0].Percentage,
+          'Percentage': percentage,
           'Include_Tax': values[0].Include_Tax,
-          'Total': 0,
-          'Total_Tax': 0,
-          'Delivery_Date': '',
-          'Added': 0
+          'Total': total,
+          'Total_Tax': totalTax,
+          'Delivery_Date': ''
         });
 
-        let items = this.salesForm.get('detail') as FormArray;
-        items.controls.map((ctrl) => {
-          ctrl.get('Name').setValidators([Validators.required]);
-          ctrl.get('Unit_Price').setValidators([Validators.required]);
-          ctrl.get('Qty').setValidators([Validators.required]);
-          ctrl.get('Tax_Id').setValidators([Validators.required]);
-          ctrl.get('Name').updateValueAndValidity();
-          ctrl.get('Unit_Price').updateValueAndValidity();
-          ctrl.get('Qty').updateValueAndValidity();
-          ctrl.get('Tax_Id').updateValueAndValidity();
+        //UPDATE GRAND TOTAL
+        this.calcGrandTotal();
+
+        // let items = this.salesForm.get('detail') as FormArray;
+        // items.controls.map((ctrl) => {
+        //   ctrl.get('Name').setValidators([Validators.required]);
+        //   ctrl.get('Unit_Price').setValidators([Validators.required]);
+        //   ctrl.get('Qty').setValidators([Validators.required]);
+        //   ctrl.get('Tax_Id').setValidators([Validators.required]);
+        //   ctrl.get('Name').updateValueAndValidity();
+        //   ctrl.get('Unit_Price').updateValueAndValidity();
+        //   ctrl.get('Qty').updateValueAndValidity();
+        //   ctrl.get('Tax_Id').updateValueAndValidity();
+        // });
+
+        //ADD NEW ROW AT THE END
+        // (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
+        // this.lineNo += 1;
+
+        // let newItems = this.salesForm.get('detail') as FormArray;
+        // newItems.controls.map((ctrl) => {
+        //   ctrl.get('Name').setValidators(null);
+        //   ctrl.get('Unit_Price').setValidators(null);
+        //   ctrl.get('Qty').setValidators(null);
+        //   ctrl.get('Tax_Id').setValidators(null);
+        //   ctrl.get('Name').updateValueAndValidity();
+        //   ctrl.get('Unit_Price').updateValueAndValidity();
+        //   ctrl.get('Qty').updateValueAndValidity();
+        //   ctrl.get('Tax_Id').updateValueAndValidity();
+        // });
+        // const newItem = (<FormArray>this.salesForm.get('detail'));
+        // let taxesValue = this.taxes.filter(res => res.To_Go == false); 
+        // newItem.at(newItem.value.length-1).patchValue({'Tax_Id': taxesValue[0].Tax_Id, 'Percentage': taxesValue[0].Percentage, 'Include_Tax': taxesValue[0].Include_Tax});
+
+        this._snackBar.open('Product added successful', 'Close', {
+          duration: 2000,
+          panelClass: 'style-succes'
         });
       }
     },
     error => { 
-      this.alertService.error('Error ! ' + error.Message);
-    });
-  }
-
-  getCustomerSelected($event){
-    this.customerId = $event;
-    if (this.customerId != '') {
-      this.customerService.getCustomer(this.customerId).subscribe((res: any) => {
-        if (res != null) {
-          this.salesForm.get('customerInfo').setValue({
-            'Customer_Id': res.Customer_Id,
-            'Name': res.Name,
-            'Tax_Number': res.Tax_Number,
-            'Is_Exent': res.Is_Exent,
-            'Reason': res.Reason,
-            'Status': 1
-          });
-        }
-      },
-      error => { 
-        this.alertService.error('Error ! ' + error.Message);
-      });
-    } else {
-      this.salesForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
-    }
-  }
-
-  loadCustomers(crValue){
-    this.onError = '';
-    this.custId = 'None';
-    if (crValue === '') { 
-      this.listCustomers = [{"c":"","n":"Not Found","e":"","t":""}]; 
-      return; 
-    }
-    let data = "companyId=" + this.companyId + "&currPage=1&perPage=5&searchValue=" + crValue;
-
-    this.customerService.getCustomers(data).subscribe((res: any) => {
-      if (res != null) {
-        this.listCustomers = res.customers.map(customer => {
-          return {
-            "c": customer.Customer_Id,
-            "n": customer.Name,
-            "e": customer.Email,
-            "t": customer.Tax_Number
-          }
-        });
-        this.dispLoading = false;
-      }
-    },
-    error => {
-      this.listCustomers = [{"c":"","n":"Not Found","e":"","t":""}];
-      this.onError = error.Message;
-      this.dispLoading = false;
+      this.openDialog('Error !', error.Message, false, true, false);
     });
   }
 
@@ -231,11 +274,17 @@ export class SalesComponent implements OnInit {
     }
     this.loading = true;
     let form = cloneDeep(this.salesForm);
+    let nameCustomer: string = '';
 
+    if (typeof form.get('customerInfo').value.Name === 'string'){
+      nameCustomer = form.get('customerInfo').value.Name;
+    } else {
+      nameCustomer = form.get('customerInfo').value.Name.Name;
+    }
     let dataForm =  { 
       "Document_Id": form.value.Document_Id,
       "Customer_Id": form.get('customerInfo').value.Customer_Id,
-      "Name": form.get('customerInfo').value.Name,
+      "Name": nameCustomer,
       "Invoice_Date": form.value.Invoice_Date,
       "Tax_Number": form.get('customerInfo').value.Tax_Number,
       "Is_Exent": form.get('customerInfo').value.Is_Exent,
@@ -260,49 +309,47 @@ export class SalesComponent implements OnInit {
     this.salesService.postSale(dataForm)
       .subscribe(
         response =>  {
-          this.alertService.success('Sales created successful');
           this.loading = false;
+          this.openDialog('Sales', 'Sales created successful', true, false, false);
           this.salesForm.reset({'Invoice_Date':formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), 'Document_Id': 'b01238a0371e11eaa2531603e958f2e9', 'Company_Id': this.companyId, 'Status': 1, 'User_Id': this.userId, 'Payment_Status': '', 'Payment_Date': '', 'Total': 0, 'Total_Taxes': 0, 'Total_Discount':0, 'Store_Id':'135557c3371e11eaa2531603e958f2e9', 'customerInfo': '', 'detail': this.fb.array([], ArrayValidators.minLength(1)) });
-          // this.salesForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
           this.lineNo = 0;
+          this.step = 1;
           this.cash = '';
           (<FormArray>this.salesForm.get('detail')).clear(); 
           (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
-
-          this.custId = "";
         },
         error => { 
           this.loading = false;
-          this.alertService.error('Error ! ' + error.Message);
+          this.openDialog('Error !', error.Message, false, true, false);
         }
       );
   }
 
-  addItem(): void {
-    //UPDATE EXISTING ROW
-    const line = (<FormArray>this.salesForm.get('detail'));
-    line.at(line.value.length-1).patchValue({'Added': 1});
+  // addItem(): void {
+  //   //UPDATE EXISTING ROW
+  //   const line = (<FormArray>this.salesForm.get('detail'));
+  //   line.at(line.value.length-1).patchValue({'Added': 1});
 
-    //ADD NEW ROW AT THE END
-    (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
-    this.lineNo += 1;
+  //   //ADD NEW ROW AT THE END
+  //   (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
+  //   this.lineNo += 1;
 
-    let items = this.salesForm.get('detail') as FormArray;
-    items.controls.map((ctrl) => {
-      ctrl.get('Name').setValidators(null);
-      ctrl.get('Unit_Price').setValidators(null);
-      ctrl.get('Qty').setValidators(null);
-      ctrl.get('Tax_Id').setValidators(null);
-      ctrl.get('Name').updateValueAndValidity();
-      ctrl.get('Unit_Price').updateValueAndValidity();
-      ctrl.get('Qty').updateValueAndValidity();
-      ctrl.get('Tax_Id').updateValueAndValidity();
-    });
+  //   let items = this.salesForm.get('detail') as FormArray;
+  //   items.controls.map((ctrl) => {
+  //     ctrl.get('Name').setValidators(null);
+  //     ctrl.get('Unit_Price').setValidators(null);
+  //     ctrl.get('Qty').setValidators(null);
+  //     ctrl.get('Tax_Id').setValidators(null);
+  //     ctrl.get('Name').updateValueAndValidity();
+  //     ctrl.get('Unit_Price').updateValueAndValidity();
+  //     ctrl.get('Qty').updateValueAndValidity();
+  //     ctrl.get('Tax_Id').updateValueAndValidity();
+  //   });
 
-    const item = (<FormArray>this.salesForm.get('detail'));
-    let values = this.taxes.filter(res => res.To_Go == false); 
-    item.at(item.value.length-1).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
-  }
+  //   const item = (<FormArray>this.salesForm.get('detail'));
+  //   let values = this.taxes.filter(res => res.To_Go == false); 
+  //   item.at(item.value.length-1).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
+  // }
 
   removeItem(index){
     (<FormArray>this.salesForm.get('detail')).removeAt(index);
@@ -316,6 +363,14 @@ export class SalesComponent implements OnInit {
     }
     this.lineNo -= 1;
     this.calcGrandTotal();
+
+    if (this.salesForm.get('Total').value <= 0) {
+      this.step = 1;
+      this._snackBar.open('You must select one item', 'Close', {
+        duration: 2000,
+        panelClass: 'style-error'
+      });
+    }
   }
 
   calcGrandTotal(){
@@ -348,7 +403,11 @@ export class SalesComponent implements OnInit {
   }
 
   pressKey(value){
-    this.ingresado = this.ingresado + value;
+    if (value === 'AC') {
+      this.ingresado = '0';
+    } else {
+      this.ingresado = this.ingresado + value;
+    }
   }
 
   paymentMethod(value){
@@ -366,18 +425,29 @@ export class SalesComponent implements OnInit {
 
   changeTax(event, index){
     const item = (<FormArray>this.salesForm.get('detail'));
-    let values = this.taxes.filter(res => res.Tax_Id.includes(event.target.value)); 
-    item.at(index).patchValue({'Tax_Id': event.target.value, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
+    let values = this.taxes.filter(res => res.Tax_Id == event.value); 
+    item.at(index).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
   }
 
   setTax(event, index){
     const item = (<FormArray>this.salesForm.get('detail'));
-    if (event.target.checked === true){
+    if (event.checked === true){
       let values = this.taxes.filter(res => res.To_Go == true); 
       item.at(index).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
     } else{
       let values = this.taxes.filter(res => res.To_Go == false); 
       item.at(index).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
+    }
+  }
+
+  setStep(event){
+    if (this.salesForm.get('Total').value > 0) {
+      this.step = event;
+    } else {
+      this._snackBar.open('You must select one item', 'Close', {
+        duration: 2000,
+        panelClass: 'style-error'
+      });
     }
   }
 }

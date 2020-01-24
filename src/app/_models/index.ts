@@ -6,3 +6,5 @@ export * from './countries';
 export * from './generic';
 export * from './detail';
 export * from './company';
+export * from './customerlist';
+export * from './customers';

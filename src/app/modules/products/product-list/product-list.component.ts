@@ -3,9 +3,10 @@ import { AuthService } from '@core/services';
 import { Product } from '@app/_models';
 import { ProductService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
-import { AlertService  } from "@shared/alert";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-product-list',
@@ -15,11 +16,12 @@ import { environment } from '@environments/environment';
 export class ProductListComponent implements OnInit {
   @Input() view: string='';
   @Output() childEvent = new EventEmitter<Product>();
-  public totalRows: number = 0;
-  public itemsNumber: number = 10;
+  @Output() newStep = new EventEmitter<string>();
+  public length: number = 0;
+  public pageSize: number = 10;
   public products: Product[] = [];
   public pages: number[];
-  public listView:boolean=false;
+  public listView:string='';
   public onError: string='';
   public bucketURL = environment.bucket;
 
@@ -29,15 +31,35 @@ export class ProductListComponent implements OnInit {
   companyId: string = '';
   message:string;
   loading = false;
-  spinner: string = '';
   dispLoading: boolean = false;
+  lastProd: Product;
+  deleted: boolean = false;
+  displayYesNo: boolean = false;
+  checkOut: boolean = false;
 
   constructor(
     private authService: AuthService,
     private data: MonitorService,
     private productService: ProductService,
-    private alertService: AlertService 
+    private dialog: MatDialog
   ) { }
+
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
 
   ngOnInit() {
     (async () => {
@@ -48,14 +70,18 @@ export class ProductListComponent implements OnInit {
       // Do something after
       console.log('after delay')
       this.companyId = this.authService.companyId();
-      this.loadProducts(this._currentPage, this.itemsNumber, this._currentSearchValue);
+      this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
       this.data.monitorMessage
         .subscribe((message: any) => {
           if (message === 'products') {
             this.message = message;
-            this.loadProducts(this._currentPage, this.itemsNumber, this._currentSearchValue);
+            this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
           }
         });
+        this.listView = 'grid';
+        if (this.view === "salesView"){
+          this.checkOut = true;
+        }
     })();
   }
   
@@ -67,13 +93,11 @@ export class ProductListComponent implements OnInit {
       if (res != null) {
         this.products = res.products;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-        this.totalRows = res.pagesTotal.count;
+        this.length = res.pagesTotal.count;
         this.dispLoading = false;
       }
     },
     error => {
-      // this.alertService.error('Error ! ' + error);
-      // this.alertService.error('Error ! ' + error.Message);
       this.onError = error.Message;
       this.dispLoading = false;
     });
@@ -83,46 +107,83 @@ export class ProductListComponent implements OnInit {
     this._currentSearchValue = searchParam;
     this.loadProducts(
       this._currentPage,
-      this.itemsNumber,
+      this.pageSize,
       this._currentSearchValue
     );
   }
 
   onSelect(product: Product){
-    this.spinner = 'spin_sel_'+product.Product_Id;
-    this.loading = true;
-    this.childEvent.emit(product);
-    this.loading = false;
-    this.spinner = '';
-    window.scroll(0,0);
+    if (this.lastProd != product){
+      this.childEvent.emit(product);
+      this.lastProd = product;
+    } else {
+      let defProd: Product;
+      (async () => {
+        this.childEvent.emit(defProd);
+        await delay(20);
+        this.childEvent.emit(product);
+      })();
+    }
+    if (!this.view) { window.scroll(0,0) };
   }
 
   onDelete(product: Product){
-    this.spinner = 'spin_del_'+product.Product_Id;
-    this.loading = true;
-    this.productService.deleteProduct(product.Product_Id).subscribe(
-      response =>  {
-        this.loadProducts(
-          this._currentPage,
-          this.itemsNumber,
-          this._currentSearchValue
-        );
-        this.loading = false;
-        this.spinner = '';
-        this.alertService.success('Product deleted successful');
-      },
-      error => {
-        this.loading = false;
-        this.spinner = '';
-        this.alertService.error('Error ! ' + error.Message);
-      });
+    this.displayYesNo = true;
+
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: 'Product', 
+      message: 'Are you sure to delete this Product?', 
+      success: false, 
+      error: false, 
+      warn: false,
+      ask: this.displayYesNo
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      if(result != undefined){
+        this.deleted = result;
+        if (this.deleted){
+          let delProd: Product;
+          this.loading = true;
+          this.productService.deleteProduct(product.Product_Id).subscribe(
+            response =>  {
+              this.childEvent.emit(delProd);
+              this.loadProducts(
+                this._currentPage,
+                this.pageSize,
+                this._currentSearchValue
+              );
+              this.loading = false;
+              window.scroll(0,0);
+              this.displayYesNo = false;
+              this.openDialog('Product', 'Product deleted successful', true, false, false);
+            },
+            error => {
+              this.loading = false;
+              this.displayYesNo = false;
+              this.openDialog('Error ! ', error.Message, false, true, false);
+            });
+        }
+      }
+    });
   }
 
-  public goToPage(page: number): void {
-    this._currentPage = page;
+  public goToPage(page: number, elements: number): void {
+    if (this.pageSize != elements){
+      this.pageSize = elements;
+      this._currentPage = 1;
+    } else {
+      this._currentPage = page+1;
+    }
     this.loadProducts(
       this._currentPage,
-      this.itemsNumber,
+      this.pageSize,
       this._currentSearchValue
     );
   }
@@ -131,14 +192,8 @@ export class ProductListComponent implements OnInit {
     this.listView = value;
   }
 
-  public onChangeNumber(elements: number){
-    this.itemsNumber = elements;
-    this._currentPage = 1;
-    this.loadProducts(
-      this._currentPage,
-      this.itemsNumber,
-      this._currentSearchValue
-    );
+  public sendStep(event){
+    this.newStep.emit( event );
   }
 
   trackById(index: number, item: Product) {

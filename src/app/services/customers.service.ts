@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
-import { Customer } from '@app/_models';
+import { Customer, Generic } from '@app/_models';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { CustomerList } from '@app/_models/customerlist';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +14,8 @@ export class CustomerService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
 
-    getCustomers(formData): Observable<Customer[]> {
-      return this.http.get<Customer[]>(this.apiURL + '/customers?' + formData)
+    getCustomers(formData): Observable<CustomerList[]> {
+      return this.http.get<CustomerList[]>(this.apiURL + '/customers?' + formData)
                       .pipe(catchError(this.errorHandler));
     }
 

@@ -1,12 +1,13 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { Tax } from '@app/_models';
-import { FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { TaxService, CompanyService } from "@app/services";
 import { AuthService } from '@core/services';
 import { Router } from '@angular/router';
 import { MonitorService } from "@shared/monitor.service";
-import { AlertService  } from "@shared/alert";
-// import { decimalValueValidator } from "@app/validators";
+import { ConfirmValidParentMatcher } from '@app/validators';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 // to send parameters between components
 // import { ActivatedRoute } from '@angular/router';
@@ -34,6 +35,10 @@ export class TaxComponent implements OnInit {
   loading = false;
   companyId: string='';
   country: string='';
+
+  //variable to handle errors on inputs components
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+
   // to send parameters between components
   // public taxId;
 
@@ -44,7 +49,8 @@ export class TaxComponent implements OnInit {
     private companyService: CompanyService,
     private router: Router,
     private data: MonitorService,
-    private alertService: AlertService 
+    // private _snackBar: MatSnackBar ,
+    private dialog: MatDialog
     // to send parameters between components
     // private authService: AuthService,
     // private route: ActivatedRoute
@@ -60,6 +66,23 @@ export class TaxComponent implements OnInit {
     Status: [1]
   })
   
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    // dialogConfig.disableClose = true;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
+
   ngOnInit() {    
     this.companyId = this.authService.companyId();
     this.companyService.getCompany(this.companyId).subscribe((res: any) => {
@@ -67,8 +90,8 @@ export class TaxComponent implements OnInit {
         this.country = res.Country;
       }
     },
-    error => { 
-      this.alertService.error('Error ! ' + error.Message);
+    error => {
+      this.openDialog('Error !', error.Message, false, true, false); 
     })
     // to send parameters between components
     // let id = this.route.snapshot.paramMap.get('idTax');
@@ -91,6 +114,21 @@ export class TaxComponent implements OnInit {
         this.message = message;
       });
     this.onValueChanges();
+  }
+
+  getErrorMessage(component: string) {
+    if (component === 'Name'){
+      return this.Name.hasError('required') ? 'You must enter a value' :
+          this.Name.hasError('minlength') ? 'Minimun length 3' :
+              '';
+    }
+    if (component === 'Percentage'){
+      return this.Percentage.hasError('required') ? 'You must enter a value' :
+          this.Percentage.hasError('min') ? 'Minimun value 0.01' :
+            this.Percentage.hasError('max') ? 'Maximun value 99.90':
+              this.Percentage.hasError('pattern') ? 'Incorrect value':
+                '';
+    }
   }
 
   onValueChanges(): void {
@@ -119,8 +157,9 @@ export class TaxComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     // changes.prop contains the old and the new value...
     if (changes.tax.currentValue != undefined) {
+      this.loading = true;
       let taxResult = changes.tax.currentValue;
-      this.taxForm.reset({Include_Tax:false, To_To: false, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
+      this.taxForm.reset({Include_Tax:0, To_To: 0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
       this.taxService.getTax(taxResult.Tax_Id).subscribe((res: any) => {
         if (res != null) {
           this.taxForm.setValue({
@@ -133,15 +172,18 @@ export class TaxComponent implements OnInit {
             Status: res.Status
           });
         }
+        this.loading = false;
       },
       error => { 
-        this.alertService.error('Error ! ' + error.Message);
+        this.loading = false;
+        this.openDialog('Error !', error.Message, false, true, false);
       })
+    } else {
+      this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
     }
   }
   
   onSubmit(){
-    // stop here if form is invalid
     if (this.taxForm.invalid) {
       return;
     }
@@ -162,15 +204,15 @@ export class TaxComponent implements OnInit {
       this.taxService.updateTax(taxId, dataForm)
         .subscribe(
           response =>  {
-            this.alertService.success('Tax created successful');
             this.submitted = false;
             this.loading = false;
-            this.taxForm.reset({Include_Tax:false, To_Go:false, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
+            this.openDialog('Taxes', 'Tax updated successful', true, false, false);            
+            this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
             this.data.changeData('taxes');
           },
           error => { 
             this.loading = false;
-            this.alertService.error('Error ! ' + error.Message);
+            this.openDialog('Error !', error.Message, false, true, false);
           }
         );
     } else {
@@ -187,15 +229,25 @@ export class TaxComponent implements OnInit {
       this.taxService.postTax(dataForm)
         .subscribe(
           response => {
-            this.alertService.success('Tax updated successful');
+            // this._snackBar.open('Tax created successful', 'Close', {
+            //   duration: 3000,
+            //   panelClass: 'style-succes'
+            // });
+            // this.alertService.success('Tax updated successful');
             this.submitted = false;
             this.loading = false;
-            this.taxForm.reset({Include_Tax:false, To_Go: false, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
+            this.openDialog('Taxes', 'Tax created successful', true, false, false);
+            this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
             this.data.changeData('taxes');
           },
           error => { 
             this.loading = false;
-            this.alertService.error('Error ! ' + error.Message);
+            this.openDialog('Error !', error.Message, false, true, false);
+            // this._snackBar.open('Error ! ' + error.Message, 'Close', {
+            //   duration: 3000,
+            //   panelClass: 'style-error'
+            // });
+            // this.alertService.error('Error ! ' + error.Message);
           }
         );
     }
@@ -203,8 +255,7 @@ export class TaxComponent implements OnInit {
 
   onCancel(){
     this.submitted = true;
-    this.taxForm.reset({Include_Tax:false, To_Go: false, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
-    this.data.changeData('taxes');
+    this.taxForm.reset({Include_Tax:0, To_Go: 0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
   }
 
   // allow only digits and dot

@@ -1,34 +1,49 @@
 <form [formGroup]="customerBasicForm" *ngIf="!customerValue">
-    <div class="form-group">
-        <label>Name</label>
-        <input type="text" formControlName="Name" class="form-control" [class.is-invalid]="fCustomer.Name.invalid 
-                                                                                        && fCustomer.Name.touched">
-        <div *ngIf="fCustomer.Name.invalid && fCustomer.Name.touched">
-            <small *ngIf="fCustomer.Name.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="fCustomer.Name.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field>
+            <input type="text" placeholder="Name" maxlength="500" minlength="3" formControlName="Name" form matInput [matAutocomplete]="auto" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-error *ngIf="fCustomer.Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" activeOption="activeOption" (optionSelected)='getCustomerSelected($event.option.value)' (focusout)="getCustomerSelected($event)">
+                <mat-option *ngIf="isLoading" class="is-loading"><mat-spinner diameter="50"></mat-spinner></mat-option>
+                <ng-container *ngIf="!isLoading">
+                    <mat-option *ngFor="let customer of filteredCustomers" [value]="customer">
+                        <div class="autocomplete-list">
+                            <span class="autocomplete-item">{{customer.Name | titlecase}} {{customer.Tax_Number}}</span>
+                        </div>
+                    </mat-option>
+                </ng-container>
+            </mat-autocomplete>
+        </mat-form-field>
     </div>
-    <div class="form-group">
-        <label>Tax Number</label>
-        <input type="text" formControlName="Tax_Number" class="form-control" [class.is-invalid]="fCustomer.Tax_Number.invalid 
-                                                                                                && fCustomer.Tax_Number.touched">
-        <div *ngIf="fCustomer.Tax_Number.invalid && fCustomer.Tax_Number.touched">
-            <small *ngIf="fCustomer.Tax_Number.errors?.required" class="text-danger">Name is required</small>
-            <small *ngIf="fCustomer.Tax_Number.errors?.minlength" class="text-danger">Minimun length 2</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Address placeholder="Address" maxlength="500" minlength="3" formControlName="Address" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Address.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="fCustomer.Name.invalid">{{getErrorMessage('Address')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group form-check">
-        <input type="checkbox" formControlName="Is_Exent" value="" class="form-check-input" id="Is_Exent">
-        <label class="form-check-label" for="Is_Exent">Is Exent</label>
+    <div class="form-field">
+        <mat-form-field>
+            <input matInput #State placeholder="State" minlength="2" maxlength="100" formControlName="State" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-error *ngIf="fCustomer.State.invalid">{{getErrorMessage('State')}}</mat-error>
+        </mat-form-field>
     </div>
-    <div class="form-group" *ngIf="customerBasicForm.value.Is_Exent">
-        <label>Reason</label>
-        <input type="text" formControlName="Reason" class="form-control" [class.is-invalid]="fCustomer.Reason.invalid 
-                                                                                            && fCustomer.Reason.touched">
-        <div *ngIf="fCustomer.Reason.invalid && fCustomer.Reason.touched">
-            <small *ngIf="fCustomer.Reason.errors?.required" class="text-danger">Reason is required</small>
-            <small *ngIf="fCustomer.Reason.errors?.minlength" class="text-danger">Minimun length 3</small>
-        </div>
+    <div class="form-field">
+        <mat-form-field hintLabel="Min 2 characters">
+            <input matInput #Tax_Number placeholder="Tax Number" minlength="2" maxlength="50" formControlName="Tax_Number" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Tax_Number.value?.length || 0}}/50</mat-hint>
+            <mat-error *ngIf="fCustomer.Tax_Number.invalid">{{getErrorMessage('Tax_Number')}}</mat-error>
+        </mat-form-field>
     </div>
-    {{ customerBasicForm.value | json }}
+    <div class="form-field-check">
+        <mat-checkbox formControlName="Is_Exent">Is Exent</mat-checkbox>
+    </div>
+    <div class="form-field" *ngIf="customerBasicForm.value.Is_Exent">
+        <mat-form-field hintLabel="Min 3 characters">
+            <input matInput #Reason placeholder="Reason" maxlength="500" minlength="3" formControlName="Reason" [errorStateMatcher]="confirmValidParentMatcher" required>
+            <mat-hint align="end">{{fCustomer.Reason.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="fCustomer.Reason.invalid">{{getErrorMessage('Reason')}}</mat-error>
+        </mat-form-field>
+    </div>
+    <!-- {{ customerBasicForm.value | json }} -->
 </form>    

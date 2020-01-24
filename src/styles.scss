@@ -1,0 +1,77 @@
+/* You can add global styles to this file, and also import other style files */
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
+@import '../node_modules/bootstrap/scss/bootstrap-reboot.scss';
+@import '../node_modules/bootstrap/scss/bootstrap-grid.scss';
+@import './assets/scss/position-helpers.scss';
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+button:focus, button:active:focus, button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}
+.mat-form-field{
+    width:100%;
+}
+.mat-checkbox{
+    margin-top: 0.3rem;
+    margin-left: -1.25rem;
+}
+.label-overlay{
+    left: 50%;
+    top: 70%;
+    position: absolute;
+    color: blue;
+}
+.form-spinner{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+.overlay{
+    height:100vh;
+    width:100%;
+    background-color:rgba(0, 0, 0, 0.418);
+    z-index:    10;
+    top:        0; 
+    left:       0; 
+    position:   fixed;
+}
+.form-field{
+    margin-bottom: 1rem;
+}
+.form-field-check{
+    position: relative;
+    display: block;
+    padding-left: 1.25rem;
+}
+// .misc-bottom-padding{margin:8px 0 20px;}
+// .misc-bottom-padding mat-label{margin-right:15px;}
+// .mat-radio-label{margin:0 15px 0 0;}
+// .title-center{margin:0 auto;}
+// .button-wrapper{margin-top:10px;}
+
+@import '~@angular/material/theming';
+
+@mixin snackBar-theme($theme) {
+  $primary: mat-color(map-get($theme, primary));
+  $primary-text: mat-color(map-get($theme, primary), default-contrast);
+  $warn: mat-color(map-get($theme, warn));
+  $warn-text: mat-color(map-get($theme, warn), default-contrast);
+
+  .style-succes {
+      color: $primary-text;
+      background-color: $primary;
+  }
+  .style-succes .mat-simple-snackbar-action  {
+      color: $primary-text;
+  }
+  .style-error {
+      color: $warn-text;
+      background-color: $warn;
+  }
+  .style-error .mat-simple-snackbar-action {
+      color: $warn-text;
+  }
+}

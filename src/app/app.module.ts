@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule } from '@angular/material';
+import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,6 +20,7 @@ import { PaginationComponent } from '@shared/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/spinner/spinner.component';
 import { CropperComponent } from '@shared/cropper/cropper.component';
 import { TypeaheadComponent } from '@shared/typeahead/typeahead.component';
+import { DialogComponent } from './shared/dialog/dialog.component';
 
 // Directives
 import { AppSpinnerDirective } from '@shared/app-spinner.directive';
@@ -44,7 +45,8 @@ import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.com
     ClickOutsideDirective,
     SearchFilterPipe,
     FindrecordComponent,
-    CustomerbasicComponent
+    CustomerbasicComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -54,6 +56,17 @@ import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.com
     MatInputModule,
     MatFormFieldModule,
     MatNativeDateModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatPaginatorModule,
+    MatListModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatSnackBarModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatAutocompleteModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule
@@ -65,7 +78,8 @@ import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.com
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   entryComponents: [
-    SpinnerComponent
+    SpinnerComponent,
+    DialogComponent
   ],
   bootstrap: [AppComponent]
 })
