@@ -1,4 +1,4 @@
-<div class="container-fluid" *ngIf="dispLoading">
+<div class="container-fluid h-100" *ngIf="dispLoading">
     <div *appSpinner="dispLoading; message: 'Loading Products'">
     </div>
 </div>
@@ -10,12 +10,13 @@
 </div>
 <div class="list-cards" *ngIf="listView=='list'">
     <mat-list *ngIf="onError==''">
-        <ng-container *ngFor="let product of products; trackBy: trackById">
+        <ng-container *ngFor="let product of products; let i=index; trackBy: trackById">
             <mat-list-item>
                 <div class="pr-0 pl-0">
                     <h3 matLine class="mb-1">{{ 'Name: ' + product.Name }}</h3>
-                    <p matLine class="mb-1">{{ 'Unit Price: ' + product.Unit_Price }}</p>
-                    <p matLine class="mb-1">{{ 'Qty : ' + product.Qty }}</p>
+                    <p matLine class="mb-1">{{ 'Price: ' + product.Unit_Price }}</p>
+                    <p matLine class="mb-1">{{ 'Available : ' + product.Qty }}</p>
+                    <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                     <mat-action-list class="" matLine *ngIf="!view">
                         <button mat-icon-button color="primary" (click)="onSelect(product)">
                             <mat-icon>edit</mat-icon>
@@ -25,7 +26,7 @@
                         </button>
                     </mat-action-list>
                     <mat-action-list class="" matLine *ngIf="view">
-                        <button type="button" mat-icon-button color="primary" (click)="onSelect(product)">
+                        <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, i)">
                             <mat-icon>add_shopping_cart</mat-icon>
                         </button>
                     </mat-action-list>
@@ -38,17 +39,18 @@
         <span>{{onError}}</span>
     </div>
 </div>
-<div class="list-cards" *ngIf="listView=='grid'">
-    <div class="row" *ngIf="onError==''">
-        <ng-container class="col-sm" *ngFor="let product of products; trackBy: trackById">
-            <mat-card class="grid-card col-md-3 ml-3 mt-3 mr-3 mb-3">
+<div class="card-columns" *ngIf="listView=='grid'"> <!--div class="list-cards d-flex flex-wrap p-0" -->
+    <ng-container *ngIf="onError==''"> <!-- row -->
+        <ng-container *ngFor="let product of products; let i=index; trackBy: trackById"> <!-- col-sm -->
+            <mat-card class="card grid-card mt-1 mb-1 mr-2"> <!--  col-md-3 ml-3 mt-3 mr-3 mb-3-->
                 <mat-card-header>
                     <mat-card-title>{{ 'Name: ' + product.Name }}</mat-card-title>
                 </mat-card-header>
                 <img mat-card-image *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
                 <mat-card-content>
-                    <p>{{ 'Unit Price: ' + product.Unit_Price }}</p>
-                    <p>{{ 'Qty : ' + product.Qty }}</p>
+                    <p>{{ 'Price: ' + product.Unit_Price }}</p>
+                    <p>{{ 'Available : ' + product.Qty }}</p>
+                    <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                 </mat-card-content>
                 <mat-card-actions align="end" *ngIf="!view">
                     <button mat-icon-button color="primary" (click)="onSelect(product)">
@@ -59,13 +61,13 @@
                     </button>
                 </mat-card-actions>
                 <mat-card-actions align="end" *ngIf="view">
-                    <button type="button" mat-icon-button color="primary" (click)="onSelect(product)">
+                    <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, i)">
                         <mat-icon>add_shopping_cart</mat-icon>
                     </button>
                 </mat-card-actions>
             </mat-card>
         </ng-container>
-    </div>
+    </ng-container>
     <div *ngIf="onError!=''">
         <span>{{onError}}</span>
     </div>

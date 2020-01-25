@@ -1,7 +1,7 @@
 .list-cards{
     // height: 600px; 
-    overflow-y: hidden; //scroll;
-    overflow-x: hidden;
+    // overflow-y: hidden; //scroll;
+    // overflow-x: hidden;
 }
 .list-item{
     width: 100%; 
@@ -28,4 +28,6 @@ mat-label{
 .grid-card{
     max-width: 400px;
     min-width: 300px;
+    display: inline-block;
+    // column-break-inside: avoid;
 }

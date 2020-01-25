@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule } from '@angular/material';
+import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,10 +16,10 @@ import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AlertComponent } from '@shared/alert/alert.component';
 import { SearchComponent } from '@shared/search/search.component';
-import { PaginationComponent } from '@shared/pagination/pagination.component';
+// import { PaginationComponent } from '@shared/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/spinner/spinner.component';
 import { CropperComponent } from '@shared/cropper/cropper.component';
-import { TypeaheadComponent } from '@shared/typeahead/typeahead.component';
+// import { TypeaheadComponent } from '@shared/typeahead/typeahead.component';
 import { DialogComponent } from './shared/dialog/dialog.component';
 
 // Directives
@@ -30,6 +30,8 @@ import { ClickOutsideDirective } from '@shared/clickoutside.directive';
 import { SearchFilterPipe } from '@shared/filterpipe';
 import { FindrecordComponent } from '@shared/findrecord/findrecord.component';
 import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.component';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -37,16 +39,16 @@ import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.com
     routingComponents,
     AlertComponent,
     SearchComponent,
-    PaginationComponent,
+    // PaginationComponent,
     SpinnerComponent,
     AppSpinnerDirective,
     CropperComponent,
-    TypeaheadComponent,
+    // TypeaheadComponent,
     ClickOutsideDirective,
     SearchFilterPipe,
     FindrecordComponent,
     CustomerbasicComponent,
-    DialogComponent
+    DialogComponent  
   ],
   imports: [
     BrowserModule,
@@ -67,9 +69,13 @@ import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.com
     MatSelectModule,
     MatDialogModule,
     MatAutocompleteModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatMenuModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    FormsModule
+    FormsModule,
+    LayoutModule
   ],
   providers: [
     NgxImageCompressService,

@@ -17,6 +17,8 @@ export class ProductListComponent implements OnInit {
   @Input() view: string='';
   @Output() childEvent = new EventEmitter<Product>();
   @Output() newStep = new EventEmitter<string>();
+  @Output() addItem = new EventEmitter<Object>();
+
   public length: number = 0;
   public pageSize: number = 10;
   public products: Product[] = [];
@@ -127,6 +129,24 @@ export class ProductListComponent implements OnInit {
     if (!this.view) { window.scroll(0,0) };
   }
 
+  onAddItem(product: Product, qtyField: string, i: number){
+    let qty = (<HTMLInputElement>document.getElementById(qtyField)).value;
+    if (qty === '') { qty = '1.00';}
+    if (this.lastProd != product){
+      this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString() } );
+      this.lastProd = product;
+      (<HTMLInputElement>document.getElementById(qtyField)).value = "";
+    } else {
+      (async () => {
+        this.addItem.emit("{ 'P_Id': '', 'Qty': ''}");
+        await delay(20);
+        this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString() } );
+        (<HTMLInputElement>document.getElementById(qtyField)).value = "";
+      })();
+    }
+    if (!this.view) { window.scroll(0,0) };
+  }
+
   onDelete(product: Product){
     this.displayYesNo = true;
 
@@ -199,4 +219,19 @@ export class ProductListComponent implements OnInit {
   trackById(index: number, item: Product) {
     return item.Product_Id;
   }
+
+  onKeyPress(event, value): boolean { 
+    const charCode = (event.which) ? event.which : event.keyCode;
+    let perc: string = value.toString();
+    var count = (perc.match(/[.]/g) || []).length;
+    if (count  == 1) {
+      if (charCode == 46) return false;
+    }
+    if (charCode == 46) return true;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      return false;
+    }
+    return true;
+  }
+
 }

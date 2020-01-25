@@ -15,11 +15,12 @@ import { CustomerComponent } from '@modules/customers/customer/customer.componen
 import { CustomerListComponent } from '@modules/customers/customer-list/customer-list.component';
 import { ProductComponent } from '@modules/products/product/product.component';
 import { ProductListComponent } from '@modules/products/product-list/product-list.component';
+import { MainNavComponent } from './modules/main-nav/main-nav.component';
 
 const routes: Routes = [
   { 
     path: '', 
-    component: MainMenuComponent, canActivate: [AuthGuard],
+    component: MainNavComponent, canActivate: [AuthGuard],
     children: [
       { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] },
       { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
@@ -51,6 +52,7 @@ export class AppRoutingModule { }
 export const routingComponents = [
   LoginComponent,
   MainMenuComponent,
+  MainNavComponent,
   TaxesComponent,
   TaxComponent,
   TaxListComponent,

@@ -1,32 +1,35 @@
-<div class="col-md-6 offset-md-3 mt-5">
-    <div class="alert alert-info">
-        <strong>Normal User</strong> - U: user P: user<br />
-        <strong>Administrator</strong> - U: admin P: admin
-    </div>
-    <div class="card">
-        <h4 class="card-header">Angular 8 Role Based Auth Example</h4>
-        <div class="card-body">
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" formControlName="username" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.username.errors }" />
-                    <div *ngIf="submitted && f.username.errors" class="invalid-feedback">
-                        <div *ngIf="f.username.errors.required">Username is required</div>
-                    </div>
+<div class="container-fluid h-100">
+    <div class="row align-items-center h-100">
+        <div class="col-md-8 offset-md-2">
+            <div class="row align-items-center border rounded">
+                <div class="col-md-5 panel-lt-login pl-2 pr-2 pt-2 pb-2"></div>
+                <div class="col-md-7 panel-rt-login pl-4 pr-4 pt-4 pb-4">
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                        <h2 class="">User Login</h2>
+                        <div class="mb-0 form-field">
+                            <mat-form-field appearance="outline">
+                                <mat-label>User Name</mat-label>
+                                <input matInput placeholder="User Name" formControlName="username"
+                                    [errorStateMatcher]="confirmValidParentMatcher" required>
+                                <mat-error *ngIf="f.username.invalid">{{getErrorMessage('UserName')}}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="mb-0 form-field">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Password</mat-label>
+                                <input type="password" matInput placeholder="Password" formControlName="password"
+                                    [errorStateMatcher]="confirmValidParentMatcher" required>
+                                <mat-error *ngIf="f.password.invalid">{{getErrorMessage('Password')}}</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <button mat-flat-button color="primary" id="save" [disabled]="loading" class="mr-3 mt-2">
+                            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>Sign Up
+                        </button>
+                        <app-alert></app-alert>
+                        <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" formControlName="password" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
-                    <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-                        <div *ngIf="f.password.errors.required">Password is required</div>
-                    </div>
-                </div>
-                <button [disabled]="loading" class="btn btn-primary">
-                    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-                    Login
-                </button>
-                <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

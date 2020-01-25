@@ -1,0 +1,46 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false">
+    <mat-toolbar color="primary">OCTAGT 365</mat-toolbar>
+    <mat-nav-list color="primary">
+      <a mat-list-item [routerLink]="['/sales']" routerLinkActive="menu-active">Sales</a>
+      <a mat-list-item  [routerLink]="['/customers']" routerLinkActive="menu-active">Customers</a>
+      <a mat-list-item [routerLink]="['/products']" routerLinkActive="menu-active">Products</a>
+      <a mat-list-item [routerLink]="['/taxes']" routerLinkActive="menu-active">Taxes</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar>
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <button
+        type="button"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="!(isHandset$ | async)">
+        <mat-icon>blur_on</mat-icon>
+      </button>
+      <!-- <span>OCTAGT 365</span> -->
+      <span class="spacer"></span>
+      <!-- <a href="#">{{ currentUser.Email }}</a> -->
+      <button mat-icon-button [matMenuTriggerFor]="userMenu">
+        <img id="img-profile" class="img-profile rounded-circle" src="https://placeimg.com/40/40/any">
+      </button>
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <button mat-menu-item>Profle</button>
+        <button mat-menu-item>Settings</button>
+        <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>
+      </mat-menu>
+    </mat-toolbar>
+    <!-- Add Content Here -->
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

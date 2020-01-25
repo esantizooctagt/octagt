@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
+import { ConfirmValidParentMatcher } from '@app/validators';
 
 import { AuthService } from '@core/services';
 
@@ -16,6 +17,8 @@ export class LoginComponent implements OnInit {
   submitted = false;
   returnUrl: string;
   error = '';
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -61,6 +64,17 @@ export class LoginComponent implements OnInit {
               this.error = error.Message;
               this.loading = false;
           });
+  }
+
+  getErrorMessage(component: string) {
+    if (component === 'UserName'){
+      return this.f.username.hasError('required') ? 'You must enter a username' :
+        '';
+    }
+    if (component === 'Password'){
+      return this.f.password.hasError('required') ? 'You must enter a password' :
+        '';
+    }
   }
 
 }

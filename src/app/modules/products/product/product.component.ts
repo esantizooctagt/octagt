@@ -163,7 +163,6 @@ export class ProductComponent implements OnInit {
 
   getErrorMessage(component: string) {
     if (component === 'Name'){
-      console.log(this.Name.hasError);
       return this.Name.hasError('required') ? 'You must enter a value' :
           this.Name.hasError('minlength') ? 'Minimun length 3' :
               '';

@@ -57,6 +57,13 @@ export class SalesComponent implements OnInit {
     private _snackBar: MatSnackBar
   ) { }
 
+  firstFormGroup = this.fb.group({
+    firstCtrl: ['', Validators.required]
+  });
+  secondFormGroup = this.fb.group({
+    secondCtrl: ''
+  });
+
   salesForm = this.fb.group({
     Invoice_Date: [formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Validators.required],
     Document_Id: ['b01238a0371e11eaa2531603e958f2e9', Validators.required],
@@ -107,7 +114,6 @@ export class SalesComponent implements OnInit {
     } else {
       data['Total_Tax'] = +((data['Total']-data['Discount'])-((data['Total']-data['Discount'])/(1+(data['Percentage']/100)))).toFixed(2);
     }
-
     //UPDATE GRAND TOTAL
     this.calcGrandTotal();
   }
@@ -181,8 +187,8 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  productSelected(product: Product) {
-    this.productService.getProduct(product.Product_Id).subscribe((res: any) => {
+  productSelected(product: any) {
+    this.productService.getProduct(product.P_Id).subscribe((res: any) => {
       if (res != null) {
         const item = this.salesForm.controls.detail as FormArray;
         let values = this.taxes.filter(res => res.To_Go == false); 
@@ -200,7 +206,7 @@ export class SalesComponent implements OnInit {
         let total: number;
         let percentage: number;
         percentage = values[0].Percentage;
-        total = +res.Unit_Price.toFixed(2);
+        total = +product.Qty*res.Unit_Price.toFixed(2);
         if (values[0].Include_Tax == false){
           totalTax = +((total-0)*(percentage/100)).toFixed(2);
           total = +(total-0)+totalTax;
@@ -212,7 +218,7 @@ export class SalesComponent implements OnInit {
           'Product_Id': res.Product_Id,
           'Name': res.Name,
           'Unit_Price': +res.Unit_Price.toFixed(2),
-          'Qty': 1,
+          'Qty': +product.Qty,
           'Discount': 0,
           'ToGo': 0,
           'Tax_Id': values[0].Tax_Id,
@@ -225,37 +231,6 @@ export class SalesComponent implements OnInit {
 
         //UPDATE GRAND TOTAL
         this.calcGrandTotal();
-
-        // let items = this.salesForm.get('detail') as FormArray;
-        // items.controls.map((ctrl) => {
-        //   ctrl.get('Name').setValidators([Validators.required]);
-        //   ctrl.get('Unit_Price').setValidators([Validators.required]);
-        //   ctrl.get('Qty').setValidators([Validators.required]);
-        //   ctrl.get('Tax_Id').setValidators([Validators.required]);
-        //   ctrl.get('Name').updateValueAndValidity();
-        //   ctrl.get('Unit_Price').updateValueAndValidity();
-        //   ctrl.get('Qty').updateValueAndValidity();
-        //   ctrl.get('Tax_Id').updateValueAndValidity();
-        // });
-
-        //ADD NEW ROW AT THE END
-        // (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
-        // this.lineNo += 1;
-
-        // let newItems = this.salesForm.get('detail') as FormArray;
-        // newItems.controls.map((ctrl) => {
-        //   ctrl.get('Name').setValidators(null);
-        //   ctrl.get('Unit_Price').setValidators(null);
-        //   ctrl.get('Qty').setValidators(null);
-        //   ctrl.get('Tax_Id').setValidators(null);
-        //   ctrl.get('Name').updateValueAndValidity();
-        //   ctrl.get('Unit_Price').updateValueAndValidity();
-        //   ctrl.get('Qty').updateValueAndValidity();
-        //   ctrl.get('Tax_Id').updateValueAndValidity();
-        // });
-        // const newItem = (<FormArray>this.salesForm.get('detail'));
-        // let taxesValue = this.taxes.filter(res => res.To_Go == false); 
-        // newItem.at(newItem.value.length-1).patchValue({'Tax_Id': taxesValue[0].Tax_Id, 'Percentage': taxesValue[0].Percentage, 'Include_Tax': taxesValue[0].Include_Tax});
 
         this._snackBar.open('Product added successful', 'Close', {
           duration: 2000,
@@ -324,32 +299,6 @@ export class SalesComponent implements OnInit {
         }
       );
   }
-
-  // addItem(): void {
-  //   //UPDATE EXISTING ROW
-  //   const line = (<FormArray>this.salesForm.get('detail'));
-  //   line.at(line.value.length-1).patchValue({'Added': 1});
-
-  //   //ADD NEW ROW AT THE END
-  //   (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
-  //   this.lineNo += 1;
-
-  //   let items = this.salesForm.get('detail') as FormArray;
-  //   items.controls.map((ctrl) => {
-  //     ctrl.get('Name').setValidators(null);
-  //     ctrl.get('Unit_Price').setValidators(null);
-  //     ctrl.get('Qty').setValidators(null);
-  //     ctrl.get('Tax_Id').setValidators(null);
-  //     ctrl.get('Name').updateValueAndValidity();
-  //     ctrl.get('Unit_Price').updateValueAndValidity();
-  //     ctrl.get('Qty').updateValueAndValidity();
-  //     ctrl.get('Tax_Id').updateValueAndValidity();
-  //   });
-
-  //   const item = (<FormArray>this.salesForm.get('detail'));
-  //   let values = this.taxes.filter(res => res.To_Go == false); 
-  //   item.at(item.value.length-1).patchValue({'Tax_Id': values[0].Tax_Id, 'Percentage':values[0].Percentage, 'Include_Tax': values[0].Include_Tax});
-  // }
 
   removeItem(index){
     (<FormArray>this.salesForm.get('detail')).removeAt(index);
