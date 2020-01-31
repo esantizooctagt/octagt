@@ -1,31 +1,3 @@
-.list-cards{
-    // height: 600px; 
-    overflow-y: hidden;//scroll;
-    overflow-x: hidden;
-}
-.list-item{
-    width: 100%; 
-    display: flex; 
-    // flex-direction: column; 
-}
-.form-spinner{
-    position: absolute;
-    left: 50%;
-    top: 50%;
-}
-.overlay{
-    height:100vh;
-    width:100%;
-    background-color:rgba(0, 0, 0, 0.418);
-    z-index:    10;
-    top:        0; 
-    left:       0; 
-    position:   fixed;
-}
 mat-label{
     color: blue;
-}
-.grid-card{
-    max-width: 400px;
-    min-width: 300px;
 }

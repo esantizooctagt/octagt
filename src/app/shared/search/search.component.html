@@ -12,7 +12,14 @@
   <button type="button" mat-icon-button (click)="changeView('grid')">
     <mat-icon>apps</mat-icon>
   </button>
-  <button *ngIf="salesView" type="button" mat-raised-button color="primary" (click)="changeStep()">
-    <mat-icon>shopping_cart</mat-icon>Checkout
-  </button>
+  <ng-container *ngIf="(isHandset$ | async); else isDesktop">
+    <button *ngIf="salesView" type="button" mat-raised-button color="primary" (click)="changeStep()">
+      <mat-icon>shopping_cart</mat-icon>
+    </button>
+  </ng-container>
+  <ng-template #isDesktop>
+    <button *ngIf="salesView" type="button" mat-raised-button color="primary" (click)="changeStep()">
+      <mat-icon>shopping_cart</mat-icon>Checkout
+    </button>
+  </ng-template>
 </div>

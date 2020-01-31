@@ -1,5 +1,9 @@
-<div class="container-fluid">
+<div class="container-fluid h-100">
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinProducts" class="form-spinner" mode="indeterminate">
+        </mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Products...</mat-label>
+    </div>
     <app-product [product]="clickedProduct"></app-product>
-    <app-alert></app-alert>
-    <app-product-list (childEvent)="childProductClicked($event)"></app-product-list>
+    <app-product-list (childEvent)="childProductClicked($event)" (modLoading)="displayLoading($event)"></app-product-list>
 </div>

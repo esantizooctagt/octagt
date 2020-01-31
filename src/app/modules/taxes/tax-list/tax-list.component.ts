@@ -15,11 +15,12 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 export class TaxListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Tax>();
+  @Output() modLoading = new EventEmitter<string>();
   public length: number = 0;
   public pageSize: number = 10;
   public taxes: Tax[] = [];
   public pages: number[];
-  public listView:boolean=false;
+  public listView:boolean=true;
   public onError: string='';
 
   private _currentPage: number = 1;
@@ -27,7 +28,6 @@ export class TaxListComponent implements OnInit {
 
   companyId: string = '';
   message: string;
-  dispLoading: boolean = false;
   loading = false;
   lastTax: Tax;
   deleted: boolean = false;
@@ -58,23 +58,16 @@ export class TaxListComponent implements OnInit {
   }
 
   ngOnInit() {
-    (async () => {
-      this.dispLoading = true;
-      // Do something before delay
-      console.log('before delay')
-      await delay(50);
-      // Do something after
-      console.log('after delay')
-      this.companyId = this.authService.companyId();
-      this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
-      this.data.monitorMessage
-        .subscribe((message: any) => {
-          if (message === 'taxes') {
-            this.message = message;
-            this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
-          }
-        });
-    })();
+    this.modLoading.emit('display');
+    this.companyId = this.authService.companyId();
+    this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
+    this.data.monitorMessage
+      .subscribe((message: any) => {
+        if (message === 'taxes') {
+          this.message = message;
+          this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
+        }
+      });
   }
   
   loadTaxes(crPage, crNumber, crValue) {
@@ -86,12 +79,12 @@ export class TaxListComponent implements OnInit {
         this.taxes = res.taxes;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
         this.length = res.pagesTotal.count;
-        this.dispLoading = false;
+        this.modLoading.emit('none');
       }
     },
     error => {
       this.onError = error.Message;
-      this.dispLoading = false;
+      this.modLoading.emit('none');
     });
   }
 
@@ -192,7 +185,11 @@ export class TaxListComponent implements OnInit {
   }
 
   public setView(value){
-    this.listView = value;
+    if (value === 'list'){
+      this.listView = true;
+    } else {
+      this.listView = false;
+    }
   }
 
   trackById(index: number, item: Tax) {

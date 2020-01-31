@@ -1,0 +1,42 @@
+<h2>Profile</h2>
+<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinProfile" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Profile...</mat-label>
+    </div>
+    <mat-card class="">
+        <div class="form-field">
+            <mat-label class="">
+                Email :
+            </mat-label>
+            {{profileForm.Email}}
+        </div>
+        <div class="form-field">
+            <mat-label class="">
+                User Name :
+            </mat-label>
+            {{profileForm.UserName}}
+        </div>
+        <div class="form-field">
+            <mat-label class="">
+                Company :
+            </mat-label>
+            {{profileForm.CompanyName}}
+        </div>
+        <div class="form-field">
+            <mat-form-field>
+                <mat-label class="">
+                    Default Store :
+                </mat-label>
+                <mat-select formControlName="Store_Id">
+                    <mat-option *ngFor="let item of stores" value="{{item.Store_Id}}">
+                    {{item.Name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <button mat-flat-button color="primary" id="save" [disabled]="!profileForm.valid" class="mr-3 mt-2">Save</button>
+        <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+        {{ profileForm.value | json }}
+    </mat-card>
+</form>    

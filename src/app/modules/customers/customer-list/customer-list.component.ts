@@ -3,7 +3,6 @@ import { AuthService } from '@core/services';
 import { Customer } from '@app/_models';
 import { CustomerService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
-import { AlertService  } from "@shared/alert";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -17,11 +16,13 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 export class CustomerListComponent implements OnInit {
 
   @Output() childEvent = new EventEmitter<Customer>();
+  @Output() modLoading = new EventEmitter<string>();
+
   public length: number = 0;
   public pageSize: number = 10;
   public customers: Customer[] = [];
   public pages: number[];
-  public listView:boolean=false;
+  public listView:boolean=true;
   public onError: string='';
 
   private _currentPage: number = 1;
@@ -30,7 +31,6 @@ export class CustomerListComponent implements OnInit {
   companyId: string = '';
   message:string;
   loading = false;
-  dispLoading: boolean = false;
   lastCustomer: Customer;
   deleted: boolean = false;
   displayYesNo: boolean = false;
@@ -60,23 +60,16 @@ export class CustomerListComponent implements OnInit {
   }
 
   ngOnInit() {
-    (async () => {
-      this.dispLoading = true;
-      // Do something before delay
-      console.log('before delay')
-      await delay(50);
-      // Do something after
-      console.log('after delay')
-      this.companyId = this.authService.companyId();
-      this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
-      this.data.monitorMessage
-        .subscribe((message: any) => {
-          if (message === 'customers') {
-            this.message = message;
-            this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
-          }
-        });
-    })();
+    this.modLoading.emit('display');
+    this.companyId = this.authService.companyId();
+    this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
+    this.data.monitorMessage
+      .subscribe((message: any) => {
+        if (message === 'customers') {
+          this.message = message;
+          this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
+        }
+      });
   }
   
   loadCustomers(crPage, crNumber, crValue){
@@ -88,12 +81,12 @@ export class CustomerListComponent implements OnInit {
         this.customers = res.customers;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
         this.length = res.pagesTotal.count;
-        this.dispLoading = false;
+        this.modLoading.emit('none');
       }
     },
     error => {
       this.onError = error.Message;
-      this.dispLoading = false;
+      this.modLoading.emit('none');
     });
   }
 
@@ -183,7 +176,11 @@ export class CustomerListComponent implements OnInit {
   }
   
   public setView(value){
-    this.listView = value;
+    if (value === 'list'){
+      this.listView = true;
+    } else {
+      this.listView = false;
+    }
   }
 
   trackById(index: number, item: Customer) {

@@ -1,13 +1,16 @@
-import { Component, Output, EventEmitter, OnDestroy, Input, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { shareReplay, map } from 'rxjs/operators';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss']
 })
-export class SearchComponent implements OnDestroy, OnInit {
+export class SearchComponent implements OnDestroy {
   @Input() readonly placeholder: string = '';
   @Input() salesView: boolean = false;
   @Output() setValue: EventEmitter<string> = new EventEmitter();
@@ -17,7 +20,15 @@ export class SearchComponent implements OnDestroy, OnInit {
   private _searchSubject: Subject<string> = new Subject();
   public loading:boolean = false;
   
-  constructor() {
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => result.matches),
+      shareReplay()
+    );
+
+  constructor(
+    private breakpointObserver: BreakpointObserver
+  ) {
     this._setSearchSubscription();
    }
 
@@ -48,7 +59,4 @@ export class SearchComponent implements OnDestroy, OnInit {
     this._searchSubject.unsubscribe();
   }
 
-  ngOnInit(){
-    this.view.emit( 'list' );
-  }
 }

@@ -52,6 +52,24 @@ button:focus, button:active:focus, button.active:focus {
     display: block;
     padding-left: 1.25rem;
 }
+.card-columns {
+    @include media-breakpoint-only(lg) {
+      column-count: 3;
+    }
+    @include media-breakpoint-only(xl) {
+      column-count: 4;
+    }
+  }
+
+.grid-card{
+    max-width: 400px;
+    min-width: 300px;
+    display: inline-block !important; 
+}
+.list-item{
+    width: 100%; 
+    display: flex; 
+}
 // .misc-bottom-padding{margin:8px 0 20px;}
 // .misc-bottom-padding mat-label{margin-right:15px;}
 // .mat-radio-label{margin:0 15px 0 0;}
@@ -81,12 +99,3 @@ button:focus, button:active:focus, button.active:focus {
       color: $warn-text;
   }
 }
-
-.card-columns {
-    @include media-breakpoint-only(lg) {
-      column-count: 3;
-    }
-    @include media-breakpoint-only(xl) {
-      column-count: 4;
-    }
-  }

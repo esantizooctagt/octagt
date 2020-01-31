@@ -18,12 +18,13 @@ export class ProductListComponent implements OnInit {
   @Output() childEvent = new EventEmitter<Product>();
   @Output() newStep = new EventEmitter<string>();
   @Output() addItem = new EventEmitter<Object>();
+  @Output() modLoading = new EventEmitter<string>();
 
   public length: number = 0;
   public pageSize: number = 10;
   public products: Product[] = [];
   public pages: number[];
-  public listView:string='';
+  public listView:boolean=false;
   public onError: string='';
   public bucketURL = environment.bucket;
 
@@ -33,7 +34,6 @@ export class ProductListComponent implements OnInit {
   companyId: string = '';
   message:string;
   loading = false;
-  dispLoading: boolean = false;
   lastProd: Product;
   deleted: boolean = false;
   displayYesNo: boolean = false;
@@ -64,27 +64,19 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit() {
-    (async () => {
-      this.dispLoading = true;
-      // Do something before delay
-      console.log('before delay')
-      await delay(50);
-      // Do something after
-      console.log('after delay')
-      this.companyId = this.authService.companyId();
-      this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
-      this.data.monitorMessage
-        .subscribe((message: any) => {
-          if (message === 'products') {
-            this.message = message;
-            this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
-          }
-        });
-        this.listView = 'grid';
-        if (this.view === "salesView"){
-          this.checkOut = true;
+    this.modLoading.emit('display');
+    this.companyId = this.authService.companyId();
+    this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
+    this.data.monitorMessage
+      .subscribe((message: any) => {
+        if (message === 'products') {
+          this.message = message;
+          this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
         }
-    })();
+      });
+      if (this.view === "salesView"){
+        this.checkOut = true;
+      }
   }
   
   loadProducts(crPage, crNumber, crValue){
@@ -96,12 +88,12 @@ export class ProductListComponent implements OnInit {
         this.products = res.products;
         this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
         this.length = res.pagesTotal.count;
-        this.dispLoading = false;
+        this.modLoading.emit('none');
       }
     },
     error => {
       this.onError = error.Message;
-      this.dispLoading = false;
+      this.modLoading.emit('none');
     });
   }
 
@@ -209,7 +201,11 @@ export class ProductListComponent implements OnInit {
   }
   
   public setView(value){
-    this.listView = value;
+    if (value === 'list'){
+      this.listView = true;
+    } else {
+      this.listView = false;
+    }
   }
 
   public sendStep(event){

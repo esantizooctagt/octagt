@@ -35,8 +35,8 @@
         <img id="img-profile" class="img-profile rounded-circle" src="https://placeimg.com/40/40/any">
       </button>
       <mat-menu #userMenu="matMenu" xPosition="before">
-        <button mat-menu-item>Profle</button>
-        <button mat-menu-item>Settings</button>
+        <button mat-menu-item (click)="goToProfile()"><mat-icon>account_circle</mat-icon>Profle</button>
+        <button mat-menu-item><mat-icon>store</mat-icon>Store</button>
         <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>
       </mat-menu>
     </mat-toolbar>

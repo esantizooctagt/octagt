@@ -61,6 +61,11 @@ export class AuthService {
         return this.currentUserTknSubject.value;
     }
 
+    avatar(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Avatar;
+    }
+
     logout() {
         // remove user data from local storage for log out
         //Session Storage works when a user closed tab or browser

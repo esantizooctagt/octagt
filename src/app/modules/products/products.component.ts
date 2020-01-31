@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from '@app/_models';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products',
@@ -9,6 +10,8 @@ import { Product } from '@app/_models';
 export class ProductsComponent implements OnInit {
 
   public clickedProduct: Product;
+  loading: boolean =false;
+
   constructor() { }
 
   ngOnInit() {
@@ -16,6 +19,17 @@ export class ProductsComponent implements OnInit {
 
   childProductClicked(product: Product) {
     this.clickedProduct = product;
+  }
+
+  displayLoading(event){
+    if (event === 'display') {
+      setTimeout(() => {
+        delay(50);
+        this.loading = true;
+      });
+    } else {
+      this.loading = false;
+    }
   }
 
 }

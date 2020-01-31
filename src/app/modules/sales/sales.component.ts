@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Product, Tax } from '@app/_models';
+import { Product, Tax, Detail } from '@app/_models';
 import { ArrayValidators } from '@app/validators';
 import { CustomerService, ProductService, CompanyService, TaxService, SalesService } from "@app/services";
 import { Generic } from '@app/_models';
@@ -13,6 +13,12 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import * as cloneDeep  from 'lodash/cloneDeep';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
+import { delay, map, shareReplay } from 'rxjs/operators';
+
+import { MatTable } from '@angular/material';
+import { SelectionModel } from '@angular/cdk/collections';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { ValueConverter } from '@angular/compiler/src/render3/view/template';
 
 @Component({
   selector: 'app-sales',
@@ -20,6 +26,9 @@ import { MatSnackBar } from '@angular/material';
   styleUrls: ['./sales.component.scss']
 })
 export class SalesComponent implements OnInit {
+
+  @ViewChild(MatTable, {static: false}) productsTable :MatTable<any>;
+
   taxes: Tax[]=[];
   onError: string='';
   loading: boolean=false;
@@ -34,17 +43,52 @@ export class SalesComponent implements OnInit {
   cash: string='';
   step: number=1;
   filteredCustomers: Observable<Generic[]>;
-
+  
   ingresado: string='';
   lineNo: number=0;
   index: number=0;
+
+  displayedColumns = ['ToGo', 'Name', 'Unit_Price', 'Qty', 'Discount', 'Delivery_Date', 'Tax_Id', 'Actions'];
+  selection = new SelectionModel<any>(true, []);
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = (<FormArray>this.salesForm.get('detail')).length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggle() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      const item = (<FormArray>this.salesForm.get('detail'));
+      for (let i = 0; i < item.length; i++) {
+        item.at(i).patchValue({'ToGo': 0});
+      }
+    } else {
+      this.salesForm.get('detail').value.forEach(row => {
+        this.selection.select(row);
+      });
+      const item = (<FormArray>this.salesForm.get('detail'));
+      for (let i = 0; i < item.length; i++) {
+        item.at(i).patchValue({'ToGo': 1});
+      }
+    }
+  }
 
   get fSales(){
     return this.salesForm.controls;
   }
 
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => result.matches),
+      shareReplay()
+    );
+
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
-  
+
   constructor(
     private customerService: CustomerService,
     private taxeService: TaxService,
@@ -54,15 +98,9 @@ export class SalesComponent implements OnInit {
     private companyService: CompanyService,
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private breakpointObserver: BreakpointObserver
   ) { }
-
-  firstFormGroup = this.fb.group({
-    firstCtrl: ['', Validators.required]
-  });
-  secondFormGroup = this.fb.group({
-    secondCtrl: ''
-  });
 
   salesForm = this.fb.group({
     Invoice_Date: [formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Validators.required],
@@ -94,7 +132,8 @@ export class SalesComponent implements OnInit {
       Discount: [0, [Validators.max(99999999.90), Validators.min(0.00), Validators.maxLength(11)]],
       Total: [0],
       Total_Tax: [0],
-      Delivery_Date: ['']
+      Delivery_Date: [''],
+      Actions: ['']
     });
     items.valueChanges
       .subscribe(data => this.onValueChanged(data));
@@ -135,6 +174,11 @@ export class SalesComponent implements OnInit {
     this.companyService.getCompany(this.companyId).subscribe((res: any) => {
       if (res != null) {
         this.country = res.Country;
+        if (this.country === 'DEU'){
+          this.displayedColumns = ['ToGo', 'Name', 'Unit_Price', 'Qty', 'Discount', 'Delivery_Date', 'Actions'];
+        } else {
+          this.displayedColumns = ['Name', 'Unit_Price', 'Qty', 'Discount', 'Delivery_Date', 'Tax_Id', 'Actions'];
+        }
       }
     },
     error => { 
@@ -226,9 +270,9 @@ export class SalesComponent implements OnInit {
           'Include_Tax': values[0].Include_Tax,
           'Total': total,
           'Total_Tax': totalTax,
-          'Delivery_Date': ''
-        });
-
+          'Delivery_Date': '',
+          'Actions':''
+        }); 
         //UPDATE GRAND TOTAL
         this.calcGrandTotal();
 
@@ -302,15 +346,17 @@ export class SalesComponent implements OnInit {
 
   removeItem(index){
     (<FormArray>this.salesForm.get('detail')).removeAt(index);
+    this.productsTable.renderRows();
 
-    const item = (<FormArray>this.salesForm.get('detail'))
-    
+    const item = (<FormArray>this.salesForm.get('detail'));
     this.lineNo = 1;
-    for (let i = 0; i < item.length-1; i++) {
+    for (let i = 0; i < item.length; i++) {
       item.at(i).patchValue({'Line_No': this.lineNo});
       this.lineNo += 1;
     }
     this.lineNo -= 1;
+    this.index -= 1;
+
     this.calcGrandTotal();
 
     if (this.salesForm.get('Total').value <= 0) {
@@ -397,6 +443,17 @@ export class SalesComponent implements OnInit {
         duration: 2000,
         panelClass: 'style-error'
       });
+    }
+  }
+
+  displayLoading(event){
+    if (event === 'display') {
+      setTimeout(() => {
+        delay(50);
+        this.loading = true;
+      });
+    } else {
+      this.loading = false;
     }
   }
 }

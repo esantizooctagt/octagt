@@ -32,3 +32,83 @@ input.values-right-align {
     text-align: right;
     line-height: 40px;
 }
+.mat-column-td-ToGo {
+    // word-wrap: break-word !important;
+    // white-space: unset !important;
+    // overflow-wrap: break-word;
+
+    // -ms-hyphens: auto;
+    // -moz-hyphens: auto;
+    // -webkit-hyphens: auto;
+    // hyphens: auto;
+    text-align: center;
+}
+.mat-column-th-ToGo {
+    text-align: center;
+    padding-left: 35px;
+}
+.mat-column-td-Name {
+    word-wrap: break-word !important;
+    white-space: unset !important;
+    overflow-wrap: break-word;
+    // word-wrap: break-word;
+    // word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+.mat-column-th-Name {
+    text-align: center;
+    padding-left: 0px !important;
+}
+.mat-column-td-Unit_Price {
+    padding-right: 8px;
+    text-align: right;
+    justify-content: flex-end;
+}
+.mat-column-th-Unit_Price {
+    text-align: center;
+    padding-left: 0px !important;
+}
+.mat-column-td-Qty {
+    padding-right: 8px;
+    text-align: right;
+}
+.mat-column-th-Qty {
+    text-align: center;
+    padding-left: 0px !important;
+}
+.mat-column-td-Discount {
+    padding-right: 8px;
+    text-align: right;
+}
+.mat-column-th-Discount {
+    padding-right: 0px !important;
+    text-align: center;
+}
+.mat-column-td-Delivery {
+    padding-right: 8px;
+}
+.mat-column-th-Delivery {
+    padding-right: 0px !important;
+    text-align: center;
+}
+.mat-column-td-Tax {
+    padding-right: 8px;
+}
+.mat-column-th-Tax {
+    padding-right: 0px !important;
+    text-align: center;
+}
+.mat-column-Actions {
+    text-align: center;
+}
+.check-table{
+    margin-left: 0px !important;
+}
+.check-th-table{
+    margin-top: -2px !important;
+    margin-left: -1.25rem !important;
+    padding-right: 5px !important;
+}

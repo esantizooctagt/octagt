@@ -1,14 +1,10 @@
-<div class="container-fluid h-100" *ngIf="dispLoading">
-    <div *appSpinner="dispLoading; message: 'Loading Products'">
-    </div>
-</div>
 <app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)" [salesView]="checkOut" (searchStep)="sendStep($event)">
 </app-search>
 <div class="overlay" *ngIf="loading">
     <mat-progress-spinner id="spinProduct" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Deleting Product...</mat-label>
 </div>
-<div class="list-cards" *ngIf="listView=='list'">
+<div class="list-cards" *ngIf="listView">
     <mat-list *ngIf="onError==''">
         <ng-container *ngFor="let product of products; let i=index; trackBy: trackById">
             <mat-list-item>
@@ -39,10 +35,10 @@
         <span>{{onError}}</span>
     </div>
 </div>
-<div class="card-columns" *ngIf="listView=='grid'"> <!--div class="list-cards d-flex flex-wrap p-0" -->
-    <ng-container *ngIf="onError==''"> <!-- row -->
-        <ng-container *ngFor="let product of products; let i=index; trackBy: trackById"> <!-- col-sm -->
-            <mat-card class="card grid-card mt-1 mb-1 mr-2"> <!--  col-md-3 ml-3 mt-3 mr-3 mb-3-->
+<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
+    <ng-container *ngIf="onError==''">
+        <ng-container *ngFor="let product of products; let i=index; trackBy: trackById">
+            <mat-card class="card grid-card mt-1 mb-1 mr-2">
                 <mat-card-header>
                     <mat-card-title>{{ 'Name: ' + product.Name }}</mat-card-title>
                 </mat-card-header>

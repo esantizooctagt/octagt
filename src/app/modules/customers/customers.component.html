@@ -1,5 +1,9 @@
-<div class="container-fluid">
+<div class="container-fluid h-100">
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinCustomers" class="form-spinner" mode="indeterminate">
+        </mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Customers...</mat-label>
+    </div>
     <app-customer [customer]="clickedCustomer"></app-customer>
-    <app-alert></app-alert>
-    <app-customer-list (childEvent)="childCustomerClicked($event)"></app-customer-list>
+    <app-customer-list (childEvent)="childCustomerClicked($event)" (modLoading)="displayLoading($event)"></app-customer-list>
 </div>

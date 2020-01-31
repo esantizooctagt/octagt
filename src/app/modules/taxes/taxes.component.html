@@ -1,5 +1,9 @@
-<div class="container-fluid">
+<div class="container-fluid h-100">
+    <div class="overlay" *ngIf="loading">
+        <mat-progress-spinner id="spinTaxes" class="form-spinner" mode="indeterminate">
+        </mat-progress-spinner>
+        <mat-label class="label-overlay">Processing Taxes...</mat-label>
+    </div>
     <app-tax [tax]="clickedTax"></app-tax>
-    <!--<app-alert></app-alert> -->
-    <app-tax-list (childEvent)="childTaxClicked($event)"></app-tax-list>
+    <app-tax-list (childEvent)="childTaxClicked($event)" (modLoading)="displayLoading($event)"></app-tax-list>
 </div>

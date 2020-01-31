@@ -2,6 +2,10 @@
     <div class="row align-items-center h-100">
         <div class="col-md-8 offset-md-2">
             <div class="row align-items-center border rounded">
+                <div class="overlay-login" *ngIf="loading">
+                    <mat-progress-spinner class="spinner-login" matSuffix [diameter]="60" mode="indeterminate">
+                    </mat-progress-spinner>
+                </div>
                 <div class="col-md-5 panel-lt-login pl-2 pr-2 pt-2 pb-2"></div>
                 <div class="col-md-7 panel-rt-login pl-4 pr-4 pt-4 pb-4">
                     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -22,8 +26,7 @@
                                 <mat-error *ngIf="f.password.invalid">{{getErrorMessage('Password')}}</mat-error>
                             </mat-form-field>
                         </div>
-                        <button mat-flat-button color="primary" id="save" [disabled]="loading" class="mr-3 mt-2">
-                            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>Sign Up
+                        <button mat-flat-button color="primary" id="save" [disabled]="loading" class="mr-3 mt-2">Sign Up
                         </button>
                         <app-alert></app-alert>
                         <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>

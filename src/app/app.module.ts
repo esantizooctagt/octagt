@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule } from '@angular/material';
+import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule, MatTableModule, MatRadioModule } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,6 +32,7 @@ import { FindrecordComponent } from '@shared/findrecord/findrecord.component';
 import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ProfileComponent } from './modules/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     SearchFilterPipe,
     FindrecordComponent,
     CustomerbasicComponent,
-    DialogComponent  
+    DialogComponent,
+    ProfileComponent  
   ],
   imports: [
     BrowserModule,
@@ -72,6 +74,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatSidenavModule,
     MatToolbarModule,
     MatMenuModule,
+    MatTableModule,
+    MatRadioModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
