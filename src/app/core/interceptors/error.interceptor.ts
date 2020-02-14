@@ -17,6 +17,11 @@ export class ErrorInterceptor implements HttpInterceptor {
                     if (err.error instanceof ErrorEvent) {
                         message = "Error on execution";
                     } else {
+                        // if (err.status === 0){
+                        //     // auto logout if 401 response returned from api
+                        //     this.authService.logout();
+                        //     location.reload(true);
+                        // }
                         if (err.status === 401) {
                             // auto logout if 401 response returned from api
                             this.authService.logout();

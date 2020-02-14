@@ -9,3 +9,7 @@ export * from './company';
 export * from './customerlist';
 export * from './customers';
 export * from './store';
+export * from './currencies';
+export * from './cashier';
+export * from './storesdocto';
+export * from './documents';

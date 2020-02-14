@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Product } from '@app/_models';
-import { ProductService } from "@app/services";
+import { Product, Currency } from '@app/_models';
+import { ProductService, CompanyService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
@@ -38,6 +38,8 @@ export class ProductListComponent implements OnInit {
   deleted: boolean = false;
   displayYesNo: boolean = false;
   checkOut: boolean = false;
+  currencyValue: Currency[]=[{"n":"Q", "c":"GTQ"},{"n":"EUR", "c":"EUR"}];
+  currencyCompany: string ='';
 
   constructor(
     private authService: AuthService,
@@ -66,6 +68,10 @@ export class ProductListComponent implements OnInit {
   ngOnInit() {
     this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
+    let currencyId = this.authService.currency();
+    let currencyVal: Currency[];
+    currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
+    this.currencyCompany = currencyVal[0].n;
     this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
     this.data.monitorMessage
       .subscribe((message: any) => {
@@ -78,7 +84,7 @@ export class ProductListComponent implements OnInit {
         this.checkOut = true;
       }
   }
-  
+
   loadProducts(crPage, crNumber, crValue){
     this.onError = '';
     let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
@@ -97,7 +103,7 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  public filterList(searchParam: string): void {
+  public filterList(searchParam: string) {
     this._currentSearchValue = searchParam;
     this.loadProducts(
       this._currentPage,
@@ -121,19 +127,26 @@ export class ProductListComponent implements OnInit {
     if (!this.view) { window.scroll(0,0) };
   }
 
-  onAddItem(product: Product, qtyField: string, i: number){
+  onAddItem(product: Product, qtyField: string, unitPriceField: string, i: number){
     let qty = (<HTMLInputElement>document.getElementById(qtyField)).value;
+    let unitPrice = (<HTMLInputElement>document.getElementById(unitPriceField));
+    let unitValue ='';
+    if (unitPrice != null){
+      unitValue = (<HTMLInputElement>document.getElementById(unitPriceField)).value;
+    }
     if (qty === '') { qty = '1.00';}
     if (this.lastProd != product){
-      this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString() } );
+      this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString(), "Unit": unitValue } );
       this.lastProd = product;
       (<HTMLInputElement>document.getElementById(qtyField)).value = "";
+      if (unitValue != '') { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
     } else {
       (async () => {
-        this.addItem.emit("{ 'P_Id': '', 'Qty': ''}");
+        this.addItem.emit("{ 'P_Id': '', 'Qty': '', 'Unit': '' }");
         await delay(20);
-        this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString() } );
+        this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString(), "Unit": unitValue } );
         (<HTMLInputElement>document.getElementById(qtyField)).value = "";
+        if (unitValue != '') { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
       })();
     }
     if (!this.view) { window.scroll(0,0) };

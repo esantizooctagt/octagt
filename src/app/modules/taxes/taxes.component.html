@@ -1,9 +1,13 @@
 <div class="container-fluid h-100">
-    <div class="overlay" *ngIf="loading">
-        <mat-progress-spinner id="spinTaxes" class="form-spinner" mode="indeterminate">
-        </mat-progress-spinner>
-        <mat-label class="label-overlay">Processing Taxes...</mat-label>
+    <div class="row pl-2 pr-1">
+        <div class="overlay" *ngIf="loading">
+            <mat-progress-spinner id="spinTaxes" class="form-spinner" mode="indeterminate">
+            </mat-progress-spinner>
+            <mat-label class="label-overlay">Processing Taxes...</mat-label>
+        </div>
+        <app-tax [tax]="clickedTax" class="col-md-6"></app-tax>
+        <div class="col-md-12">
+            <app-tax-list (childEvent)="childTaxClicked($event)" (modLoading)="displayLoading($event)"></app-tax-list>
+        </div> 
     </div>
-    <app-tax [tax]="clickedTax"></app-tax>
-    <app-tax-list (childEvent)="childTaxClicked($event)" (modLoading)="displayLoading($event)"></app-tax-list>
 </div>

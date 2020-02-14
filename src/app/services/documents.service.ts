@@ -2,28 +2,27 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
-import { Company } from '@app/_models';
+import { Document } from '@app/_models';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
+@Injectable({ 
+  providedIn: 'root' 
 })
-export class CompanyService {
+export class DocumentService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
-
-    getCompany(companyId): Observable<Company> {
-      return this.http.get<Company>(this.apiURL + '/company/' + companyId)
+  
+    getDocumentStore(storeId): Observable<Document[]> {
+      return this.http.get<Document[]>(this.apiURL + '/document/store/' + storeId)
                       .pipe(catchError(this.errorHandler));
     }
 
-    updateCompany(companyId, dataForm) {
-      return this.http.patch(this.apiURL + '/company/' + companyId, dataForm)
+    updateDocument(formData) {
+      return this.http.patch(this.apiURL + '/document', formData)
                       .pipe(catchError(this.errorHandler));
     }
-
-    errorHandler(error){
+    errorHandler(error) {
       return throwError(error || 'Server Error');
     }
-}
+  }

@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule, MatTableModule, MatRadioModule } from '@angular/material';
+import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule, MatTableModule, MatRadioModule, MatStepperModule, MatExpansionModule, MatChipsModule } from '@angular/material';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,10 +17,8 @@ import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AlertComponent } from '@shared/alert/alert.component';
 import { SearchComponent } from '@shared/search/search.component';
-// import { PaginationComponent } from '@shared/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/spinner/spinner.component';
 import { CropperComponent } from '@shared/cropper/cropper.component';
-// import { TypeaheadComponent } from '@shared/typeahead/typeahead.component';
 import { DialogComponent } from './shared/dialog/dialog.component';
 
 // Directives
@@ -28,11 +27,9 @@ import { ClickOutsideDirective } from '@shared/clickoutside.directive';
 
 // Custom Pipes
 import { SearchFilterPipe } from '@shared/filterpipe';
-import { FindrecordComponent } from '@shared/findrecord/findrecord.component';
 import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ProfileComponent } from './modules/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -40,17 +37,13 @@ import { ProfileComponent } from './modules/profile/profile.component';
     routingComponents,
     AlertComponent,
     SearchComponent,
-    // PaginationComponent,
     SpinnerComponent,
     AppSpinnerDirective,
     CropperComponent,
-    // TypeaheadComponent,
     ClickOutsideDirective,
     SearchFilterPipe,
-    FindrecordComponent,
     CustomerbasicComponent,
-    DialogComponent,
-    ProfileComponent  
+    DialogComponent  
   ],
   imports: [
     BrowserModule,
@@ -76,6 +69,10 @@ import { ProfileComponent } from './modules/profile/profile.component';
     MatMenuModule,
     MatTableModule,
     MatRadioModule,
+    MatStepperModule,
+    MatExpansionModule,
+    MatChipsModule,
+    DragDropModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,

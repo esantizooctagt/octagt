@@ -10,8 +10,9 @@
             <mat-list-item>
                 <div class="pr-0 pl-0">
                     <h3 matLine class="mb-1">{{ 'Name: ' + product.Name }}</h3>
-                    <p matLine class="mb-1">{{ 'Price: ' + product.Unit_Price }}</p>
-                    <p matLine class="mb-1">{{ 'Available : ' + product.Qty }}</p>
+                    <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
+                    <p matLine class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">Price: {{ currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
+                    <p matLine class="mb-1">Available : {{ product.Qty | number: '.4' }}</p>
                     <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                     <mat-action-list class="" matLine *ngIf="!view">
                         <button mat-icon-button color="primary" (click)="onSelect(product)">
@@ -22,7 +23,7 @@
                         </button>
                     </mat-action-list>
                     <mat-action-list class="" matLine *ngIf="view">
-                        <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, i)">
+                        <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, 'unitPrice'+i, i)">
                             <mat-icon>add_shopping_cart</mat-icon>
                         </button>
                     </mat-action-list>
@@ -44,8 +45,9 @@
                 </mat-card-header>
                 <img mat-card-image *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
                 <mat-card-content>
-                    <p>{{ 'Price: ' + product.Unit_Price }}</p>
-                    <p>{{ 'Available : ' + product.Qty }}</p>
+                    <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
+                    <p *ngIf="!view || (product.Type === 'goods' && view)">Price: {{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
+                    <p>Available : {{ product.Qty | number: '.4' }}</p>
                     <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                 </mat-card-content>
                 <mat-card-actions align="end" *ngIf="!view">
@@ -57,7 +59,7 @@
                     </button>
                 </mat-card-actions>
                 <mat-card-actions align="end" *ngIf="view">
-                    <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, i)">
+                    <button type="button" mat-icon-button color="primary" (click)="onAddItem(product, 'qtyValue'+i, 'unitPrice'+i, i)">
                         <mat-icon>add_shopping_cart</mat-icon>
                     </button>
                 </mat-card-actions>

@@ -1,42 +1,77 @@
-<h2>Profile</h2>
-<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-    <div class="overlay" *ngIf="loading">
-        <mat-progress-spinner id="spinProfile" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-        <mat-label class="label-overlay">Processing Profile...</mat-label>
+<div class="container-fluid h-100">
+    <div class="row row pl-2 pr-1">
+        <div class="pl-0 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
+            <h4>Profile</h4>
+        </div>
+        <div class="overlay" *ngIf="loading">
+            <mat-progress-spinner id="spinProfile" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+            <mat-label class="label-overlay">Processing Profile...</mat-label>
+        </div>
+        <mat-card class="col-md-6">
+            <form [formGroup]="avatarForm" autocomplete="off" (ngSubmit)="onSubmitAvatar()">
+                <div class="circle">
+                    <!-- User Profile Image -->
+                    <img *ngIf="f.Avatar.value; else isIcon" class="profile-pic" style="width: 100%; max-width: 250px;" [src]="imgPath+f.Avatar.value">
+                    <ng-template #isIcon>
+                        <!-- Default Image -->
+                        <mat-icon class="profile-avatar">perm_identity</mat-icon>
+                    </ng-template>
+                    <div class="circle-overlay">
+                        <button type="button" class="camera-avatar" mat-icon-button (click)="onClick()">
+                            <mat-icon>add_a_photo</mat-icon>
+                        </button>
+                        <input id="fileUpload" name="fileUpload" type="file" accept="image/*" style="display:none;"/>
+                    </div>                  
+                </div>
+            </form>
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+                <div class="form-field pl-3 pr-3">
+                    <mat-label class="">
+                        Email :
+                    </mat-label>
+                    {{f.Email.value}}
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-label class="">
+                        User Name :
+                    </mat-label>
+                    {{f.User_Name.value}}
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field hintLabel="Min 3 characters">
+                        <input matInput #Name placeholder="First Name" maxlength="100" formControlName="First_Name" [errorStateMatcher]="confirmValidParentMatcher" required>
+                        <mat-error *ngIf="f.First_Name.invalid">{{getErrorMessage('First_Name')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field hintLabel="Min 3 characters">
+                        <input matInput #Name placeholder="Last Name" maxlength="100" formControlName="Last_Name" [errorStateMatcher]="confirmValidParentMatcher" required>
+                        <mat-error *ngIf="f.Last_Name.invalid">{{getErrorMessage('Last_Name')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-label class="">
+                        Company :
+                    </mat-label>
+                    {{f.Company_Name.value}}
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field>
+                        <mat-label class="">
+                            Default Store :
+                        </mat-label>
+                        <mat-select formControlName="StoreId">
+                            <mat-option *ngFor="let item of stores" value="{{item.StoreId}}">
+                            {{item.Name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <button mat-flat-button color="primary" id="save" [disabled]="!profileForm.valid" class="mr-3 mt-2">Save</button>
+                    <!-- <button mat-flat-button color="accent" id="cancel" (click)="ngOnInit()" class="mt-2">Cancel</button> -->
+                </div>
+            </form>
+        </mat-card>
     </div>
-    <mat-card class="">
-        <div class="form-field">
-            <mat-label class="">
-                Email :
-            </mat-label>
-            {{profileForm.Email}}
-        </div>
-        <div class="form-field">
-            <mat-label class="">
-                User Name :
-            </mat-label>
-            {{profileForm.UserName}}
-        </div>
-        <div class="form-field">
-            <mat-label class="">
-                Company :
-            </mat-label>
-            {{profileForm.CompanyName}}
-        </div>
-        <div class="form-field">
-            <mat-form-field>
-                <mat-label class="">
-                    Default Store :
-                </mat-label>
-                <mat-select formControlName="Store_Id">
-                    <mat-option *ngFor="let item of stores" value="{{item.Store_Id}}">
-                    {{item.Name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
-        <button mat-flat-button color="primary" id="save" [disabled]="!profileForm.valid" class="mr-3 mt-2">Save</button>
-        <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
-        {{ profileForm.value | json }}
-    </mat-card>
-</form>    
+</div>    

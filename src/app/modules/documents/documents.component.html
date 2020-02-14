@@ -1,0 +1,78 @@
+<div class="container-fluid h-100">
+    <div class="row pl-2 pr-1">
+        <div class="overlay" *ngIf="loading">
+            <mat-progress-spinner id="spinDocuments" class="form-spinner" mode="indeterminate">
+            </mat-progress-spinner>
+            <mat-label class="label-overlay">Processing Documents...</mat-label>
+        </div>
+        <div class="pl-0 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
+            <h4>Documents</h4>
+        </div>
+        <mat-card class="col-md-6">
+            <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+                <div class="form-field pl-3 pr-3 col-md">
+                    <mat-form-field>
+                        <input type="text" placeholder="Store" matInput formControlName="StoreId" [matAutocomplete]="autoStore"
+                            [errorStateMatcher]="confirmValidParentMatcher" required>
+                        <mat-error *ngIf="fDocuments.StoreId.invalid">{{getErrorMessage('StoreId')}}</mat-error>
+                        <mat-autocomplete #autoStore="matAutocomplete" (optionSelected)='getDocuments($event.option.value)' [displayWith]="displayStore" activeOption="activeOption">
+                            <mat-option *ngFor="let store of filteredStores | async" [value]="store">
+                                {{store.Name}}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field hintLabel="Min 2 characters">
+                        <input matInput #Name placeholder="Name" maxlength="50" minlength="2" formControlName="Name"
+                            [errorStateMatcher]="confirmValidParentMatcher" required>
+                        <mat-error *ngIf="fDocuments.Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field>
+                        <input matInput #Prefix placeholder="Prefix" maxlength="5" formControlName="Prefix"
+                            [errorStateMatcher]="confirmValidParentMatcher">
+                        <mat-error *ngIf="fDocuments.Prefix.invalid">{{getErrorMessage('Prefix')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field>
+                        <input matInput #Next_Number placeholder="Next Number" maxlength="15" min="1" max="999999999999999" maxlength="15" formControlName="Next_Number"
+                        type="number" (keypress)="onKeyPress($event, $event.target.value)" class="values-right-align" pattern="^[0-9]{0,15}$"
+                            [errorStateMatcher]="confirmValidParentMatcher" required>
+                        <mat-error *ngIf="fDocuments.Next_Number.invalid">{{getErrorMessage('Next_Number')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-form-field>
+                        <input matInput #Prefix placeholder="Sufix" maxlength="5" formControlName="Sufix"
+                            [errorStateMatcher]="confirmValidParentMatcher">
+                        <mat-error *ngIf="fDocuments.Sufix.invalid">{{getErrorMessage('Sufix')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3 col-md">
+                    <mat-form-field>
+                        <mat-label>Type</mat-label>
+                        <mat-select formControlName="Type" required>
+                            <mat-option value="sales">
+                                sales
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="fDocuments.Type.invalid">{{getErrorMessage('Type')}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3 col-md">
+                    <mat-label>Format Document: </mat-label> {{ documentForm.value.Prefix + (documentForm.value.Next_Number | number: '10.') + documentForm.value.Sufix }}
+                </div>
+                <div class="form-field-check ml-3 pr-3"
+                    *ngIf="fDocuments.DocumentId.value !== '' && fDocuments.DocumentId.value !== null">
+                    <mat-checkbox formControlName="Status">Status</mat-checkbox>
+                </div>
+                <button mat-flat-button color="primary" id="save" [disabled]="!documentForm.valid" class="ml-3 mr-3 mt-2">Save</button>
+                <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+                {{ documentForm.value  | json }}
+            </form>
+        </mat-card>
+    </div>
+</div>

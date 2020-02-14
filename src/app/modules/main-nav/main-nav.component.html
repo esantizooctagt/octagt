@@ -3,12 +3,20 @@
       [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [opened]="(isHandset$ | async) === false">
-    <mat-toolbar color="primary">OCTAGT 365</mat-toolbar>
+    <mat-toolbar color="primary">Cashier 2 Go</mat-toolbar>
     <mat-nav-list color="primary">
       <a mat-list-item [routerLink]="['/sales']" routerLinkActive="menu-active">Sales</a>
-      <a mat-list-item  [routerLink]="['/customers']" routerLinkActive="menu-active">Customers</a>
+      <a mat-list-item [routerLink]="['/customers']" routerLinkActive="menu-active">Customers</a>
       <a mat-list-item [routerLink]="['/products']" routerLinkActive="menu-active">Products</a>
-      <a mat-list-item [routerLink]="['/taxes']" routerLinkActive="menu-active">Taxes</a>
+      <div *ngIf="isAdmin">
+      <mat-divider></mat-divider>
+        <a mat-list-item class="item-list">Settings</a>
+        <a mat-list-item [routerLink]="['/company']" routerLinkActive="menu-active">Company</a>
+        <a mat-list-item [routerLink]="['/taxes']" routerLinkActive="menu-active">Taxes</a>
+        <a mat-list-item [routerLink]="['/documents']" routerLinkActive="menu-active">Documents</a>
+        <a mat-list-item [routerLink]="['/users']" routerLinkActive="menu-active">Users</a>
+        <a mat-list-item [routerLink]="['/roles']" routerLinkActive="menu-active">Roles</a>
+      </div>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -30,13 +38,17 @@
       </button>
       <!-- <span>OCTAGT 365</span> -->
       <span class="spacer"></span>
-      <!-- <a href="#">{{ currentUser.Email }}</a> -->
+      <!-- <a href="#">{{ currentUser.Email }}</a>  -->
       <button mat-icon-button [matMenuTriggerFor]="userMenu">
-        <img id="img-profile" class="img-profile rounded-circle" src="https://placeimg.com/40/40/any">
+        <img *ngIf="avatar!=''; else isIcon" id="img-profile" class="img-profile rounded-circle" [src]="authService.userAvatar?authService.userAvatar:avatar">
+        <ng-template #isIcon>
+          <mat-icon class="rounded circle">perm_identity</mat-icon><!--img_profile -->
+        </ng-template>
       </button>
       <mat-menu #userMenu="matMenu" xPosition="before">
-        <button mat-menu-item (click)="goToProfile()"><mat-icon>account_circle</mat-icon>Profle</button>
+        <button mat-menu-item [routerLink]="['/profile']"><mat-icon>perm_identity</mat-icon>Profle</button>
         <button mat-menu-item><mat-icon>store</mat-icon>Store</button>
+        <button *ngIf="isAdmin" [routerLink]="['/settings']" mat-menu-item><mat-icon>settings</mat-icon>Settings</button>
         <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>
       </mat-menu>
     </mat-toolbar>

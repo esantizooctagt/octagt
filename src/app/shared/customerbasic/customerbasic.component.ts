@@ -3,7 +3,7 @@ import { FormBuilder, Validators, FormControl, NG_VALUE_ACCESSOR, NG_VALIDATORS,
 import { Subscription, Observable } from 'rxjs';
 import { Generic, Customers, CustomerList } from '@app/_models';
 import { ConfirmValidParentMatcher } from '@app/validators';
-import { debounceTime, tap, switchMap, finalize, map, catchError, filter } from 'rxjs/operators';
+import { debounceTime, tap, switchMap, finalize, map, catchError, filter, distinctUntilChanged } from 'rxjs/operators';
 import { CustomerService } from "@app/services";
 import { AuthService } from '@core/services';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -28,6 +28,7 @@ import { DialogComponent } from '../dialog/dialog.component';
 export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnDestroy {
   customerBasicForm: FormGroup;
   subscriptions: Subscription[] = [];
+  filterCustomers: Subscription;
   filteredCustomers: Customers[] = [];
   blankList: CustomerList[];
   companyId: string = '';
@@ -84,9 +85,11 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   ngOnInit() {
     this.companyId = this.authService.companyId();  
     this.onValueChanges();
-    this.customerBasicForm.get('Name').valueChanges
+    this.filterCustomers = this.customerBasicForm.get('Name').valueChanges
       .pipe(
+        map(customer => customer),
         debounceTime(500),
+        distinctUntilChanged(),
         filter(customer => typeof customer === 'string' && customer != ''),
         tap(() => this.isLoading = true),
         switchMap(customer =>  
@@ -195,6 +198,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
+    this.filterCustomers.unsubscribe();
   }
 
   onValueChanges(): void {

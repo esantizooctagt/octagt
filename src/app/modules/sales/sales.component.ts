@@ -11,7 +11,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 import * as cloneDeep  from 'lodash/cloneDeep';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
 import { delay, map, shareReplay } from 'rxjs/operators';
 
@@ -43,7 +43,8 @@ export class SalesComponent implements OnInit {
   cash: string='';
   step: number=1;
   filteredCustomers: Observable<Generic[]>;
-  
+  subsItems: Subscription;
+
   ingresado: string='';
   lineNo: number=0;
   index: number=0;
@@ -119,7 +120,7 @@ export class SalesComponent implements OnInit {
   });
 
   createDetail(): FormGroup {
-    const items = this.fb.group({
+    const itemsDet = this.fb.group({
       Line_No: [0],
       Product_Id: [''],
       Name: ['', [Validators.required]],
@@ -133,12 +134,13 @@ export class SalesComponent implements OnInit {
       Total: [0],
       Total_Tax: [0],
       Delivery_Date: [''],
+      Type: [''],
       Actions: ['']
     });
-    items.valueChanges
+    this.subsItems = itemsDet.valueChanges
       .subscribe(data => this.onValueChanged(data));
 
-    return items;
+    return itemsDet;
   }
 
   onValueChanged(data?: any): void {
@@ -235,7 +237,11 @@ export class SalesComponent implements OnInit {
     this.productService.getProduct(product.P_Id).subscribe((res: any) => {
       if (res != null) {
         const item = this.salesForm.controls.detail as FormArray;
-        let values = this.taxes.filter(res => res.To_Go == false); 
+        let values = this.taxes.filter(res => res.To_Go == false);
+        let unitValue = res.Unit_Price;
+        if (res.Type === 'services' && product.Unit != '') {
+          unitValue = +product.Unit;
+        }
         if (this.lineNo == 0) {
           this.lineNo = 1;
           this.index = 0;
@@ -250,7 +256,7 @@ export class SalesComponent implements OnInit {
         let total: number;
         let percentage: number;
         percentage = values[0].Percentage;
-        total = +product.Qty*res.Unit_Price.toFixed(2);
+        total = +product.Qty*unitValue.toFixed(2);
         if (values[0].Include_Tax == false){
           totalTax = +((total-0)*(percentage/100)).toFixed(2);
           total = +(total-0)+totalTax;
@@ -261,7 +267,7 @@ export class SalesComponent implements OnInit {
           'Line_No': this.lineNo,
           'Product_Id': res.Product_Id,
           'Name': res.Name,
-          'Unit_Price': +res.Unit_Price.toFixed(2),
+          'Unit_Price': +unitValue.toFixed(2),
           'Qty': +product.Qty,
           'Discount': 0,
           'ToGo': 0,
@@ -270,6 +276,7 @@ export class SalesComponent implements OnInit {
           'Include_Tax': values[0].Include_Tax,
           'Total': total,
           'Total_Tax': totalTax,
+          'Type': res.Type,
           'Delivery_Date': '',
           'Actions':''
         }); 
@@ -320,10 +327,11 @@ export class SalesComponent implements OnInit {
       "detail": []
     }
     
-    let lines = form.value.detail.filter(x => x.Added == 1);
-    for (let i = 0; i < lines.length; i++) {
-      delete lines[i].Added;
-    }
+    let lines = form.value.detail;
+    // .filter(x => x.Added == 1);
+    // for (let i = 0; i < lines.length; i++) {
+    //   delete lines[i].Added;
+    // }
     dataForm['detail'] = lines;
     this.salesService.postSale(dataForm)
       .subscribe(
@@ -455,5 +463,9 @@ export class SalesComponent implements OnInit {
     } else {
       this.loading = false;
     }
+  }
+
+  ngOnDestroy() {
+    this.subsItems.unsubscribe();
   }
 }

@@ -61,9 +61,54 @@ export class AuthService {
         return this.currentUserTknSubject.value;
     }
 
+    currency() {
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Currency;
+    }
+
+    country() {
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Country;
+    }
+
     avatar(){
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.Avatar;
+    }
+
+    get userAvatar() {
+        if (sessionStorage.getItem('OCT_USS') != null) {
+          var user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+          if (user.Avatar !== null) {
+            return environment.bucket + user.Avatar;
+          }
+        }
+        return null;
+      }
+
+    getUserProfile() {
+        if (sessionStorage.getItem('OCT_USS') != null) {
+          var user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+          return user;
+        }
+        return null;
+    }
+
+    setUserAvatar(imgUrl) {
+        if (this.getUserProfile() != null) {
+          var user = this.getUserProfile();
+          user.Avatar = imgUrl;
+          this.setUserProfile(user);
+        }
+    }
+
+    setUserProfile(userProfile) {
+        sessionStorage.setItem('OCT_USS', JSON.stringify(userProfile));
+    }
+
+    isAdmin(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Is_Admin;
     }
 
     logout() {

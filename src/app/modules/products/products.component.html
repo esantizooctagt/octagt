@@ -1,9 +1,14 @@
 <div class="container-fluid h-100">
-    <div class="overlay" *ngIf="loading">
-        <mat-progress-spinner id="spinProducts" class="form-spinner" mode="indeterminate">
-        </mat-progress-spinner>
-        <mat-label class="label-overlay">Processing Products...</mat-label>
+    <div class="row pl-2 pr-1">
+        <div class="overlay" *ngIf="loading">
+            <mat-progress-spinner id="spinProducts" class="form-spinner" mode="indeterminate">
+            </mat-progress-spinner>
+            <mat-label class="label-overlay">Processing Products...</mat-label>
+        </div>
+        <app-product [product]="clickedProduct" class="col-md-6"></app-product>
+        <div class="col-md-12">
+            <app-product-list (childEvent)="childProductClicked($event)" (modLoading)="displayLoading($event)">
+            </app-product-list>
+        </div>
     </div>
-    <app-product [product]="clickedProduct"></app-product>
-    <app-product-list (childEvent)="childProductClicked($event)" (modLoading)="displayLoading($event)"></app-product-list>
 </div>

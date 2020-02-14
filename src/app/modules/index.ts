@@ -5,3 +5,6 @@ export * from './products/products.component';
 export * from './customers/customers.component';
 export * from './sales/sales.component';
 export * from './profile/profile.component';
+export * from './company/company.component';
+export * from './main-nav/main-nav.component';
+export * from './documents/documents.component';

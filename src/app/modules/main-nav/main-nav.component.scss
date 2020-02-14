@@ -15,3 +15,22 @@
 .spacer{
   flex: 1 1 auto;
 }
+::ng-deep div.mat-menu-panel {
+  min-width: 180px !important;
+  max-width: 300px !important;
+}
+.img-profile{    
+  height: 40px;
+  width: 40px;
+}
+.item-list{
+  background-color: darkgrey;
+  color: white;
+  height: 40px !important;
+}
+.item-list:hover{
+  background-color: darkgrey;
+  color: white;
+  cursor: context-menu;
+  height: 40px;
+}

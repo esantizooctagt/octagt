@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { shareReplay, map } from 'rxjs/operators';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -34,7 +34,9 @@ export class SearchComponent implements OnDestroy {
 
   private _setSearchSubscription() {
     this._searchSubject.pipe(
-      debounceTime(500)
+      map(value => value),
+      debounceTime(500),
+      distinctUntilChanged()
     ).subscribe((searchValue: string) => {
       this.setValue.emit( searchValue );
     });
@@ -52,6 +54,13 @@ export class SearchComponent implements OnDestroy {
     this.loading = true;
     debounceTime(500);
     this._searchSubject.next( searchTextValue );
+    this.loading = false;
+  }
+
+  public cleanValue(){
+    this.loading = true;
+    debounceTime(500);
+    this._searchSubject.next( '' );
     this.loading = false;
   }
 

@@ -6,7 +6,13 @@
                 </mat-progress-spinner>
                 <mat-label class="label-overlay">Processing Sales...</mat-label>
             </div>
-            <h2>Sales</h2>
+            <div class="row pl-3 pr-3 header-route">
+                <h4 class="col-md-12 pl-0 pt-2">Sales</h4>
+                <mat-divider class="col-md-12"></mat-divider>
+                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2">Store : </h5><span class="col-md-3 pt-3 pb-2 pl-0 pr-0 mb-2 label-data">Hole</span>
+                <span class="col-md"></span>
+                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">Hola 02</span>
+            </div>
             <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
                 <app-product-list *ngIf="step == 1" view="salesView" (newStep)="setStep($event)"
                     (addItem)="productSelected($event)" (modLoading)="displayLoading($event)"></app-product-list>
@@ -114,9 +120,33 @@
 
                             <ng-container matColumnDef="Unit_Price">
                                 <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
-                                <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price">{{element.value.Unit_Price | number: '.2' }}</mat-cell>
+                                <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
+                                    <mat-form-field [floatLabel]="never" *ngIf="(element.value.Type === 'services'); else Services">
+                                        <input matInput type="number" min="0.01"
+                                        max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
+                                        pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
+                                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Price"
+                                        class="values-right-align" required>
+                                    </mat-form-field>
+                                    <ng-template #Services>
+                                        <span>{{element.value.Unit_Price | number: '.2' }}</span>
+                                    </ng-template>
+                                </mat-cell>
                             </ng-container>
-
+                            <ng-template #Services>
+                                <ng-container matColumnDef="Unit_Price">
+                                    <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
+                                    <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
+                                        <mat-form-field [floatLabel]="never">
+                                            <input matInput type="number" min="0.01"
+                                            max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
+                                            pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
+                                            [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Price"
+                                            class="values-right-align" required>
+                                        </mat-form-field>
+                                    </mat-cell>
+                                </ng-container>
+                            </ng-template>
                             <!-- Position Column  -->
                             <ng-container matColumnDef="Qty">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Qty"> Qty </mat-header-cell>

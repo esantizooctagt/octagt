@@ -1,3 +1,4 @@
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { Product } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -9,6 +10,8 @@ import { environment } from '@environments/environment';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { MatChipInputEvent } from '@angular/material/chips';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product',
@@ -27,10 +30,6 @@ export class ProductComponent implements OnInit {
     return this.productForm.get('Unit_Price');
   }
 
-  get Unit_Cost() {
-    return this.productForm.get('Unit_Cost');
-  }
-
   get Qty(){
     return this.productForm.get('Qty');
   }
@@ -40,10 +39,10 @@ export class ProductComponent implements OnInit {
   }
 
   message: string='';
-  submitted = false;
   loading = false;
   companyId: string='';
   readonly bucketURL = environment.bucket;
+  subsProds: Subscription;
 
   //Variables to upload and display images
   fileString: any;
@@ -66,7 +65,6 @@ export class ProductComponent implements OnInit {
     CompanyId: [''],
     Name: ['', [Validators.required, Validators.minLength(3)]],
     Unit_Price: ['', [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]],
-    Unit_Cost: ['', [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]],
     Qty: ['', [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]],
     File: [''],
     Type: ['goods', Validators.required],
@@ -94,7 +92,7 @@ export class ProductComponent implements OnInit {
         }
         this.imageCompress.compressFile(reader.result, -1, dimX, dimY).then(
           compress => {
-            console.warn('Size in bytes is now:', this.imageCompress.byteCount(compress));
+            // console.warn('Size in bytes is now:', this.imageCompress.byteCount(compress));
             this.fileString = compress;
           }
         );
@@ -153,7 +151,7 @@ export class ProductComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.companyId = this.authService.companyId();  
+    this.companyId = this.authService.companyId();
     this.data.monitorMessage
       .subscribe((message: any) => {
         this.message = message;
@@ -174,13 +172,6 @@ export class ProductComponent implements OnInit {
               this.Unit_Price.hasError('pattern') ? 'Incorrect value':
                 '';
     }
-    if (component === 'Unit_Cost'){
-      return this.Unit_Cost.hasError('required') ? 'You must enter a value' :
-          this.Unit_Cost.hasError('min') ? 'Minimun value 0.0001' :
-            this.Unit_Cost.hasError('max') ? 'Maximun value 99999999.9990':
-              this.Unit_Cost.hasError('pattern') ? 'Incorrect value':
-                '';
-    }
     if (component === 'Qty'){
       return this.Qty.hasError('required') ? 'You must enter a value' :
           this.Qty.hasError('min') ? 'Minimun value 0.0001' :
@@ -191,7 +182,7 @@ export class ProductComponent implements OnInit {
   }
 
   onValueChanges(): void {
-    this.productForm.valueChanges.subscribe(val=>{
+    this.subsProds = this.productForm.valueChanges.subscribe(val=>{
       if (val.Status === true) {
         this.productForm.controls["Status"].setValue(1);
       }
@@ -205,7 +196,7 @@ export class ProductComponent implements OnInit {
     if (changes.product.currentValue != undefined) {
       this.loading = true;
       let prodResult = changes.product.currentValue;
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
       this.fileString = null;
       this.productService.getProduct(prodResult.Product_Id).subscribe((res: any) => {
         if (res != null) {
@@ -214,7 +205,6 @@ export class ProductComponent implements OnInit {
             CompanyId: res.Company_Id,
             Name: res.Name,
             Unit_Price: res.Unit_Price,
-            Unit_Cost: res.Unit_Cost,
             Qty: res.Qty,
             File: '',
             Type: res.Type,
@@ -231,7 +221,7 @@ export class ProductComponent implements OnInit {
         this.openDialog('Error !', error.Message, false, true, false);
       });
     } else {
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
     }
   }
 
@@ -240,59 +230,60 @@ export class ProductComponent implements OnInit {
     if (this.productForm.invalid) {
       return;
     }
-    let productId = this.productForm.value.ProductId;
-    this.submitted = true;
-    this.loading = true;
-    if (productId !== '' && productId !== null) {  
-      const fd = new FormData();
-      fd.append('File', this.fileString);
-      fd.append('Img_Path', this.companyId+ '/img/products/');
-      fd.append('Name', this.productForm.value.Name);
-      fd.append('Unit_Price', this.productForm.value.Unit_Price);
-      fd.append('Unit_Cost', this.productForm.value.Unit_Cost);
-      fd.append('Qty', this.productForm.value.Qty);
-      fd.append('Type', this.productForm.value.Type);
-      fd.append('Status', this.productForm.value.Status);
-      this.productService.updateProduct(productId, fd)
+    if (this.productForm.touched){
+      let productId = this.productForm.value.ProductId;
+      this.loading = true;
+      if (productId !== '' && productId !== null) {  
+        let userId = this.authService.userId();
+        const fd = new FormData();
+        fd.append('File', this.fileString);
+        fd.append('Img_Path', this.companyId+ '/img/products/');
+        fd.append('Name', this.productForm.value.Name);
+        fd.append('Unit_Price', this.productForm.value.Unit_Price);
+        fd.append('Qty', this.productForm.value.Qty);
+        fd.append('Type', this.productForm.value.Type);
+        fd.append('Status', this.productForm.value.Status);
+        fd.append('UserId', userId);
+        this.productService.updateProduct(productId, fd)
+          .subscribe(
+            response =>  {
+              this.loading = false;
+              this.openDialog('Products', 'Product updated successful', true, false, false);
+              this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+              this.fileString = null;
+              this.data.changeData('products');
+            },
+            error => { 
+              this.loading = false;
+              this.openDialog('Error !', error.Message, false, true, false);
+            }
+          );
+      } else {
+        let userId = this.authService.userId();
+        const fd = new FormData();
+        // fd.append('File', this.fileData, this.fileData.name);
+        fd.append('File', this.fileString);
+        fd.append('CompanyId', this.companyId);
+        fd.append('Name', this.productForm.value.Name);
+        fd.append('Unit_Price', this.productForm.value.Unit_Price);
+        fd.append('Qty', this.productForm.value.Qty);
+        fd.append('Type', this.productForm.value.Type);
+        fd.append('Status', this.productForm.value.Status);
+        fd.append('UserId', userId);
+        this.productService.postProduct(fd)
         .subscribe(
-          response =>  {
-            this.submitted = false;
+          response => {
             this.loading = false;
-            this.openDialog('Products', 'Product updated successful', true, false, false);
-            this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
+            this.openDialog('Products', 'Product created successful', true, false, false);
+            this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
             this.fileString = null;
             this.data.changeData('products');
           },
           error => { 
             this.loading = false;
             this.openDialog('Error !', error.Message, false, true, false);
-          }
-        );
-    } else {
-      const fd = new FormData();
-      // fd.append('File', this.fileData, this.fileData.name);
-      fd.append('File', this.fileString);
-      fd.append('CompanyId', this.companyId);
-      fd.append('Name', this.productForm.value.Name);
-      fd.append('Unit_Price', this.productForm.value.Unit_Price);
-      fd.append('Unit_Cost', this.productForm.value.Unit_Cost);
-      fd.append('Qty', this.productForm.value.Qty);
-      fd.append('Type', this.productForm.value.Type);
-      fd.append('Status', this.productForm.value.Status);
-      this.productService.postProduct(fd)
-      .subscribe(
-        response => {
-          this.submitted = false;
-          this.loading = false;
-          this.openDialog('Products', 'Product created successful', true, false, false);
-          this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
-          this.fileString = null;
-          this.data.changeData('products');
-        },
-        error => { 
-          this.loading = false;
-          this.openDialog('Error !', error.Message, false, true, false);
-        });
+          });
+      }
     }
   }
 
@@ -300,8 +291,7 @@ export class ProductComponent implements OnInit {
   //   this.productForm.get('Type').setValue(e.target.value, {
   //     onlySelf: true
   //  })
-    this.submitted = true;
-    this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Unit_Cost:'', Qty:'', File:''});
+    this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
     this.fileString = null;
   }
 
@@ -322,6 +312,10 @@ export class ProductComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  ngOnDestroy() {
+    this.subsProds.unsubscribe();
   }
 
 }
