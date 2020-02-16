@@ -1,4 +1,5 @@
 export class User {
+    User_Id?: string;
     userName: string;
     email: string;
     password: string;

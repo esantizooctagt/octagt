@@ -8,7 +8,7 @@ import { throwError, Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService {
+export class UserService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
 
@@ -25,6 +25,26 @@ export class UsersService {
     updateUser(userId, formData){
       return this.http.put(this.apiURL + '/user/' + userId, formData)
                         .pipe(catchError(this.errorHandler));
+    }
+
+    getUsers(formData): Observable<User[]> {
+      return this.http.get<User[]>(this.apiURL + '/users?' + formData)
+                      .pipe(catchError(this.errorHandler));
+    }
+  
+    postUser(formData) {
+        return this.http.post(this.apiURL + '/user', formData)
+                        .pipe(catchError(this.errorHandler));
+    }
+  
+    deleteUser(userId) {
+      return this.http.delete(this.apiURL + '/user/' + userId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
+    validateUserName(username){
+      return this.http.get(this.apiURL + '/user/validate/' + username)
+                      .pipe(catchError(this.errorHandler));
     }
 
     errorHandler(error) {

@@ -2,24 +2,28 @@
   <mat-sidenav #drawer class="sidenav" fixedInViewport
       [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
-    <mat-toolbar color="primary">Cashier 2 Go</mat-toolbar>
+      [opened]="(isHandset$ | async) === false"
+      [ngStyle]="{'width': collapse === true ? '45px' : '200px'}">
+    <mat-toolbar color="primary">Cashier 2 Go<button mat-icon-button *ngIf="!collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_left</mat-icon></button><button mat-icon-button *ngIf="collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_right</mat-icon></button></mat-toolbar>
     <mat-nav-list color="primary">
-      <a mat-list-item [routerLink]="['/sales']" routerLinkActive="menu-active">Sales</a>
-      <a mat-list-item [routerLink]="['/customers']" routerLinkActive="menu-active">Customers</a>
-      <a mat-list-item [routerLink]="['/products']" routerLinkActive="menu-active">Products</a>
+      <a mat-list-item [routerLink]="['/dashboard']" routerLinkActive="menu-active"><mat-icon class="mr-2">view_quilt</mat-icon>Dashboard</a>
+      <a mat-list-item [routerLink]="['/sales']" routerLinkActive="menu-active"><mat-icon class="mr-2">description</mat-icon>Sales</a>
+      <a mat-list-item [routerLink]="['/customers']" routerLinkActive="menu-active"><mat-icon class="mr-2">people</mat-icon>Customers</a>
+      <a mat-list-item [routerLink]="['/products']" routerLinkActive="menu-active"><mat-icon class="mr-2">layers</mat-icon>Products</a>
+      <a mat-list-item [routerLink]="['/categories']" routerLinkActive="menu-active"><mat-icon class="mr-2">category</mat-icon>Categories</a>
       <div *ngIf="isAdmin">
-      <mat-divider></mat-divider>
-        <a mat-list-item class="item-list">Settings</a>
-        <a mat-list-item [routerLink]="['/company']" routerLinkActive="menu-active">Company</a>
-        <a mat-list-item [routerLink]="['/taxes']" routerLinkActive="menu-active">Taxes</a>
-        <a mat-list-item [routerLink]="['/documents']" routerLinkActive="menu-active">Documents</a>
-        <a mat-list-item [routerLink]="['/users']" routerLinkActive="menu-active">Users</a>
-        <a mat-list-item [routerLink]="['/roles']" routerLinkActive="menu-active">Roles</a>
+        <mat-divider></mat-divider>
+        <a mat-list-item class="item-list"><mat-icon class="mr-2">settings</mat-icon>Settings</a>
+        <a mat-list-item [routerLink]="['/company']" routerLinkActive="menu-active"><mat-icon class="mr-2">location_city</mat-icon>Company</a>
+        <a mat-list-item [routerLink]="['/documents']" routerLinkActive="menu-active"><mat-icon class="mr-2">folder</mat-icon>Documents</a>
+        <a mat-list-item [routerLink]="['/inventory']" routerLinkActive="menu-active"><mat-icon class="mr-2">store</mat-icon>Inventory</a>
+        <a mat-list-item [routerLink]="['/taxes']" routerLinkActive="menu-active"><mat-icon class="mr-2">local_atm</mat-icon>Taxes</a>
+        <a mat-list-item [routerLink]="['/users']" routerLinkActive="menu-active"><mat-icon class="mr-2">person</mat-icon>Users</a>
+        <a mat-list-item [routerLink]="['/roles']" routerLinkActive="menu-active"><mat-icon class="mr-2">security</mat-icon>Roles</a>
       </div>
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav-content>
+  <mat-sidenav-content [ngStyle]="{'margin-left': collapse === true ? '45px' : '200px'}">
     <mat-toolbar>
       <button
         type="button"
@@ -47,7 +51,6 @@
       </button>
       <mat-menu #userMenu="matMenu" xPosition="before">
         <button mat-menu-item [routerLink]="['/profile']"><mat-icon>perm_identity</mat-icon>Profle</button>
-        <button mat-menu-item><mat-icon>store</mat-icon>Store</button>
         <button *ngIf="isAdmin" [routerLink]="['/settings']" mat-menu-item><mat-icon>settings</mat-icon>Settings</button>
         <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>
       </mat-menu>

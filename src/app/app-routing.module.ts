@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent } from '@modules/index';
+import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -13,6 +13,8 @@ import { CustomerComponent } from '@modules/customers/customer/customer.componen
 import { CustomerListComponent } from '@modules/customers/customer-list/customer-list.component';
 import { ProductComponent } from '@modules/products/product/product.component';
 import { ProductListComponent } from '@modules/products/product-list/product-list.component';
+import { UserComponent } from '@modules/users/user/user.component';
+import { UserListComponent } from '@modules/users/user-list/user-list.component';
 
 const routes: Routes = [
   { 
@@ -20,6 +22,7 @@ const routes: Routes = [
     component: MainNavComponent, canActivate: [AuthGuard],
     children: [
       { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] },
+      { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
       { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
       { path: 'products', component: ProductsComponent, canActivate: [AuthGuard] },
       { path: 'sales', component: SalesComponent, canActivate: [AuthGuard] },
@@ -65,5 +68,8 @@ export const routingComponents = [
   ProfileComponent,
   DocumentsComponent,
   ProductListComponent,
+  UserComponent,
+  UsersComponent,
+  UserListComponent,
   SalesComponent
 ]

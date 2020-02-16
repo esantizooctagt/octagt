@@ -17,8 +17,8 @@ export class StoresService {
                         .pipe(catchError(this.errorHandler));
     }
 
-    getStoresDoctos(companyId): Observable<StoreDocto> {
-      return this.http.get<StoreDocto>(this.apiURL + '/stores/company/' + companyId)
+    getStoresDoctos(companyId): Observable<StoreDocto[]> {
+      return this.http.get<StoreDocto[]>(this.apiURL + '/stores/company/' + companyId)
                       .pipe(catchError(this.errorHandler));
     }
 

@@ -19,6 +19,7 @@ export class MainNavComponent implements OnInit {
   userId: string='';
   avatar: string='';
   isAdmin: boolean=false;
+  collapse: boolean=false;
   readonly imgPath = environment.bucket;
 
   users: User[] = [];
@@ -51,5 +52,8 @@ export class MainNavComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+  OnCollapse(){
+    this.collapse = !this.collapse;
   }
 }

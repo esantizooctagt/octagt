@@ -40,13 +40,13 @@
                 <div class="form-field pl-3 pr-3">
                     <mat-form-field hintLabel="Min 3 characters">
                         <input matInput #Name placeholder="First Name" maxlength="100" formControlName="First_Name" [errorStateMatcher]="confirmValidParentMatcher" required>
-                        <mat-error *ngIf="f.First_Name.invalid">{{getErrorMessage('First_Name')}}</mat-error>
+                        <mat-error *ngIf="f.First_Name.invalid && f.First_Name.touched">{{getErrorMessage('First_Name')}}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="form-field pl-3 pr-3">
                     <mat-form-field hintLabel="Min 3 characters">
                         <input matInput #Name placeholder="Last Name" maxlength="100" formControlName="Last_Name" [errorStateMatcher]="confirmValidParentMatcher" required>
-                        <mat-error *ngIf="f.Last_Name.invalid">{{getErrorMessage('Last_Name')}}</mat-error>
+                        <mat-error *ngIf="f.Last_Name.invalid && f.Last_Name.touched">{{getErrorMessage('Last_Name')}}</mat-error>
                     </mat-form-field>
                 </div>
                 <div class="form-field pl-3 pr-3">

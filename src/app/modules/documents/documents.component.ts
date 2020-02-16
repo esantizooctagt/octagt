@@ -5,8 +5,6 @@ import { AuthService } from '@core/services';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoreDocto } from '@app/_models';
-import { startWith, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 import { StoresService, DocumentService } from '@app/services';
 
 interface Type {
@@ -27,7 +25,6 @@ export class DocumentsComponent implements OnInit {
   loading = false;
   types: Type[]=[{"n":"sales","c":"sales"}];
   stores: StoreDocto[]=[];
-  filteredStores: Observable<StoreDocto[]>;
   
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
@@ -45,6 +42,7 @@ export class DocumentsComponent implements OnInit {
     Name: ['', [Validators.required, Validators.maxLength(50), Validators.minLength(2)]],
     Prefix: ['', Validators.maxLength(5)],
     Next_Number: [0, [Validators.required, Validators.min(1), Validators.max(999999999999999), Validators.pattern("^[0-9]{0,15}$")]],
+    Digits_Qty: [0, [Validators.required, Validators.min(3), Validators.max(15), Validators.pattern("^[0-9]{0,15}$")]],
     Sufix: ['', Validators.maxLength(5)],
     Type: ['', Validators.required],
     Status: [1]
@@ -58,12 +56,6 @@ export class DocumentsComponent implements OnInit {
         this.stores = res;
       }
     });
-    this.filteredStores = this.documentForm.get('StoreId').valueChanges
-      .pipe(
-        startWith(''),
-        map(store => typeof store === 'string' ? store : store.Name),
-        map(store => store ? this._filter(store) : this.stores.slice())
-      );
   }
 
   getErrorMessage(component: string) {
@@ -92,6 +84,13 @@ export class DocumentsComponent implements OnInit {
             this.fDocuments.Next_Number.hasError('pattern') ? 'Invalid value' :
         '';
     }
+    if (component === 'Digits_Qty'){
+      return this.fDocuments.Digits_Qty.hasError('required') ? 'You must enter a value' : 
+        this.fDocuments.Digits_Qty.hasError('max') ? 'Maximum allowed 15' :
+          this.fDocuments.Digits_Qty.hasError('min') ? 'Minimun allowed 3' :
+            this.fDocuments.Digits_Qty.hasError('pattern') ? 'Invalid value' :
+        '';
+    }
     if (component === 'Type'){
       return this.fDocuments.Type.hasError('required') ? 'You must enter a value' :
         '';
@@ -114,18 +113,10 @@ export class DocumentsComponent implements OnInit {
     this.dialog.open(DialogComponent, dialogConfig);
   }
 
-  displayStore(store?: StoreDocto): string | undefined {
-    return store ? store.Name : undefined;
-  }
-
-  private _filter(value: string): StoreDocto[] {
-    let filterValue: string = '';
-    filterValue = value.toLowerCase();
-    return this.stores.filter(store => store.Name.toLowerCase().indexOf(filterValue) === 0);
-  }
-
-  getDocuments(value: StoreDocto){
-    this.documentService.getDocumentStore(value.StoreId).subscribe((res: any) => {
+  getDocuments(value: string){
+    if (value === undefined) {return};
+    this.loading = true;
+    this.documentService.getDocumentStore(value).subscribe((res: any) => {
       if (res != null){
         this.documentForm.patchValue({
           DocumentId: res.DocumentId,
@@ -133,9 +124,11 @@ export class DocumentsComponent implements OnInit {
           Prefix: res.Prefix,
           Sufix: res.Sufix,
           Next_Number: res.Next_Number,
+          Digits_Qty: res.Digits_Qty,
           Type: res.Type,
           Status: res.Status
         })
+        this.loading = false;
       }else{
         this.documentForm.patchValue({
           DocumentId: '',
@@ -143,9 +136,11 @@ export class DocumentsComponent implements OnInit {
           Prefix: '',
           Sufix: '',
           Next_Number: '',
+          Digits_Qty: '',
           Type: 'sales',
           Status: 1
         })
+        this.loading = false;
       }
     }, 
     error => {
@@ -155,22 +150,20 @@ export class DocumentsComponent implements OnInit {
         Prefix: '',
         Sufix: '',
         Next_Number: '',
+        Digits_Qty: '',
         Type: 'sales',
         Status: 1
       });
+      this.loading = false;
     });
   }
 
   onCancel(){
-    this.documentForm.reset({StoreId:'', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Type:'sales', Status:1});
+    this.documentForm.reset({StoreId:'None', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Digits_Qty: 0, Type:'sales', Status:1});
   }
 
   onSubmit(){
     if (!this.documentForm.valid){
-      return;
-    }
-    if (typeof this.documentForm.value.StoreId === 'string'){
-      this.openDialog('Documents', 'You must select a valid Store', false, true, false);
       return;
     }
     if (this.documentForm.touched){
@@ -178,12 +171,13 @@ export class DocumentsComponent implements OnInit {
       let info = this.documentForm.value;
       let document =  {
         "DocumentId": info.DocumentId,
-        "StoreId": info.StoreId.StoreId,
+        "StoreId": info.StoreId,
         "CompanyId": this.companyId,
         "Name": info.Name,
         "Sufix": info.Sufix,
         "Prefix": info.Prefix,
         "Next_Number": info.Next_Number,
+        "Digits_Qty": info.Digits_Qty,
         "Type": info.Type,
         "UserId": this.userId,
         "Status": info.Status
@@ -192,7 +186,7 @@ export class DocumentsComponent implements OnInit {
         if (res !=null) {
           this.loading =false;
           this.openDialog('Documents', 'Document updated successful', true, false, false);
-          this.documentForm.reset({StoreId:'', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Type:'sales', Status:1});
+          this.documentForm.reset({StoreId:'', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Digits_Qty: 0, Type:'sales', Status:1});
         }
       },
       error => { 

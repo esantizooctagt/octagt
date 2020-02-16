@@ -3,7 +3,7 @@ import { User, Store } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { NgxImageCompressService } from 'ngx-image-compress';
-import { UsersService } from "@app/services";
+import { UserService } from "@app/services";
 import { AuthService } from '@core/services';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoresService } from '@app/services/stores.service';
@@ -35,7 +35,7 @@ export class ProfileComponent implements OnInit {
     private dialog: MatDialog,
     private authService: AuthService,
     private storeService: StoresService,
-    private usersService: UsersService,
+    private usersService: UserService,
     private imageCompress: NgxImageCompressService
   ) { }
 
@@ -171,9 +171,13 @@ export class ProfileComponent implements OnInit {
     }
     this.loading = true;
     let dataForm =  { 
+      "Email": this.profileForm.value.Email,
       "First_Name": this.profileForm.value.First_Name,
       "Last_Name": this.profileForm.value.Last_Name,
-      "StoreId": this.profileForm.value.StoreId
+      "StoreId": this.profileForm.value.StoreId,
+      "Password": '',
+      "Status": 1,
+      "UserLogId": this.userId
     }
     this.usersService.updateUser(this.userId, dataForm)
       .subscribe(

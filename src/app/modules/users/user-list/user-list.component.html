@@ -1,0 +1,60 @@
+<app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)">
+</app-search>
+<div class="overlay" *ngIf="loading">
+    <mat-progress-spinner id="spinUser" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+    <mat-label class="label-overlay">Deleting User...</mat-label>
+</div>
+<div class="list-cards" *ngIf="listView">
+    <mat-list *ngIf="onError==''">
+        <ng-container *ngFor="let user of users; trackBy: trackById">
+            <mat-list-item>
+                <div class="pr-0 pl-0">
+                    <h3 class="mb-1" mat-line>{{ 'First Name: ' + user.First_Name }}</h3>
+                    <p class="mb-1" mat-line>{{ 'Last Name: ' + user.Last_Name }}</p>
+                    <p class="mb-1" mat-line>{{ 'Username: ' + user.User_Name }}</p>
+                    <mat-action-list class="" mat-line>
+                        <button mat-icon-button color="primary" (click)="onSelect(user)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="onDelete(user)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </mat-action-list>
+                </div>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+        </ng-container>
+    </mat-list>
+    <div *ngIf="onError!=''">
+        <span>{{onError}}</span>
+    </div>
+</div>
+<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
+    <ng-container *ngIf="onError==''">
+        <ng-container *ngFor="let user of users; trackBy: trackById">
+            <mat-card class="card grid-card mt-1 mb-1 mr-2">
+                <mat-card-content>
+                    <mat-card-title>{{ 'First Name: ' + user.First_Name }}</mat-card-title>
+                    <p>{{ 'Last Name: ' + user.Last_Name }}</p>
+                    <p>{{ 'Username: ' + user.UserName }}</p>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-icon-button color="primary" (click)="onSelect(user)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDelete(user)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </mat-card-actions>
+            </mat-card>
+        </ng-container>
+    </ng-container>
+    <div *ngIf="onError!=''">
+        <span>{{onError}}</span>
+    </div>
+</div>
+<mat-paginator [length]="length"
+              [pageSize]="pageSize"
+              [pageSizeOptions]= "[5, 10, 25, 100]"
+              (page)="goToPage($event.pageIndex, $event.pageSize)">
+</mat-paginator>

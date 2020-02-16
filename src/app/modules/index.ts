@@ -8,3 +8,4 @@ export * from './profile/profile.component';
 export * from './company/company.component';
 export * from './main-nav/main-nav.component';
 export * from './documents/documents.component';
+export * from './users/users.component';

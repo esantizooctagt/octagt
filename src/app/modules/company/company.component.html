@@ -28,30 +28,30 @@
                         <ng-template matStepLabel>Company</ng-template>
                         <mat-form-field>
                             <input matInput placeholder="Company Name" maxlength="500" minlength="3" formControlName="Name" [errorStateMatcher]="confirmValidParentMatcher" required>
-                            <mat-error *ngIf="fCompany.Name.invalid">{{getErrorMessage('Name')}}</mat-error>
+                            <mat-error *ngIf="fCompany.Name.invalid && fCompany.Name.touched">{{getErrorMessage('Name')}}</mat-error>
                         </mat-form-field>
                         <mat-form-field>
                             <input matInput placeholder="Address" formControlName="Address" maxlength="500" minlength="3" [errorStateMatcher]="confirmValidParentMatcher" required>
-                            <mat-error *ngIf="fCompany.Address.invalid">{{getErrorMessage('Address')}}</mat-error>
+                            <mat-error *ngIf="fCompany.Address.invalid && fCompany.Address.touched">{{getErrorMessage('Address')}}</mat-error>
                         </mat-form-field>
                         <div class="row">
                             <mat-form-field class="col-md-2">
                                 <input matInput placeholder="House No" formControlName="House_No" maxlength="10" minlength="2" [errorStateMatcher]="confirmValidParentMatcher">
-                                <mat-error *ngIf="fCompany.House_No.invalid">{{getErrorMessage('House_No')}}</mat-error>
+                                <mat-error *ngIf="fCompany.House_No.invalid && fCompany.House_No.touched">{{getErrorMessage('House_No')}}</mat-error>
                             </mat-form-field>
                             <mat-form-field class="col-md">
                                 <input matInput placeholder="Phone" formControlName="Phone" maxlength="30" minlength="3" [errorStateMatcher]="confirmValidParentMatcher">
-                                <mat-error *ngIf="fCompany.Phone.invalid">{{getErrorMessage('Phone')}}</mat-error>
+                                <mat-error *ngIf="fCompany.Phone.invalid && fCompany.Phone.touched">{{getErrorMessage('Phone')}}</mat-error>
                             </mat-form-field>
                             <mat-form-field class="col-md-4">
                                 <input matInput placeholder="Postal Code" formControlName="Postal_Code" maxlength="50" minlength="3" [errorStateMatcher]="confirmValidParentMatcher">
-                                <mat-error *ngIf="fCompany.Postal_Code.invalid">{{getErrorMessage('Postal_Code')}}</mat-error>
+                                <mat-error *ngIf="fCompany.Postal_Code.invalid && fCompany.Postal_Code.touched">{{getErrorMessage('Postal_Code')}}</mat-error>
                             </mat-form-field>
                         </div>
                         <div class="row">
                             <mat-form-field class="col-md">
                                 <input type="text" placeholder="Country" matInput formControlName="Country" [matAutocomplete]="autoCountry" [errorStateMatcher]="confirmValidParentMatcher" required>
-                                <mat-error *ngIf="fCompany.Country.invalid">{{getErrorMessage('Country')}}</mat-error>
+                                <mat-error *ngIf="fCompany.Country.invalid && fCompany.Country.touched">{{getErrorMessage('Country')}}</mat-error>
                                 <mat-autocomplete #autoCountry="matAutocomplete" [displayWith]="displayFn" activeOption="activeOption">
                                     <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
                                     {{country.n}}
@@ -60,11 +60,11 @@
                             </mat-form-field>
                             <mat-form-field class="col-md-4">
                                 <input matInput placeholder="State" formControlName="State" maxlength="100" minlength="3" [errorStateMatcher]="confirmValidParentMatcher" required>
-                                <mat-error *ngIf="fCompany.State.invalid">{{getErrorMessage('State')}}</mat-error>
+                                <mat-error *ngIf="fCompany.State.invalid && fCompany.State.touched">{{getErrorMessage('State')}}</mat-error>
                             </mat-form-field>
                             <mat-form-field class="col-md-4">
                                 <input type="text" placeholder="Currency" matInput formControlName="Currency" [matAutocomplete]="autoCurrency" [errorStateMatcher]="confirmValidParentMatcher" required>
-                                <mat-error *ngIf="fCompany.Currency.invalid">{{getErrorMessage('Currency')}}</mat-error>
+                                <mat-error *ngIf="fCompany.Currency.invalid && fCompany.Currency.touched">{{getErrorMessage('Currency')}}</mat-error>
                                 <mat-autocomplete #autoCurrency="matAutocomplete" [displayWith]="displayFnCurrency" activeOption="activeOption">
                                     <mat-option *ngFor="let currency of filteredCurrencies | async" [value]="currency">
                                     {{currency.n}}
@@ -74,11 +74,11 @@
                         </div>
                         <mat-form-field>
                             <input matInput placeholder="Tax Number" formControlName="Tax_Number" maxlength="50" minlength="2" [errorStateMatcher]="confirmValidParentMatcher" required>
-                            <mat-error *ngIf="fCompany.Tax_Number.invalid">{{getErrorMessage('Tax_Number')}}</mat-error>
+                            <mat-error *ngIf="fCompany.Tax_Number.invalid && fCompany.Tax_Number.touched">{{getErrorMessage('Tax_Number')}}</mat-error>
                         </mat-form-field>
                         <mat-form-field>
                             <input matInput placeholder="Email" formControlName="Email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" [errorStateMatcher]="confirmValidParentMatcher" required>
-                            <mat-error *ngIf="fCompany.Email.invalid">{{getErrorMessage('Email')}}</mat-error>
+                            <mat-error *ngIf="fCompany.Email.invalid && fCompany.Email.touched">{{getErrorMessage('Email')}}</mat-error>
                         </mat-form-field>
                         <div class="form-field pr-3">
                             <mat-label class="">
