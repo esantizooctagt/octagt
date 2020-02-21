@@ -9,3 +9,6 @@ export * from './company/company.component';
 export * from './main-nav/main-nav.component';
 export * from './documents/documents.component';
 export * from './users/users.component';
+export * from './categories/categories.component';
+export * from './help/help.component';
+export * from './forgotpass/forgotpass.component';

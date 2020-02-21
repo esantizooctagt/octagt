@@ -8,11 +8,8 @@ import { MonitorService } from "@shared/monitor.service";
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { Subscription } from 'rxjs';
-
-// to send parameters between components
-// import { ActivatedRoute } from '@angular/router';
-// import { AuthService } from '@core/services';
+import { Subscription, Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tax',
@@ -20,28 +17,28 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./tax.component.scss']
 })
 export class TaxComponent implements OnInit {
-
   @Input() tax: Tax;
 
   get Name(){
     return this.taxForm.get('Name');
   }
-
   get Percentage(){
     return this.taxForm.get('Percentage');
   }
 
+  message$: Observable<string>;
+  tax$: Observable<Tax>;
+  taxSave$: Observable<any>;
+  displayForm: boolean = true;
   message: string='';
   loading = false;
   companyId: string='';
   country: string='';
   subsTaxes: Subscription;
+  savingTax: boolean=false;
 
   //variable to handle errors on inputs components
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
-
-  // to send parameters between components
-  // public taxId;
 
   constructor(
     private fb: FormBuilder,
@@ -50,11 +47,7 @@ export class TaxComponent implements OnInit {
     private companyService: CompanyService,
     private router: Router,
     private data: MonitorService,
-    // private _snackBar: MatSnackBar ,
     private dialog: MatDialog
-    // to send parameters between components
-    // private authService: AuthService,
-    // private route: ActivatedRoute
   ) { }
 
   taxForm = this.fb.group({
@@ -87,6 +80,8 @@ export class TaxComponent implements OnInit {
   ngOnInit() {    
     this.companyId = this.authService.companyId();
     this.country = this.authService.country();
+    this.message$ = this.data.monitorMessage;
+    this.onValueChanges();
     // to send parameters between components
     // let id = this.route.snapshot.paramMap.get('idTax');
     // if (id != undefined) {
@@ -103,11 +98,6 @@ export class TaxComponent implements OnInit {
     //   });
     //   console.log(this.taxData);
     // }
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        this.message = message;
-      });
-    this.onValueChanges();
   }
 
   getErrorMessage(component: string) {
@@ -154,24 +144,27 @@ export class TaxComponent implements OnInit {
       this.loading = true;
       let taxResult = changes.tax.currentValue;
       this.taxForm.reset({Include_Tax:0, To_To: 0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
-      this.taxService.getTax(taxResult.Tax_Id).subscribe((res: any) => {
-        if (res != null) {
-          this.taxForm.setValue({
-            TaxId: res.Tax_Id,
-            Name: res.Name,
-            CompanyId: res.Company_Id,
-            Percentage: res.Percentage,
-            Include_Tax: res.Include_Tax,
-            To_Go: res.To_Go,
-            Status: res.Status
-          });
-        }
-        this.loading = false;
-      },
-      error => { 
-        this.loading = false;
-        this.openDialog('Error !', error.Message, false, true, false);
-      })
+      this.tax$ = this.taxService.getTax(taxResult.Tax_Id).pipe(
+        tap(res => {
+          if (res != null) {
+            this.taxForm.setValue({
+              TaxId: res.Tax_Id,
+              Name: res.Name,
+              CompanyId: res.Company_Id,
+              Percentage: res.Percentage,
+              Include_Tax: res.Include_Tax,
+              To_Go: res.To_Go,
+              Status: res.Status
+            });
+          }
+          this.loading = false;
+        }),
+        catchError(err => {
+          this.loading = false;
+          this.openDialog('Error !', err.Message, false, true, false);
+          return throwError(err || err.message);
+        })
+      );
     } else {
       this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
     }
@@ -184,9 +177,9 @@ export class TaxComponent implements OnInit {
     if (this.taxForm.touched){
       let taxId = this.taxForm.value.TaxId;
       this.loading = true;
+      let userId = this.authService.userId();
       if (taxId !== '' && taxId !== null) {  
         let perc = +this.taxForm.value.Percentage;
-        let userId = this.authService.userId();
         this.taxForm.controls["Percentage"].setValue(perc);
         let dataForm =  { 
           "Name": this.taxForm.value.Name,
@@ -196,22 +189,23 @@ export class TaxComponent implements OnInit {
           "UserId": userId,
           "Status": this.taxForm.value.Status
         }
-        this.taxService.updateTax(taxId, dataForm)
-          .subscribe(
-            response =>  {
-              this.loading = false;
-              this.openDialog('Taxes', 'Tax updated successful', true, false, false);            
-              this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
-              this.data.changeData('taxes');
-            },
-            error => { 
-              this.loading = false;
-              this.openDialog('Error !', error.Message, false, true, false);
-            }
-          );
+        this.taxSave$ = this.taxService.updateTax(taxId, dataForm).pipe(
+          tap(res => { 
+            this.savingTax = true;
+            this.loading = false;
+            this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
+            this.data.changeData('taxes');
+            this.openDialog('Taxes', 'Tax updated successful', true, false, false);
+          }),
+          catchError(err => {
+            this.loading = false;
+            this.savingTax = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       } else {
         let perc = +this.taxForm.value.Percentage;
-        let userId = this.authService.userId();
         this.taxForm.controls["Percentage"].setValue(perc);
         let dataForm = { 
           "CompanyId": this.companyId,
@@ -222,29 +216,21 @@ export class TaxComponent implements OnInit {
           "UserId": userId,
           "Status": this.taxForm.value.Status
         }
-        this.taxService.postTax(dataForm)
-          .subscribe(
-            response => {
-              // this._snackBar.open('Tax created successful', 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-succes'
-              // });
-              // this.alertService.success('Tax updated successful');
-              this.loading = false;
-              this.openDialog('Taxes', 'Tax created successful', true, false, false);
-              this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
-              this.data.changeData('taxes');
-            },
-            error => { 
-              this.loading = false;
-              this.openDialog('Error !', error.Message, false, true, false);
-              // this._snackBar.open('Error ! ' + error.Message, 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-error'
-              // });
-              // this.alertService.error('Error ! ' + error.Message);
-            }
-          );
+        this.taxSave$ = this.taxService.postTax(dataForm).pipe(
+          tap(res => { 
+            this.savingTax = true;
+            this.loading = false;
+            this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
+            this.data.changeData('taxes');
+            this.openDialog('Taxes', 'Tax created successful', true, false, false);
+          }),
+          catchError(err => {
+            this.loading = false;
+            this.savingTax = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       }
     }
   }

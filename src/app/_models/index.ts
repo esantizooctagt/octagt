@@ -13,3 +13,4 @@ export * from './currencies';
 export * from './cashier';
 export * from './storesdocto';
 export * from './documents';
+export * from './category';

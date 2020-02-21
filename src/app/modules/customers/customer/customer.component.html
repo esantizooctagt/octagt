@@ -5,7 +5,8 @@
     <mat-progress-spinner id="spinProd" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Processing Customer...</mat-label>
 </div>
-<mat-card class="col-md-12">
+<ng-container *ngIf="(customerSave$ | async) && savingCustomer"></ng-container>
+<mat-card class="col-md-12" *ngIf="(customer$ | async) || displayForm">
     <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
         <div class="form-field pl-3 pr-3">
             <mat-form-field hintLabel="Min 3 characters">

@@ -4,8 +4,10 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '@core/services';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { StoreDocto } from '@app/_models';
+import { StoreDocto, Document } from '@app/_models';
 import { StoresService, DocumentService } from '@app/services';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
 interface Type {
   c: string;
@@ -24,7 +26,10 @@ export class DocumentsComponent implements OnInit {
   userId: string = '';
   loading = false;
   types: Type[]=[{"n":"sales","c":"sales"}];
-  stores: StoreDocto[]=[];
+  stores$: Observable<StoreDocto[]>;
+  document$: Observable<Document>;
+  documentSave$: Observable<any>;
+  displayForm: boolean=true;
   
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
@@ -51,11 +56,7 @@ export class DocumentsComponent implements OnInit {
   ngOnInit() {
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
-    this.storeService.getStoresDoctos(this.companyId).subscribe((res: any) => {
-      if (res != null){
-        this.stores = res;
-      }
-    });
+    this.stores$ = this.storeService.getStoresDoctos(this.companyId);
   }
 
   getErrorMessage(component: string) {
@@ -116,20 +117,34 @@ export class DocumentsComponent implements OnInit {
   getDocuments(value: string){
     if (value === undefined) {return};
     this.loading = true;
-    this.documentService.getDocumentStore(value).subscribe((res: any) => {
-      if (res != null){
-        this.documentForm.patchValue({
-          DocumentId: res.DocumentId,
-          Name: res.Name,
-          Prefix: res.Prefix,
-          Sufix: res.Sufix,
-          Next_Number: res.Next_Number,
-          Digits_Qty: res.Digits_Qty,
-          Type: res.Type,
-          Status: res.Status
-        })
+    this.document$ = this.documentService.getDocumentStore(value).pipe(
+      tap(res => {
+        if (res != null){
+          this.documentForm.patchValue({
+            DocumentId: res.DocumentId,
+            Name: res.Name,
+            Prefix: res.Prefix,
+            Sufix: res.Sufix,
+            Next_Number: res.Next_Number,
+            Digits_Qty: res.Digits_Qty,
+            Type: res.Type,
+            Status: res.Status
+          });
+        }else{
+          this.documentForm.patchValue({
+            DocumentId: '',
+            Name: '',
+            Prefix: '',
+            Sufix: '',
+            Next_Number: '',
+            Digits_Qty: '',
+            Type: 'sales',
+            Status: 1
+          });
+        }
         this.loading = false;
-      }else{
+      }),
+      catchError(err => {
         this.documentForm.patchValue({
           DocumentId: '',
           Name: '',
@@ -139,23 +154,11 @@ export class DocumentsComponent implements OnInit {
           Digits_Qty: '',
           Type: 'sales',
           Status: 1
-        })
+        });
         this.loading = false;
-      }
-    }, 
-    error => {
-      this.documentForm.patchValue({
-        DocumentId: '',
-        Name: '',
-        Prefix: '',
-        Sufix: '',
-        Next_Number: '',
-        Digits_Qty: '',
-        Type: 'sales',
-        Status: 1
-      });
-      this.loading = false;
-    });
+        return throwError(err || err.message);
+      })
+    );
   }
 
   onCancel(){
@@ -182,17 +185,18 @@ export class DocumentsComponent implements OnInit {
         "UserId": this.userId,
         "Status": info.Status
       }
-      this.documentService.updateDocument(document).subscribe((res: any) => {
-        if (res !=null) {
+      this.documentSave$ = this.documentService.updateDocument(document).pipe(
+        map(res => {
           this.loading =false;
           this.openDialog('Documents', 'Document updated successful', true, false, false);
-          this.documentForm.reset({StoreId:'', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Digits_Qty: 0, Type:'sales', Status:1});
-        }
-      },
-      error => { 
-        this.loading = false;
-        this.openDialog('Error !', error.Message, false, true, false);
-      });
+          return this.documentForm.reset({StoreId:'None', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Digits_Qty: 0, Type:'sales', Status:1});
+        }),
+        catchError(err => {
+          this.loading = false;
+          this.openDialog('Error !', err.Message, false, true, false);
+          return throwError(err || err.message);
+        })
+      );
     }
   }
 

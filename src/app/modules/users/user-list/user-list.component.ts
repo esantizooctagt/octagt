@@ -6,6 +6,8 @@ import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { Observable, throwError } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 
 
 @Component({
@@ -33,6 +35,10 @@ export class UserListComponent implements OnInit {
   lastUser: User;
   deleted: boolean = false;
   displayYesNo: boolean = false;
+  message$: Observable<string>;
+  users$: Observable<User[]>;
+  deleteUser$: Observable<any>;
+  deletingUser: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -62,31 +68,37 @@ export class UserListComponent implements OnInit {
     this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadUsers(this._currentPage, this.pageSize, this._currentSearchValue);
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        if (message === 'users') {
-          this.message = message;
+    this.message$ = this.data.monitorMessage.pipe(
+      map(res => {
+        this.message = 'init';
+        if (res === 'users') {
+          this.message = res;
           this.loadUsers(this._currentPage, this.pageSize, this._currentSearchValue);
         }
-      });
+        return this.message;
+      })
+    );
   }
 
   loadUsers(crPage, crNumber, crValue) {
     this.onError = '';
-    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
-    this.userService.getUsers(data).subscribe((res: any) => {
-      if (res != null) {
-        this.users = res.users;
-        this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
-        this.length = res.pagesTotal.count;
+    this.users$ = this.userService.getUsers(data).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+          this.modLoading.emit('none');
+        }
+        return res.users;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
         this.modLoading.emit('none');
-      }
-    },
-    error => {
-      this.onError = error.Message;
-      this.modLoading.emit('none');
-    });
+        return this.onError;
+      })
+    )
   }
 
   public filterList(searchParam: string): void {
@@ -111,8 +123,6 @@ export class UserListComponent implements OnInit {
       })();
     }
     window.scroll(0,0);
-    //to send parameters between components
-    // this.router.navigate(['/taxes', tax.Tax_Id]);
   }
 
   onDelete(user: User) {
@@ -140,32 +150,28 @@ export class UserListComponent implements OnInit {
           let delUser: User;
           this.loading = true;
           this.deleted = false; 
-          this.userService.deleteUser(user.User_Id).subscribe(
-            response => {
+          this.deleteUser$ = this.userService.deleteUser(user.User_Id).pipe(
+            tap(res => {
               this.userSelected.emit(delUser);
+              this.loading = false;
+              this.displayYesNo = false;
+              this.deletingUser = true;
               this.loadUsers(
                 this._currentPage,
                 this.pageSize,
                 this._currentSearchValue
               );
-              this.loading = false;
-              window.scroll(0,0);
-              this.displayYesNo = false;
               this.openDialog('User', 'User deleted successful', true, false, false);
-              // this._snackBar.open('Tax deleted successful', 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-succes'
-              // });
-            },
-            error => {
+              window.scroll(0,0);
+            }),
+            catchError(err => {
+              this.deletingUser = false;
               this.loading = false;
               this.displayYesNo = false;
-              this.openDialog('Error ! ', error.Message, false, true, false);
-              // this._snackBar.open('Error ! ' + error.Message, 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-error'
-              // });
-            });
+              this.openDialog('Error ! ', err.Message, false, true, false);
+              return throwError (err || err.message);
+            })
+          );
         }
       }
     });

@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent } from '@modules/index';
+import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -28,7 +28,9 @@ const routes: Routes = [
       { path: 'sales', component: SalesComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
       { path: 'documents', component: DocumentsComponent, canActivate: [AuthGuard] },
-      { path: 'company', component: CompanyComponent, canActivate: [AuthGuard] }
+      { path: 'company', component: CompanyComponent, canActivate: [AuthGuard] },
+      { path: 'categories', component: CategoriesComponent, canActivate: [AuthGuard] },
+      { path: 'help', component: HelpComponent, canActivate: [AuthGuard] }
       //to send parameters between components
       // { path: 'taxes/:idTax', component: TaxComponent, canActivate: [AuthGuard] }
     ]
@@ -40,6 +42,10 @@ const routes: Routes = [
   { 
     path: 'register', 
     component: LoginComponent //RegisterComponent
+  },
+  {
+    path: 'forgotpassword',
+    component: ForgotpassComponent
   },
   { 
     path: '**', 
@@ -71,5 +77,7 @@ export const routingComponents = [
   UserComponent,
   UsersComponent,
   UserListComponent,
-  SalesComponent
+  SalesComponent,
+  HelpComponent,
+  ForgotpassComponent
 ]

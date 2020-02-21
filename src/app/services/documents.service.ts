@@ -13,8 +13,8 @@ export class DocumentService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
   
-    getDocumentStore(storeId): Observable<Document[]> {
-      return this.http.get<Document[]>(this.apiURL + '/document/store/' + storeId)
+    getDocumentStore(storeId): Observable<Document> {
+      return this.http.get<Document>(this.apiURL + '/document/store/' + storeId)
                       .pipe(catchError(this.errorHandler));
     }
 

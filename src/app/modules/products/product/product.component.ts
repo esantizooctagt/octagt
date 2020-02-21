@@ -1,8 +1,8 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
-import { Product } from '@app/_models';
+import { Component, OnInit, Input, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Product, Category } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ProductService } from "@app/services";
+import { ProductService, CategoryService } from "@app/services";
 import { AuthService } from '@core/services';
 import { MonitorService } from "@shared/monitor.service";
 import { NgxImageCompressService } from 'ngx-image-compress';
@@ -10,8 +10,8 @@ import { environment } from '@environments/environment';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product',
@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs';
 export class ProductComponent implements OnInit {
 
   @Input() product: Product;
+  @ViewChild('uploadFile', {static: false}) fileDataText: ElementRef;
 
   get Name(){
     return this.productForm.get('Name');
@@ -38,11 +39,22 @@ export class ProductComponent implements OnInit {
     return this.productForm.get('Type')
   }
 
+  get CategoryId(){
+    return this.productForm.get('CategoryId');
+  }
+
   message: string='';
   loading = false;
   companyId: string='';
   readonly bucketURL = environment.bucket;
   subsProds: Subscription;
+  message$: Observable<string>;
+  product$: Observable<Product>;
+  productSave$: Observable<any>;
+  categories$: Observable<Category[]>;
+  displayForm: boolean=true;
+  savingProduct: boolean=false;
+  pathImg: string='';
 
   //Variables to upload and display images
   fileString: any;
@@ -55,6 +67,7 @@ export class ProductComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private productService: ProductService,
+    private categoryService: CategoryService,
     private data: MonitorService,
     private dialog: MatDialog,
     private imageCompress: NgxImageCompressService
@@ -64,6 +77,7 @@ export class ProductComponent implements OnInit {
     ProductId: [''],
     CompanyId: [''],
     Name: ['', [Validators.required, Validators.minLength(3)]],
+    CategoryId: ['', Validators.required],
     Unit_Price: ['', [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]],
     Qty: ['', [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]],
     File: [''],
@@ -72,13 +86,15 @@ export class ProductComponent implements OnInit {
   })
     
   selectFile(event: any) { 
-    var  fileName : any;
+    // var  fileName : any;
     this.fileString = null;
 
     this.file = event.target.files[0];
-    fileName = this.file['name'];
+    //fileName = this.file['name'];
     if (event.target.files && event.target.files[0]){
       const reader: FileReader = new FileReader();
+      this.pathImg = '';
+      //this.productForm.controls.Name.markAsTouched();
       reader.onload = (event: Event) => {
         this.imageSize = this.file['size'];
         let dimX;
@@ -152,10 +168,8 @@ export class ProductComponent implements OnInit {
 
   ngOnInit() {
     this.companyId = this.authService.companyId();
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        this.message = message;
-      });
+    this.message$ = this.data.monitorMessage;
+    this.categories$ = this.categoryService.getCategories(this.companyId);
     this.onValueChanges();
   }
 
@@ -164,6 +178,10 @@ export class ProductComponent implements OnInit {
       return this.Name.hasError('required') ? 'You must enter a value' :
           this.Name.hasError('minlength') ? 'Minimun length 3' :
               '';
+    }
+    if (component === 'CategoryId'){
+      return this.CategoryId.hasError('required') ? 'You must select a valid value' :
+          '';
     }
     if (component === 'Unit_Price'){
       return this.Unit_Price.hasError('required') ? 'You must enter a value' :
@@ -196,32 +214,40 @@ export class ProductComponent implements OnInit {
     if (changes.product.currentValue != undefined) {
       this.loading = true;
       let prodResult = changes.product.currentValue;
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
       this.fileString = null;
-      this.productService.getProduct(prodResult.Product_Id).subscribe((res: any) => {
-        if (res != null) {
-          this.productForm.setValue({
-            ProductId: res.Product_Id,
-            CompanyId: res.Company_Id,
-            Name: res.Name,
-            Unit_Price: res.Unit_Price,
-            Qty: res.Qty,
-            File: '',
-            Type: res.Type,
-            Status: res.Status
-          });
+
+      this.product$ = this.productService.getProduct(prodResult.Product_Id).pipe(
+        tap(res => {
+          let linkValue;
+          if (res != null) {
+            this.productForm.setValue({
+              ProductId: res.Product_Id,
+              CompanyId: res.Company_Id,
+              Name: res.Name,
+              CategoryId: res.Category_Id,
+              Unit_Price: res.Unit_Price,
+              Qty: res.Qty,
+              File: '',
+              Type: res.Type,
+              Status: res.Status
+            });
+            linkValue = res.Img_Url;
+          }
           this.loading = false;
           if (res.Img_Path != ''){
-            this.fileString = 'data:image/png;base64,'+res.Img_Path;
+            // this.fileString = 'data:image/png;base64,'+res.Img_Path;
+            this.pathImg = this.bucketURL+linkValue;
           }
-        }
-      },
-      error => { 
-        this.loading = false;
-        this.openDialog('Error !', error.Message, false, true, false);
-      });
+        }),
+        catchError(err => {
+          this.loading = false;
+          this.openDialog('Error !', err.Message, false, true, false);
+          return throwError(err || err.message);
+        })
+      );
     } else {
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
     }
   }
 
@@ -244,20 +270,25 @@ export class ProductComponent implements OnInit {
         fd.append('Type', this.productForm.value.Type);
         fd.append('Status', this.productForm.value.Status);
         fd.append('UserId', userId);
-        this.productService.updateProduct(productId, fd)
-          .subscribe(
-            response =>  {
-              this.loading = false;
-              this.openDialog('Products', 'Product updated successful', true, false, false);
-              this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
-              this.fileString = null;
-              this.data.changeData('products');
-            },
-            error => { 
-              this.loading = false;
-              this.openDialog('Error !', error.Message, false, true, false);
-            }
-          );
+        fd.append('CategoryId', this.productForm.value.CategoryId);
+        this.productSave$ = this.productService.updateProduct(productId, fd).pipe(
+          tap(res => {
+            this.savingProduct = true;
+            this.loading = false;
+            this.fileString = null;
+            this.pathImg = '';
+            this.fileDataText.nativeElement.value = '';
+            this.data.changeData('products');
+            this.openDialog('Products', 'Product created successful', true, false, false);
+            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+          }),
+          catchError(err => {
+            this.savingProduct = false;
+            this.loading = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       } else {
         let userId = this.authService.userId();
         const fd = new FormData();
@@ -270,29 +301,34 @@ export class ProductComponent implements OnInit {
         fd.append('Type', this.productForm.value.Type);
         fd.append('Status', this.productForm.value.Status);
         fd.append('UserId', userId);
-        this.productService.postProduct(fd)
-        .subscribe(
-          response => {
+        fd.append('CategoryId', this.productForm.value.CategoryId);
+        this.productSave$ = this.productService.postProduct(fd).pipe(
+          tap(res => {
+            this.savingProduct = true;
             this.loading = false;
-            this.openDialog('Products', 'Product created successful', true, false, false);
-            this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
             this.fileString = null;
+            this.pathImg = '';
+            this.fileDataText.nativeElement.value = '';
             this.data.changeData('products');
-          },
-          error => { 
+            this.openDialog('Products', 'Product created successful', true, false, false);
+            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+          }),
+          catchError(err => {
+            this.savingProduct = false;
             this.loading = false;
-            this.openDialog('Error !', error.Message, false, true, false);
-          });
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       }
     }
   }
 
   onCancel(){
-  //   this.productForm.get('Type').setValue(e.target.value, {
-  //     onlySelf: true
-  //  })
-    this.productForm.reset({Status:1, Type:'goods', Name:'', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+    this.fileDataText.nativeElement.value = '';
+    this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
     this.fileString = null;
+    this.pathImg = '';
   }
 
   public handleError = (controlName: string, errorName: string) => {

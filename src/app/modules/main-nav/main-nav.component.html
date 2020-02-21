@@ -42,16 +42,26 @@
       </button>
       <!-- <span>OCTAGT 365</span> -->
       <span class="spacer"></span>
-      <!-- <a href="#">{{ currentUser.Email }}</a>  -->
+      <button mat-icon-button [matMenuTriggerFor]="languageMenu" class="mr-1">
+        <mat-icon>language</mat-icon>
+      </button>
+      <mat-menu #languageMenu="matMenu" xPosition="before">
+        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>English</button>
+        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>Espanol</button>
+        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>Deutsch</button>
+      </mat-menu>
+      <button mat-icon-button class="mr-1" [routerLink]="['/help']">
+        <mat-icon>help</mat-icon>
+      </button>
       <button mat-icon-button [matMenuTriggerFor]="userMenu">
         <img *ngIf="avatar!=''; else isIcon" id="img-profile" class="img-profile rounded-circle" [src]="authService.userAvatar?authService.userAvatar:avatar">
         <ng-template #isIcon>
-          <mat-icon class="rounded circle">perm_identity</mat-icon><!--img_profile -->
+          <mat-icon class="rounded circle">perm_identity</mat-icon>
         </ng-template>
       </button>
       <mat-menu #userMenu="matMenu" xPosition="before">
         <button mat-menu-item [routerLink]="['/profile']"><mat-icon>perm_identity</mat-icon>Profle</button>
-        <button *ngIf="isAdmin" [routerLink]="['/settings']" mat-menu-item><mat-icon>settings</mat-icon>Settings</button>
+        <!-- <button *ngIf="isAdmin" [routerLink]="['/settings']" mat-menu-item><mat-icon>settings</mat-icon>Settings</button> -->
         <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>
       </mat-menu>
     </mat-toolbar>

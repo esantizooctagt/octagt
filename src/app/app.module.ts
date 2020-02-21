@@ -19,7 +19,7 @@ import { AlertComponent } from '@shared/alert/alert.component';
 import { SearchComponent } from '@shared/search/search.component';
 import { SpinnerComponent } from '@shared/spinner/spinner.component';
 import { CropperComponent } from '@shared/cropper/cropper.component';
-import { DialogComponent } from './shared/dialog/dialog.component';
+import { DialogComponent } from '@shared/dialog/dialog.component';
 
 // Directives
 import { AppSpinnerDirective } from '@shared/app-spinner.directive';
@@ -27,12 +27,14 @@ import { ClickOutsideDirective } from '@shared/clickoutside.directive';
 
 // Custom Pipes
 import { SearchFilterPipe } from '@shared/filterpipe';
-import { CustomerbasicComponent } from './shared/customerbasic/customerbasic.component';
+import { CustomerbasicComponent } from '@shared/customerbasic/customerbasic.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { UsersComponent } from './modules/users/users.component';
-import { UserComponent } from './modules/users/user/user.component';
-import { UserListComponent } from './modules/users/user-list/user-list.component';
+import { UsersComponent } from '@modules/users/users.component';
+import { UserComponent } from '@modules/users/user/user.component';
+import { UserListComponent } from '@modules/users/user-list/user-list.component';
+import { CategoriesComponent } from '@modules/categories/categories.component';
+
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import { UserListComponent } from './modules/users/user-list/user-list.component
     DialogComponent,
     UsersComponent,
     UserComponent,
-    UserListComponent  
+    UserListComponent,
+    CategoriesComponent,
   ],
   imports: [
     BrowserModule,

@@ -7,7 +7,7 @@
         </div>
         <app-tax [tax]="clickedTax" class="col-md-6"></app-tax>
         <div class="col-md-12">
-            <app-tax-list (childEvent)="childTaxClicked($event)" (modLoading)="displayLoading($event)"></app-tax-list>
+            <app-tax-list (taxSelected)="childTaxClicked($event)" (modLoading)="displayLoading($event)"></app-tax-list>
         </div> 
     </div>
 </div>

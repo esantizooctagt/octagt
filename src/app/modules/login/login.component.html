@@ -1,6 +1,7 @@
 <div class="container-fluid h-100">
     <div class="row align-items-center h-100">
-        <div class="col-md-8 offset-md-2">
+        <div class="img-back"></div>
+        <div class="col-md-6 offset-md-3 rounded login-form">
             <div class="row align-items-center border rounded">
                 <div class="overlay-login" *ngIf="loading">
                     <mat-progress-spinner class="spinner-login" matSuffix [diameter]="60" mode="indeterminate">
@@ -26,6 +27,7 @@
                                 <mat-error *ngIf="f.password.invalid">{{getErrorMessage('Password')}}</mat-error>
                             </mat-form-field>
                         </div>
+                        <div class="login-forgot"><a class="" [routerLink]="['/forgotpassword']">Forgot your password?</a></div>
                         <button mat-flat-button color="primary" id="save" [disabled]="loading" class="mr-3 mt-2">Sign Up
                         </button>
                         <app-alert></app-alert>

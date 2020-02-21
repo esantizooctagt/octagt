@@ -4,58 +4,63 @@
     <mat-progress-spinner id="spinCustomer" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Deleting Customer...</mat-label>
 </div>
+<ng-container *ngIf="(deleteCustomer$ | async) && deletingCustomer"></ng-container>
 <div class="list-cards" *ngIf="listView">
-    <mat-list *ngIf="onError==''">
-        <ng-container *ngFor="let customer of customers; trackBy: trackById">
-            <mat-list-item>
-                <div class="pr-0 pl-0">
-                    <h3 matLine>{{ 'Name: ' + customer.Name }}</h3>
-                    <p matLine class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
-                    <p matLine class="mb-1">{{ 'Email : ' + customer.Email }}</p>
-                    <p matLine class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
-                    <mat-action-list class="" matLine>
+    <ng-container *ngIf="message$ | async">
+        <mat-list *ngIf="onError==''">
+            <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
+                <mat-list-item>
+                    <div class="pr-0 pl-0">
+                        <h3 matLine>{{ 'Name: ' + customer.Name }}</h3>
+                        <p matLine class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
+                        <p matLine class="mb-1">{{ 'Email : ' + customer.Email }}</p>
+                        <p matLine class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
+                        <mat-action-list class="" matLine>
+                            <button mat-icon-button color="primary" (click)="onSelect(customer)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="onDelete(customer)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </mat-action-list>
+                    </div>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+            </ng-container>
+        </mat-list>
+        <div *ngIf="onError!=''">
+            <span>{{onError}}</span>
+        </div>
+    </ng-container>
+</div>
+<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
+    <ng-container *ngIf="message$ | async">
+        <ng-container *ngIf="onError==''">
+            <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
+                <mat-card class="card grid-card mt-1 mb-1 mr-2">
+                    <mat-card-header>
+                        <mat-card-title>{{ 'Name: ' + customer.Name }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <p class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
+                        <p class="mb-1">{{ 'Email : ' + customer.Email }}</p>
+                        <p class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
+                    </mat-card-content>
+                    <mat-card-actions align="end">
                         <button mat-icon-button color="primary" (click)="onSelect(customer)">
                             <mat-icon>edit</mat-icon>
                         </button>
                         <button mat-icon-button color="warn" (click)="onDelete(customer)">
                             <mat-icon>delete</mat-icon>
                         </button>
-                    </mat-action-list>
-                </div>
-            </mat-list-item>
-            <mat-divider></mat-divider>
+                    </mat-card-actions>
+                </mat-card>
+            </ng-container>
         </ng-container>
-    </mat-list>
-    <div *ngIf="onError!=''">
-        <span>{{onError}}</span>
-    </div>
-</div>
-<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
-    <ng-container *ngIf="onError==''">
-        <ng-container *ngFor="let customer of customers; trackBy: trackById">
-            <mat-card class="card grid-card mt-1 mb-1 mr-2">
-                <mat-card-header>
-                    <mat-card-title>{{ 'Name: ' + customer.Name }}</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                    <p class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
-                    <p class="mb-1">{{ 'Email : ' + customer.Email }}</p>
-                    <p class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
-                </mat-card-content>
-                <mat-card-actions align="end">
-                    <button mat-icon-button color="primary" (click)="onSelect(customer)">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="onDelete(customer)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </mat-card-actions>
-            </mat-card>
-        </ng-container>
+        <div *ngIf="onError!=''">
+            <span>{{onError}}</span>
+        </div>
     </ng-container>
-    <div *ngIf="onError!=''">
-        <span>{{onError}}</span>
-    </div>
 </div>
 <mat-paginator [length]="length"
               [pageSize]="pageSize"

@@ -7,7 +7,9 @@
             <mat-progress-spinner id="spinProfile" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
             <mat-label class="label-overlay">Processing Profile...</mat-label>
         </div>
-        <mat-card class="col-md-6">
+        <ng-container *ngIf="userUpdate$ | async"></ng-container>
+        <ng-container *ngIf="imgAvatar$ | async"></ng-container>
+        <mat-card class="col-md-6" *ngIf="(user$ | async) && displayForm">
             <form [formGroup]="avatarForm" autocomplete="off" (ngSubmit)="onSubmitAvatar()">
                 <div class="circle">
                     <!-- User Profile Image -->
@@ -61,11 +63,17 @@
                             Default Store :
                         </mat-label>
                         <mat-select formControlName="StoreId">
-                            <mat-option *ngFor="let item of stores" value="{{item.StoreId}}">
+                            <mat-option *ngFor="let item of stores$ | async" value="{{item.StoreId}}">
                             {{item.Name}}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
+                </div>
+                <div class="form-field pl-3 pr-3">
+                    <mat-label class="">
+                        Language :
+                    </mat-label>
+                    English
                 </div>
                 <div class="form-field pl-3 pr-3">
                     <button mat-flat-button color="primary" id="save" [disabled]="!profileForm.valid" class="mr-3 mt-2">Save</button>

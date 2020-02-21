@@ -7,7 +7,7 @@
         </div>
         <app-customer [customer]="clickedCustomer" class="col-md-12"></app-customer>
         <div class="col-md-12">
-            <app-customer-list (childEvent)="childCustomerClicked($event)" (modLoading)="displayLoading($event)">
+            <app-customer-list (customerSelected)="childCustomerClicked($event)" (modLoading)="displayLoading($event)">
             </app-customer-list>
         </div>
     </div>

@@ -4,61 +4,66 @@
     <mat-progress-spinner id="spinTax" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Deleting Tax...</mat-label>
 </div>
+<ng-container *ngIf="(deleteTax$ | async) && deletingTax"></ng-container>
 <div class="list-cards" *ngIf="listView">
-    <mat-list *ngIf="onError==''">
-        <ng-container *ngFor="let tax of taxes; trackBy: trackById">
-            <mat-list-item>
-                <div class="pr-0 pl-0">
-                    <h3 class="mb-1" mat-line>{{ 'Name: ' + tax.Name }}</h3>
-                    <p class="mb-1" mat-line>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
-                    <p class="mb-1" mat-line>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
-                    <mat-action-list class="" mat-line>
+    <ng-container *ngIf="message$ | async">
+        <mat-list *ngIf="onError==''">
+            <ng-container *ngFor="let tax of taxes$ | async; trackBy: trackById">
+                <mat-list-item>
+                    <div class="pr-0 pl-0">
+                        <h3 class="mb-1" mat-line>{{ 'Name: ' + tax.Name }}</h3>
+                        <p class="mb-1" mat-line>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
+                        <p class="mb-1" mat-line>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                        <mat-action-list class="" mat-line>
+                            <button mat-icon-button color="primary" (click)="onSelect(tax)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="onDelete(tax)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </mat-action-list>
+                    </div>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+            </ng-container>
+        </mat-list>
+        <div *ngIf="onError!=''">
+            <span>{{onError}}</span>
+        </div>
+    </ng-container>
+</div>
+<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
+    <ng-container *ngIf="message$ | async">
+        <ng-container *ngIf="onError==''">
+            <ng-container *ngFor="let tax of taxes$ | async; trackBy: trackById">
+                <mat-card class="card grid-card mt-1 mb-1 mr-2">
+                    <!-- <mat-card-header>  col-sm ml-3 mt-3 mr-3 mb-3-->
+                        <!-- <div mat-card-avatar class="example-header-image"></div> -->
+                        <!-- <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title> -->
+                        <!--<mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+                    <!-- </mat-card-header> -->
+                    <!-- <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu"> -->
+                    <mat-card-content>
+                        <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title>
+                        <!-- <h2>{{ 'Name: ' + tax.Name }}</h2> -->
+                        <p>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
+                        <p>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                    </mat-card-content>
+                    <mat-card-actions align="end">
                         <button mat-icon-button color="primary" (click)="onSelect(tax)">
                             <mat-icon>edit</mat-icon>
                         </button>
                         <button mat-icon-button color="warn" (click)="onDelete(tax)">
                             <mat-icon>delete</mat-icon>
                         </button>
-                    </mat-action-list>
-                </div>
-            </mat-list-item>
-            <mat-divider></mat-divider>
+                    </mat-card-actions>
+                </mat-card>
+            </ng-container>
         </ng-container>
-    </mat-list>
-    <div *ngIf="onError!=''">
-        <span>{{onError}}</span>
-    </div>
-</div>
-<div class="card-columns mx-auto p-md-0 justify-content-center col-md-12" *ngIf="!listView">
-    <ng-container *ngIf="onError==''">
-        <ng-container *ngFor="let tax of taxes; trackBy: trackById">
-            <mat-card class="card grid-card mt-1 mb-1 mr-2">
-                <!-- <mat-card-header>  col-sm ml-3 mt-3 mr-3 mb-3-->
-                    <!-- <div mat-card-avatar class="example-header-image"></div> -->
-                    <!-- <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title> -->
-                    <!--<mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
-                <!-- </mat-card-header> -->
-                <!-- <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu"> -->
-                <mat-card-content>
-                    <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title>
-                    <!-- <h2>{{ 'Name: ' + tax.Name }}</h2> -->
-                    <p>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
-                    <p>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
-                </mat-card-content>
-                <mat-card-actions align="end">
-                    <button mat-icon-button color="primary" (click)="onSelect(tax)">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="onDelete(tax)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </mat-card-actions>
-            </mat-card>
-        </ng-container>
+        <div *ngIf="onError!=''">
+            <span>{{onError}}</span>
+        </div>
     </ng-container>
-    <div *ngIf="onError!=''">
-        <span>{{onError}}</span>
-    </div>
 </div>
 <mat-paginator [length]="length"
               [pageSize]="pageSize"

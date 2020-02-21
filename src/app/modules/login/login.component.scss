@@ -20,3 +20,21 @@
     left:       0; 
     position: absolute;
 }
+.login-forgot{
+    text-align: right;
+    cursor: pointer;
+}
+.img-back{
+    background-image: url('https://previews.123rf.com/images/melpomen/melpomen1902/melpomen190200571/116956656-online-shopping-theme-with-woman-using-her-smartphone-in-a-living-room.jpg');
+    // filter: blur(8px);
+    // -webkit-filter: blur(1px);
+    background-position: right;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+}
+.login-form{
+    position: absolute; 
+    background-color: white;
+}

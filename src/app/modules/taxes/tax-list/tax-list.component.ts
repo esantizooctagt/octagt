@@ -6,6 +6,8 @@ import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { Observable, throwError } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tax-list',
@@ -14,7 +16,7 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 })
 export class TaxListComponent implements OnInit {
 
-  @Output() childEvent = new EventEmitter<Tax>();
+  @Output() taxSelected = new EventEmitter<Tax>();
   @Output() modLoading = new EventEmitter<string>();
   public length: number = 0;
   public pageSize: number = 10;
@@ -32,6 +34,10 @@ export class TaxListComponent implements OnInit {
   lastTax: Tax;
   deleted: boolean = false;
   displayYesNo: boolean = false;
+  deletingTax: boolean = false;
+  message$: Observable<string>;
+  deleteTax$: Observable<any>;
+  taxes$: Observable<Tax[]>;
 
   constructor(
     private authService: AuthService,
@@ -61,31 +67,37 @@ export class TaxListComponent implements OnInit {
     this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        if (message === 'taxes') {
-          this.message = message;
+    this.message$ = this.data.monitorMessage.pipe(
+      map(res => {
+        this.message = 'init';
+        if (res === 'taxes') {
+          this.message = res;
           this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
         }
-      });
+        return this.message;
+      })
+    );
   }
   
   loadTaxes(crPage, crNumber, crValue) {
     this.onError = '';
-    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
-    this.taxService.getTaxes(data).subscribe((res: any) => {
-      if (res != null) {
-        this.taxes = res.taxes;
-        this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
-        this.length = res.pagesTotal.count;
+    this.taxes$ = this.taxService.getTaxes(data).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+          this.modLoading.emit('none');
+        }
+        return res.taxes;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
         this.modLoading.emit('none');
-      }
-    },
-    error => {
-      this.onError = error.Message;
-      this.modLoading.emit('none');
-    });
+        return this.onError;
+      })
+    );
   }
 
   public filterList(searchParam: string): void {
@@ -99,14 +111,14 @@ export class TaxListComponent implements OnInit {
 
   onSelect(tax: Tax) {
     if (this.lastTax != tax){
-      this.childEvent.emit(tax);
+      this.taxSelected.emit(tax);
       this.lastTax = tax;
     } else {
       let defTax: Tax;
       (async () => {
-        this.childEvent.emit(defTax);
+        this.taxSelected.emit(defTax);
         await delay(20);
-        this.childEvent.emit(tax);
+        this.taxSelected.emit(tax);
       })();
     }
     window.scroll(0,0);
@@ -139,32 +151,28 @@ export class TaxListComponent implements OnInit {
           let delTax: Tax;
           this.loading = true;
           this.deleted = false; 
-          this.taxService.deleteTax(tax.Tax_Id).subscribe(
-            response => {
-              this.childEvent.emit(delTax);
+          this.deleteTax$ = this.taxService.deleteTax(tax.Tax_Id).pipe(
+            tap(res => {
+              this.taxSelected.emit(delTax);
+              this.loading = false;
+              this.displayYesNo = false;
+              this.deletingTax = true;
               this.loadTaxes(
                 this._currentPage,
                 this.pageSize,
                 this._currentSearchValue
               );
-              this.loading = false;
-              window.scroll(0,0);
-              this.displayYesNo = false;
               this.openDialog('Tax', 'Tax deleted successful', true, false, false);
-              // this._snackBar.open('Tax deleted successful', 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-succes'
-              // });
-            },
-            error => {
+              window.scroll(0,0);
+            }),
+            catchError(err => {
+              this.deletingTax = false;
               this.loading = false;
               this.displayYesNo = false;
-              this.openDialog('Error ! ', error.Message, false, true, false);
-              // this._snackBar.open('Error ! ' + error.Message, 'Close', {
-              //   duration: 3000,
-              //   panelClass: 'style-error'
-              // });
-            });
+              this.openDialog('Error ! ', err.Message, false, true, false);
+              return throwError (err || err.message);
+            })
+          );
         }
       }
     });

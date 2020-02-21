@@ -5,7 +5,8 @@
     <mat-progress-spinner id="spinProd" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Processing Product...</mat-label>
 </div>
-<mat-card>
+<ng-container *ngIf="(productSave$ | async) && savingProduct"></ng-container>
+<mat-card *ngIf="(product$ | async) || displayForm">
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
         <div class="form-field pl-3 pr-3">
             <mat-form-field hintLabel="Min 3 characters">
@@ -15,87 +16,71 @@
                 <mat-error *ngIf="Name.invalid && Name.touched">{{getErrorMessage('Name')}}</mat-error>
             </mat-form-field>
         </div>
-        <div class="form-field pl-3 pr-3">
-            <mat-form-field hintLabel="Only decimal values">
-                <input matInput placeholder="Unit Price" min="0.01" max="99999999.90" type="number"
-                    (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$"
-                    [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Price"
-                    class="values-right-align" required>
-                <mat-error *ngIf="Unit_Price.invalid && Unit_Price.touched">{{getErrorMessage('Unit_Price')}}</mat-error>
-            </mat-form-field>
-        </div>
-        <!-- <div class="form-field pl-3 pr-3">
+        <div class="form-field pl-3 pr-3 col-md">
             <mat-form-field>
-                <input matInput placeholder="Category"
-                    [errorStateMatcher]="confirmValidParentMatcher" formControlName="Category"
-                    required>
-                <mat-error *ngIf="Category.invalid">{{getErrorMessage('Category')}}</mat-error>
-            </mat-form-field>
-        </div> -->
-
-        <!-- <mat-form-field class="w-100">
-            <mat-chip-list #chipList aria-label="Fruit selection">
-              <mat-chip
-                *ngFor="let fruit of fruits"
-                [selectable]="selectable"
-                [removable]="removable"
-                (removed)="remove(fruit)">
-                {{fruit}}
-                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-              </mat-chip>
-              <input
-                placeholder="New fruit..."
-                #fruitInput
-                [formControl]="fruitCtrl"
-                [matAutocomplete]="auto"
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="add($event)">
-            </mat-chip-list>
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-              <mat-option *ngFor="let fruit of filteredFruits | async" [value]="fruit">
-                {{fruit}}
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field> -->
-
-
-        <div class="form-field pl-3 pr-3">
-            <mat-form-field hintLabel="Only decimal values">
-                <input matInput placeholder="Quantity" min="0.0001" max="99999999.9990" type="number"
-                    (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
-                    [errorStateMatcher]="confirmValidParentMatcher" formControlName="Qty" class="values-right-align"
-                    required>
-                <mat-error *ngIf="Qty.invalid && Qty.touched">{{getErrorMessage('Quantity')}}</mat-error>
-            </mat-form-field>
-        </div>
-        <div class="from-field pl-3 pr-3">
-            <mat-form-field>
-                <mat-label>Type</mat-label>
-                <mat-select formControlName="Type">
-                    <mat-option value="goods">
-                        goods
-                    </mat-option>
-                    <mat-option value="services">
-                        services
-                    </mat-option>
+                <mat-label>Category *</mat-label>
+                <mat-select formControlName="CategoryId">
+                    <mat-option>None</mat-option>
+                    <mat-option *ngFor="let res of categories$ | async" [value]="res.Category_Id">{{res.Description}}</mat-option>
                 </mat-select>
+                <mat-error *ngIf="CategoryId.invalid && CategoryId.touched">{{getErrorMessage('CategoryId')}}</mat-error>
             </mat-form-field>
+        </div>
+        <div class="row pl-3 pr-3">
+            <div class="form-field pl-3 pr-3 col-md-5">
+                <mat-form-field hintLabel="Only decimal values">
+                    <input matInput placeholder="Unit Price" min="0.01" max="99999999.90" type="number"
+                        (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$"
+                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="Unit_Price"
+                        class="values-right-align" required>
+                    <mat-error *ngIf="Unit_Price.invalid && Unit_Price.touched">{{getErrorMessage('Unit_Price')}}</mat-error>
+                </mat-form-field>
+            </div>
+            <div class="form-field pl-3 pr-3 col-md-4">
+                <mat-form-field hintLabel="Only decimal values">
+                    <input matInput placeholder="Quantity" min="0.0001" max="99999999.9990" type="number"
+                        (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
+                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="Qty" class="values-right-align"
+                        required>
+                    <mat-error *ngIf="Qty.invalid && Qty.touched">{{getErrorMessage('Quantity')}}</mat-error>
+                </mat-form-field>
+            </div>
+            <div class="from-field pl-3 pr-3 col-md-3">
+                <mat-form-field>
+                    <mat-label>Type</mat-label>
+                    <mat-select formControlName="Type">
+                        <mat-option value="goods">
+                            goods
+                        </mat-option>
+                        <mat-option value="services">
+                            services
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
         </div>
         <div class="form-field-check ml-3 pr-3"
             *ngIf="productForm.value.ProductId !== '' && productForm.value.ProductId !== null">
             <mat-checkbox formControlName="Status">Status</mat-checkbox>
         </div>
-        <div class="form-field pl-3 pr-3" [className]="fileString ? 'imgTemp' : 'imgInit pl-3 pr-3'">
+        <div class="form-field pl-3 pr-3 pt-3">
             <mat-label>Choose File</mat-label><br />
-            <input type="file" value="Choose File" id="image-input" accept=".jpg,.png,.jpeg"
-                (change)="selectFile($event)" />
-            <div class="image-preview mb-3" *ngIf="fileString">
-                <app-cropper [src]="fileString" (cropImage)="loadCropImage($event)" *ngIf="fileString"></app-cropper>
+            <input #uploadFile type="file" value="Choose File" id="image-input" accept=".jpg,.png,.jpeg" (change)="selectFile($event)" />
+            <div *ngIf="pathImg != '' && fileString === null">
+                <img mat-card-image class="img-Product" [src]="pathImg">
+            </div>
+            <div class="row">
+                <div class="form-field col-md-12 pt-3 image-preview mb-3" *ngIf="fileString">
+                    <app-cropper [src]="fileString" (cropImage)="loadCropImage($event)"></app-cropper>
+                </div>
             </div>
         </div>
-        <button mat-flat-button color="primary" id="save" [disabled]="!productForm.valid" class="ml-3 mr-3 mt-2">Save</button>
-        <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+        <div class="row">
+            <div class="col-md-12">
+                <button mat-flat-button color="primary" id="save" [disabled]="!productForm.valid" class="ml-3 mr-3 mt-2">Save</button>
+                <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+            </div>
+        </div>
         <!-- {{ productForm.value | json }} -->
     </form>
 </mat-card>

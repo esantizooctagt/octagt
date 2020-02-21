@@ -1,5 +1,11 @@
-<div class="img-container">
-    <img #image [src]="imageSource" crossorigin>
+<div class="col-md-12 pr-0 pl-0">
+    <div class="row">
+        <div class="img-container col-md-8">
+            <img #image [src]="imageSource" crossorigin>
+        </div>
+        <div class="col-md-4">
+            <img [src]="imageDestination" class="img-preview">
+            <button mat-flat-button class="button-cropper" color="primary" id="drag" type="button" (click)="setDragMode()">Drag</button>
+        </div>
+    </div>
 </div>
-<img [src]="imageDestination" class="img-preview">
-<input type="button" value="Drag" (click)="setDragMode()">

@@ -5,7 +5,8 @@
     <mat-progress-spinner id="spinUser" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Processing User...</mat-label>
 </div>
-<mat-card>
+<ng-container *ngIf="(userSave$ | async) && savingUser"></ng-container>
+<mat-card *ngIf="(user$ | async) || displayForm">
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
         <div class="form-field pl-3 pr-3">
             <mat-form-field hintLabel="Email format">

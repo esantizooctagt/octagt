@@ -9,6 +9,8 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoresService } from '@app/services/stores.service';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { environment } from '@environments/environment';
+import { Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -16,12 +18,16 @@ import { environment } from '@environments/environment';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-  stores: Store[]=[];
+  stores$: Observable<Store[]>;
+  user$: Observable<User>;
+  userUpdate$: Observable<any>;
+  imgAvatar$: Observable<any>;
   companyId: string = '';
   userId: string = '';
   fileName: string= '';
   fileString: any;
   loading: boolean=false;
+  displayForm: boolean=true;
   readonly imgPath = environment.bucket;
 
   get f(){
@@ -58,16 +64,9 @@ export class ProfileComponent implements OnInit {
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
     this.loading = true;
-    this.storeService.getStores(this.companyId).subscribe((res: any) => {
-      if (res != null){
-        this.stores = res;
-      }
-    },
-    error => {
-      this.openDialog('Error !', error.Message, false, true, false);
-    });
-    this.usersService.getUser(this.userId).subscribe((res: any) => {
-      if (res != null){
+    this.stores$ = this.storeService.getStores(this.companyId);
+    this.user$ = this.usersService.getUser(this.userId).pipe(
+      tap(res => {
         this.profileForm.setValue({
           Email: res.Email,
           User_Name: res.User_Name,
@@ -79,12 +78,13 @@ export class ProfileComponent implements OnInit {
           Password: res.Password
         });
         this.loading = false;
-      }
-    },
-    error => {
-      this.loading = false;
-      this.openDialog('Error !', error.Message, false, true, false);
-    });
+      }),
+      catchError(err => {
+        this.loading = false;
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    )
   }
 
   openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
@@ -179,16 +179,17 @@ export class ProfileComponent implements OnInit {
       "Status": 1,
       "UserLogId": this.userId
     }
-    this.usersService.updateUser(this.userId, dataForm)
-      .subscribe(
-      response =>  {
+    this.userUpdate$ = this.usersService.updateUser(this.userId, dataForm).pipe(
+      tap(res =>  {
         this.loading = false;
         this.openDialog('User', 'User updated successful', true, false, false);
-      },
-      error => { 
+      }),
+      catchError(err => { 
         this.loading = false;
-        this.openDialog('Error !', error.Message, false, true, false);
-      });
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
   }
 
   onSubmitAvatar() {
@@ -205,21 +206,22 @@ export class ProfileComponent implements OnInit {
     if (type === 'png;'){
       type = '.png';
     }
-    this.usersService.uploadImage(this.userId, formData)
-        .subscribe(
-          response =>  {
-            this.loading = false;
-            this.profileForm.patchValue({'Avatar': this.companyId+'/img/avatars/'+this.userId+type});
-            this.authService.setUserAvatar(this.companyId+'/img/avatars/'+this.userId+type);
-            this.openDialog('User', 'Avatar uploaded successful', true, false, false);
-            this.avatarForm.reset({'Avatar':null});
-            this.fileString = null;
-          },
-          error => { 
-            this.loading = false;
-            this.openDialog('Error !', error.Message, false, true, false);
-          }
-        );
+    this.imgAvatar$ = this.usersService.uploadImage(this.userId, formData).pipe(
+      tap(response =>  {
+          this.loading = false;
+          this.profileForm.patchValue({'Avatar': this.companyId+'/img/avatars/'+this.userId+type});
+          this.authService.setUserAvatar(this.companyId+'/img/avatars/'+this.userId+type);
+          this.avatarForm.reset({'Avatar':null});
+          this.fileString = null;
+          this.openDialog('User', 'Avatar uploaded successful', true, false, false);
+        }
+      ),
+      catchError(err => { 
+        this.loading = false;
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
   }
 
 }

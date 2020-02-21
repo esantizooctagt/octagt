@@ -5,9 +5,9 @@
             </mat-progress-spinner>
             <mat-label class="label-overlay">Processing Products...</mat-label>
         </div>
-        <app-product [product]="clickedProduct" class="col-md-6"></app-product>
+        <app-product [product]="clickedProduct" class="col-md-10"></app-product>
         <div class="col-md-12">
-            <app-product-list (childEvent)="childProductClicked($event)" (modLoading)="displayLoading($event)">
+            <app-product-list (productSelected)="childProductClicked($event)" (modLoading)="displayLoading($event)">
             </app-product-list>
         </div>
     </div>

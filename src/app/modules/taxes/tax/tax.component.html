@@ -5,7 +5,8 @@
     <mat-progress-spinner id="spinTax" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
     <mat-label class="label-overlay">Processing Tax...</mat-label>
 </div>
-<mat-card>
+<ng-container *ngIf="(taxSave$ | async) && savingTax"></ng-container>
+<mat-card *ngIf="(tax$ | async) || displayForm">
     <form [formGroup]="taxForm" (ngSubmit)="onSubmit()">
         <div class="form-field pl-3 pr-3">
             <mat-form-field hintLabel="Min 3 characters">

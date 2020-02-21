@@ -8,9 +8,8 @@ import { MonitorService } from "@shared/monitor.service";
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { Subscription, Observable } from 'rxjs';
-import { invalid } from '@angular/compiler/src/render3/view/util';
-import { share, map } from 'rxjs/operators';
+import { Subscription, Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user',
@@ -25,16 +24,19 @@ export class UserComponent implements OnInit {
     return this.userForm.controls;
   }
 
-  message: string='';
+  message$: Observable<string>;
   loading = false;
   companyId: string='';
   changesUser: Subscription;
   stores$: Observable<StoreDocto[]>;
+  displayForm: boolean = true;
   availability$: Observable<any>;
+  userSave$: Observable<any>;
+  user$: Observable<User>;
   hide = true;
-  // validUserName: boolean = false;
   userNameValidated: boolean = false;
   loadingUser: boolean = false;
+  savingUser: boolean = false;
 
   //variable to handle errors on inputs components
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
@@ -65,10 +67,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
     this.companyId = this.authService.companyId();
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        this.message = message;
-      });
+    this.message$ = this.data.monitorMessage;
     this.loadStores();
     this.onValueChanges();
   }
@@ -146,29 +145,31 @@ export class UserComponent implements OnInit {
       this.loading = true;
       let userResult = changes.user.currentValue;
       this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
-      this.usersService.getUser(userResult.User_Id).subscribe((res: any) => {
-        if (res != null) {
-          this.userForm.setValue({
-            UserId: res.User_Id,
-            CompanyId: res.Company_Id,
-            Email: res.Email,
-            UserName: res.User_Name,
-            First_Name: res.First_Name,
-            Last_Name: res.Last_Name,
-            Password: '',
-            Avatar: res.Avatar,
-            StoreId: res.Store_Id,
-            Is_Admin: res.Is_Admin,
-            Status: res.Status
-          });
-        }
-        this.userForm.controls.UserName.disable();
-        this.loading = false;
-      },
-      error => { 
-        this.loading = false;
-        this.openDialog('Error !', error.Message, false, true, false);
-      })
+      this.user$ = this.usersService.getUser(userResult.User_Id).
+        pipe(
+          tap(user => { 
+            this.userForm.controls.UserName.disable();
+            this.loading = false;
+            this.userForm.setValue({
+              UserId: user.User_Id,
+              CompanyId: user.Company_Id,
+              Email: user.Email,
+              UserName: user.User_Name,
+              First_Name: user.First_Name,
+              Last_Name: user.Last_Name,
+              Password: '',
+              Avatar: '',
+              StoreId: user.Store_Id,
+              Is_Admin: user.Is_Admin,
+              Status: user.Status
+            });
+          }),
+          catchError(err => {
+            this.loading = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.Message);
+          })
+        );
     } else {
       this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
     }
@@ -189,7 +190,6 @@ export class UserComponent implements OnInit {
         let userLoggedId = this.authService.userId();
         let dataForm =  {
           "Email": this.userForm.value.Email,
-          "UserName": this.userForm.value.UserName,
           "First_Name": this.userForm.value.First_Name,
           "Last_Name": this.userForm.value.Last_Name,
           "Password": this.userForm.value.Password,
@@ -197,21 +197,23 @@ export class UserComponent implements OnInit {
           "UserLogId": userLoggedId,
           "Status": this.userForm.value.Status
         }
-        this.usersService.updateUser(userId, dataForm)
-          .subscribe(
-            response =>  {
-              this.loading = false;
-              this.openDialog('Users', 'User updated successful', true, false, false);
-              this.userNameValidated = false;
-              this.userForm.controls.UserName.enable();         
-              this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
-              this.data.changeData('users');
-            },
-            error => { 
-              this.loading = false;
-              this.openDialog('Error !', error.Message, false, true, false);
-            }
-          );
+        this.userSave$ = this.usersService.updateUser(userId, dataForm).pipe(
+          tap(res => { 
+            this.savingUser = true;
+            this.loading = false;
+            this.userNameValidated = false;
+            this.userForm.controls.UserName.enable();
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+            this.data.changeData('users');
+            this.openDialog('Users', 'User updated successful', true, false, false);
+          }),
+          catchError(err => {
+            this.loading = false;
+            this.savingUser = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       } else {
         let userLoggedId = this.authService.userId();
         let dataForm = { 
@@ -224,21 +226,23 @@ export class UserComponent implements OnInit {
           "StoreId": this.userForm.value.StoreId,
           "UserLogId": userLoggedId
         }
-        this.usersService.postUser(dataForm)
-          .subscribe(
-            response => {
-              this.loading = false;
-              this.openDialog('Users', 'User created successful', true, false, false);
-              this.userNameValidated = false;
-              this.userForm.controls.UserName.enable();
-              this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
-              this.data.changeData('users');
-            },
-            error => { 
-              this.loading = false;
-              this.openDialog('Error !', error.Message, false, true, false);
-            }
-          );
+        this.userSave$ = this.usersService.postUser(dataForm).pipe(
+          tap(res => { 
+            this.savingUser = true;
+            this.loading = false;
+            this.userNameValidated = false;
+            this.userForm.controls.UserName.enable();
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+            this.data.changeData('users');
+            this.openDialog('Users', 'User created successful', true, false, false);
+          }),
+          catchError(err => {
+            this.loading = false;
+            this.savingUser = false;
+            this.openDialog('Error !', err.Message, false, true, false);
+            return throwError(err || err.message);
+          })
+        );
       }
     }
   }
@@ -268,36 +272,21 @@ export class UserComponent implements OnInit {
     this.changesUser.unsubscribe();
   }
 
-  checkUserNameAvailability(data) {
+  checkUserNameAvailability(data) { 
     this.userNameValidated = false;
-    this.loadingUser = true;
-    console.log(data.target.value);
-    this.availability$ = this.usersService.validateUserName(data.target.value).pipe(
-      map((result: any) => { 
-        this.userNameValidated = true;
-        if (result.Available == 0){
-          this.userForm.controls.UserName.setErrors({notUnique: true});
-        }
-        this.loadingUser = false;
-        return result; 
-      })
-    );
-    // this.usersService.validateUserName(data.target.value).subscribe((response: any) =>  { 
-    //   if (response != null) {
-    //     this.userNameValidated = true;
-    //     this.validUserName = response.Available;
-    //     if (response.Available == 0){
-    //       this.userForm.controls.UserName.setErrors({notUnique: true});
-    //     }
-    //     this.loadingUser = false;
-    //   }
-    // },
-    // error =>{
-    //   this.userNameValidated = true;
-    //   this.validUserName = false;
-    //   this.loadingUser = false;
-    //   this.userForm.controls.UserName.setErrors({notUnique: true});
-    // });
+    if (data.target.value != ''){
+      this.loadingUser = true;
+      this.availability$ = this.usersService.validateUserName(data.target.value).pipe(
+        tap((result: any) => { 
+          this.userNameValidated = true;
+          if (result.Available == 0){
+            this.userForm.controls.UserName.setErrors({notUnique: true});
+          }
+          this.loadingUser = false;
+          return result; 
+        })
+      );
+    }
   }
 
 }

@@ -7,6 +7,8 @@ import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { map, catchError, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-customer-list',
@@ -15,7 +17,7 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 })
 export class CustomerListComponent implements OnInit {
 
-  @Output() childEvent = new EventEmitter<Customer>();
+  @Output() customerSelected = new EventEmitter<Customer>();
   @Output() modLoading = new EventEmitter<string>();
 
   public length: number = 0;
@@ -34,7 +36,10 @@ export class CustomerListComponent implements OnInit {
   lastCustomer: Customer;
   deleted: boolean = false;
   displayYesNo: boolean = false;
-
+  message$: Observable<string>;
+  customers$: Observable<Customer[]>;
+  deleteCustomer$: Observable<any>;
+  deletingCustomer: boolean =false;
   constructor(
     private authService: AuthService,
     private data: MonitorService,
@@ -63,31 +68,37 @@ export class CustomerListComponent implements OnInit {
     this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        if (message === 'customers') {
-          this.message = message;
+    this.message$ = this.data.monitorMessage.pipe(
+      map(res => {
+        this.message = 'init';
+        if (res === 'customers') {
+          this.message = res;
           this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
         }
-      });
+        return this.message;
+      })
+    );
   }
   
   loadCustomers(crPage, crNumber, crValue){
     this.onError = '';
-    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
-    this.customerService.getCustomers(data).subscribe((res: any) => {
-      if (res != null) {
-        this.customers = res.customers;
-        this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-        this.length = res.pagesTotal.count;
+    this.customers$ = this.customerService.getCustomers(data).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+          this.modLoading.emit('none');
+        }
+        return res.customers;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
         this.modLoading.emit('none');
-      }
-    },
-    error => {
-      this.onError = error.Message;
-      this.modLoading.emit('none');
-    });
+        return this.onError;
+      })
+    );
   }
 
   public filterList(searchParam: string): void {
@@ -101,14 +112,14 @@ export class CustomerListComponent implements OnInit {
 
   onSelect(customer: Customer){
     if (this.lastCustomer != customer){
-      this.childEvent.emit(customer);
+      this.customerSelected.emit(customer);
       this.lastCustomer = customer;
     } else {
       let defCustomer: Customer;
       (async () => {
-        this.childEvent.emit(defCustomer);
+        this.customerSelected.emit(defCustomer);
         await delay(20);
-        this.childEvent.emit(customer);
+        this.customerSelected.emit(customer);
       })();
     }
     window.scroll(0,0);
@@ -138,24 +149,28 @@ export class CustomerListComponent implements OnInit {
         if (this.deleted){
           let delCustomer: Customer;
           this.loading = true;
-          this.customerService.deleteCustomer(customer.Customer_Id).subscribe(
-            response =>  {
-              this.childEvent.emit(delCustomer);
+          this.deleteCustomer$ = this.customerService.deleteCustomer(customer.Customer_Id).pipe(
+            tap(res => {
+              this.customerSelected.emit(delCustomer);
+              this.loading = false;
+              this.displayYesNo = false;
+              this.deletingCustomer = true;
               this.loadCustomers(
                 this._currentPage,
                 this.pageSize,
                 this._currentSearchValue
               );
-              this.loading = false;
-              window.scroll(0,0);
-              this.displayYesNo = false;
               this.openDialog('Customer', 'Customer deleted successful', true, false, false);
-            },
-            error => {
+              window.scroll(0,0);
+            }),
+            catchError(err => {
+              this.deletingCustomer = false;
               this.loading = false;
               this.displayYesNo = false;
-              this.openDialog('Error ! ', error.Message, false, true, false);
-            });
+              this.openDialog('Error ! ', err.Message, false, true, false);
+              return throwError (err || err.message);
+            })
+          );
         }
       }
     });

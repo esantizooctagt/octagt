@@ -7,6 +7,8 @@ import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { map, catchError, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -15,7 +17,7 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 })
 export class ProductListComponent implements OnInit {
   @Input() view: string='';
-  @Output() childEvent = new EventEmitter<Product>();
+  @Output() productSelected = new EventEmitter<Product>();
   @Output() newStep = new EventEmitter<string>();
   @Output() addItem = new EventEmitter<Object>();
   @Output() modLoading = new EventEmitter<string>();
@@ -40,6 +42,10 @@ export class ProductListComponent implements OnInit {
   checkOut: boolean = false;
   currencyValue: Currency[]=[{"n":"Q", "c":"GTQ"},{"n":"EUR", "c":"EUR"}];
   currencyCompany: string ='';
+  message$: Observable<string>;
+  products$: Observable<Product[]>;
+  deleteProduct$: Observable<any>;
+  deletingProduct: boolean=false;
 
   constructor(
     private authService: AuthService,
@@ -73,34 +79,40 @@ export class ProductListComponent implements OnInit {
     currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
     this.currencyCompany = currencyVal[0].n;
     this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
-    this.data.monitorMessage
-      .subscribe((message: any) => {
-        if (message === 'products') {
-          this.message = message;
+    this.message$ = this.data.monitorMessage.pipe(
+      map(res => {
+        this.message = 'init';
+        if (res === 'products') {
+          this.message = res;
           this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
         }
-      });
-      if (this.view === "salesView"){
-        this.checkOut = true;
-      }
+        return this.message;
+      })
+    );
+    if (this.view === "salesView"){
+      this.checkOut = true;
+    } 
   }
 
   loadProducts(crPage, crNumber, crValue){
     this.onError = '';
-    let data = "companyId=" + this.companyId + "&currPage=" + crPage + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
-    this.productService.getProducts(data).subscribe((res: any) => {
-      if (res != null) {
-        this.products = res.products;
-        this.pages = Array(res.pagesTotal.pages).fill(0).map((x,i)=>i);
-        this.length = res.pagesTotal.count;
+    this.products$ = this.productService.getProducts(data).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+          this.modLoading.emit('none');
+        }
+        return res.products;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
         this.modLoading.emit('none');
-      }
-    },
-    error => {
-      this.onError = error.Message;
-      this.modLoading.emit('none');
-    });
+        return this.onError;
+      })
+    );
   }
 
   public filterList(searchParam: string) {
@@ -114,14 +126,14 @@ export class ProductListComponent implements OnInit {
 
   onSelect(product: Product){
     if (this.lastProd != product){
-      this.childEvent.emit(product);
+      this.productSelected.emit(product);
       this.lastProd = product;
     } else {
       let defProd: Product;
       (async () => {
-        this.childEvent.emit(defProd);
+        this.productSelected.emit(defProd);
         await delay(20);
-        this.childEvent.emit(product);
+        this.productSelected.emit(product);
       })();
     }
     if (!this.view) { window.scroll(0,0) };
@@ -176,24 +188,28 @@ export class ProductListComponent implements OnInit {
         if (this.deleted){
           let delProd: Product;
           this.loading = true;
-          this.productService.deleteProduct(product.Product_Id).subscribe(
-            response =>  {
-              this.childEvent.emit(delProd);
+          this.deleteProduct$ = this.productService.deleteProduct(product.Product_Id).pipe(
+            tap(res => {
+              this.productSelected.emit(delProd);
+              this.loading = false;
+              this.displayYesNo = false;
+              this.deletingProduct = true;
               this.loadProducts(
                 this._currentPage,
                 this.pageSize,
                 this._currentSearchValue
               );
-              this.loading = false;
-              window.scroll(0,0);
-              this.displayYesNo = false;
               this.openDialog('Product', 'Product deleted successful', true, false, false);
-            },
-            error => {
+              window.scroll(0,0);
+            }),
+            catchError(err => {
+              this.deletingProduct = false;
               this.loading = false;
               this.displayYesNo = false;
-              this.openDialog('Error ! ', error.Message, false, true, false);
-            });
+              this.openDialog('Error ! ', err.Message, false, true, false);
+              return throwError (err || err.message);
+            })
+          );
         }
       }
     });
