@@ -30,7 +30,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "lodash": "^4.17.15",
-    "ngx-image-compress": "^8.0.3",
+    "ngx-image-compress": "^8.0.4",
     "rxjs": "~6.5.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.9.1"
