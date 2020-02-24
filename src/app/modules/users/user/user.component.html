@@ -53,12 +53,24 @@
         <div class="form-field pl-3 pr-3">
             <mat-form-field>
                 <mat-label>Default Store:</mat-label>
-                    <mat-select formControlName="StoreId">
-                        <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">
-                            {{res.Name}}
-                        </mat-option>
-                    </mat-select>
-                    <mat-error *ngIf="f.StoreId.invalid && f.StoreId.touched">{{getErrorMessage('Store')}}</mat-error>
+                <mat-select #stores formControlName="StoreId">
+                    <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">
+                        {{res.Name}}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="f.StoreId.invalid && f.StoreId.touched">{{getErrorMessage('Store')}}</mat-error>
+            </mat-form-field>
+        </div>
+        <div class="form-field pl-3 pr-3">
+            <mat-form-field>
+                <mat-label>Role:</mat-label>
+                <mat-select #roles formControlName="RoleId" required>
+                    <mat-option>None</mat-option>
+                    <mat-option *ngFor="let rol of roles$ | async" [value]="rol.Role_Id">
+                        {{rol.Name}}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="f.RoleId.invalid && f.RoleId.touched">{{getErrorMessage('RoleId')}}</mat-error>
             </mat-form-field>
         </div>
         <div class="form-field-check ml-3 pr-3">
@@ -68,7 +80,7 @@
             <mat-checkbox formControlName="Status">Status</mat-checkbox>
         </div>
         <button mat-flat-button color="primary" id="save" [disabled]="!userForm.valid" class="ml-3 mr-3 mt-2">Save</button>
-        <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+        <button mat-flat-button color="accent" id="cancel" type="button" (click)="onCancel()" class="mt-2">Cancel</button>
         <!-- {{ userForm.value | json }} -->
     </form>
 </mat-card>

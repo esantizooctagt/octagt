@@ -12,3 +12,8 @@ export * from './users/users.component';
 export * from './categories/categories.component';
 export * from './help/help.component';
 export * from './forgotpass/forgotpass.component';
+export * from './roles/roles.component';
+export * from './invoices/invoices.component';
+export * from './reports/reports.component';
+export * from './inventory/inventory.component';
+export * from './inventory-query/inventory-query.component';

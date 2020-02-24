@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Product, Tax, Detail } from '@app/_models';
+import { Tax } from '@app/_models';
 import { ArrayValidators } from '@app/validators';
-import { CustomerService, ProductService, CompanyService, TaxService, SalesService } from "@app/services";
+import { CustomerService, ProductService, CompanyService, TaxService, SalesService, RolesService } from "@app/services";
 import { Generic } from '@app/_models';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { formatDate } from '@angular/common';
@@ -18,7 +18,7 @@ import { delay, map, shareReplay } from 'rxjs/operators';
 import { MatTable } from '@angular/material';
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { ValueConverter } from '@angular/compiler/src/render3/view/template';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sales',
@@ -44,6 +44,7 @@ export class SalesComponent implements OnInit {
   step: number=1;
   filteredCustomers: Observable<Generic[]>;
   subsItems: Subscription;
+  access: Subscription;
 
   ingresado: string='';
   lineNo: number=0;
@@ -100,7 +101,9 @@ export class SalesComponent implements OnInit {
     private fb: FormBuilder,
     private dialog: MatDialog,
     private _snackBar: MatSnackBar,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private roleService: RolesService,
+    private router: Router
   ) { }
 
   salesForm = this.fb.group({
@@ -160,6 +163,18 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.access = this.roleService.getAccess(roleId, 'Sales').subscribe(res => {
+        if (res != null){
+          if (res.Value === 0){
+            this.router.navigate(['/']);
+          }
+        }
+      });
+    }
+
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
 
@@ -467,5 +482,8 @@ export class SalesComponent implements OnInit {
 
   ngOnDestroy() {
     this.subsItems.unsubscribe();
+    if (this.access != undefined){
+      this.access.unsubscribe();
+    }
   }
 }

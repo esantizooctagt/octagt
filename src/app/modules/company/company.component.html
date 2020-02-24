@@ -23,7 +23,8 @@
                     <mat-icon>business</mat-icon>
                     <!-- {{index + 10}} -->
                 </ng-template>
-                <mat-step [stepControl]="companyForm" step="company">
+                <ng-container *ngIf="(companySave$ | async) && savingCompany"></ng-container>
+                <mat-step [stepControl]="companyForm" step="company" *ngIf="(company$ | async) || displayCompany">
                     <form [formGroup]="companyForm" (ngSubmit)="onSubmitCompany()">
                         <ng-template matStepLabel>Company</ng-template>
                         <mat-form-field>
@@ -53,7 +54,7 @@
                                 <input type="text" placeholder="Country" matInput formControlName="Country" [matAutocomplete]="autoCountry" [errorStateMatcher]="confirmValidParentMatcher" required>
                                 <mat-error *ngIf="fCompany.Country.invalid && fCompany.Country.touched">{{getErrorMessage('Country')}}</mat-error>
                                 <mat-autocomplete #autoCountry="matAutocomplete" [displayWith]="displayFn" activeOption="activeOption">
-                                    <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
+                                    <mat-option *ngFor="let country of filteredCountries$ | async" [value]="country">
                                     {{country.n}}
                                     </mat-option>
                                 </mat-autocomplete>
@@ -66,7 +67,7 @@
                                 <input type="text" placeholder="Currency" matInput formControlName="Currency" [matAutocomplete]="autoCurrency" [errorStateMatcher]="confirmValidParentMatcher" required>
                                 <mat-error *ngIf="fCompany.Currency.invalid && fCompany.Currency.touched">{{getErrorMessage('Currency')}}</mat-error>
                                 <mat-autocomplete #autoCurrency="matAutocomplete" [displayWith]="displayFnCurrency" activeOption="activeOption">
-                                    <mat-option *ngFor="let currency of filteredCurrencies | async" [value]="currency">
+                                    <mat-option *ngFor="let currency of filteredCurrencies$ | async" [value]="currency">
                                     {{currency.n}}
                                     </mat-option>
                                 </mat-autocomplete>
@@ -100,7 +101,8 @@
                         </div>
                     </form>
                 </mat-step>
-                <mat-step [stepControl]="storeForm" step="store">
+                <ng-container *ngIf="(storeSave$ | async) && savingStore"></ng-container>
+                <mat-step [stepControl]="storeForm" step="store" *ngIf="(store$ | async) || displayStore">
                     <form [formGroup]="storeForm" (ngSubmit)="onSubmitStores()">
                         <ng-template matStepLabel>Stores</ng-template>
                         <mat-accordion>
@@ -150,6 +152,7 @@
                         </div>
                     </form>
                 </mat-step>
+                <ng-container *ngIf="(cashierSave$ | async) && savingCashier"></ng-container>
                 <mat-step step="cashier">
                     <form>
                         <h4 class="">Assign Cashiers to Stores</h4>

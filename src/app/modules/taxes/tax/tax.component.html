@@ -35,7 +35,7 @@
             <mat-checkbox formControlName="Status">Status</mat-checkbox>
         </div>
         <button mat-flat-button color="primary" id="save" [disabled]="!taxForm.valid" class="ml-3 mr-3 mt-2">Save</button>
-        <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+        <button mat-flat-button color="accent" type="button" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
         <!-- {{ taxForm.value | json }} -->
     </form>
 </mat-card>

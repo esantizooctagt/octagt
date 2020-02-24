@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Category } from '@app/_models';
 import { AuthService } from '@core/services';
-import { CategoryService } from "@app/services";
+import { CategoryService, RolesService } from "@app/services";
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, Subscription } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-categories',
@@ -26,7 +27,8 @@ export class CategoriesComponent implements OnInit {
   category$: Observable<Category>;
   categorySave$: Observable<any>;
   deleteCategory$: Observable<any>;
-
+  access: Subscription;
+  
   loading: boolean=false;
   savingCategory: boolean=false;
   displayYesNo: boolean=false;
@@ -40,6 +42,8 @@ export class CategoriesComponent implements OnInit {
     private authService: AuthService,
     private dialog: MatDialog,
     private categoryService: CategoryService,
+    private roleService: RolesService,
+    private router: Router
   ) { }
 
   categoryForm = this.fb.group({
@@ -66,6 +70,18 @@ export class CategoriesComponent implements OnInit {
   }
   
   ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.access = this.roleService.getAccess(roleId, 'Categories').subscribe(res => {
+        if (res != null){
+          if (res.Value === 0){
+            this.router.navigate(['/']);
+          }
+        }
+      });
+    }
+
     this.companyId = this.authService.companyId();
     this.categories$ = this.categoryService.getCategories(this.companyId);
   }
@@ -213,4 +229,11 @@ export class CategoriesComponent implements OnInit {
       }
     }
   }
+
+  ngOnDestroy() {
+    if (this.access != undefined){
+      this.access.unsubscribe();
+    }
+  }
+
 }

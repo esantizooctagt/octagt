@@ -10,5 +10,6 @@ export class User {
     Company_Name?: string;
     Avatar?: string;
     Is_Admin?: number;
+    Role_Id?: string;
     Status?: number
 }

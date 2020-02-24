@@ -1,7 +1,7 @@
 import { Component, OnInit, forwardRef, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators, FormControl, NG_VALUE_ACCESSOR, NG_VALIDATORS, ControlValueAccessor, FormGroup } from '@angular/forms';
-import { Subscription, Observable } from 'rxjs';
-import { Generic, Customers, CustomerList } from '@app/_models';
+import { Subscription, Observable, throwError } from 'rxjs';
+import { Generic, Customers, CustomerList, Customer } from '@app/_models';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { debounceTime, tap, switchMap, finalize, map, catchError, filter, distinctUntilChanged } from 'rxjs/operators';
 import { CustomerService } from "@app/services";
@@ -30,9 +30,12 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   subscriptions: Subscription[] = [];
   filterCustomers: Subscription;
   filteredCustomers: Customers[] = [];
+  customer$: Observable<Customer>;
+  custForm: Subscription;
   blankList: CustomerList[];
   companyId: string = '';
   isLoading: boolean=false;
+  displayForm: boolean =true;
   
   get fCustomer(){
     return this.customerBasicForm.controls;
@@ -138,23 +141,26 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   getCustomerSelected($event){
     let customerId = $event.Customer_Id;
     if (customerId != '') {
-      this.customerService.getCustomer(customerId).subscribe((res: any) => {
-        if (res != null) {
-          this.customerBasicForm.patchValue({
-            'Customer_Id': res.Customer_Id,
-            'Address': res.Address,
-            'State': res.State,
-            'Tax_Number': res.Tax_Number,
-            'Is_Exent': res.Is_Exent,
-            'Reason': res.Reason,
-            'Status': 1
-          });
-        }
-      },
-      error => { 
-        this.openDialog('Error !', error.Message, false, true, false);
-        this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
-      });
+      this.customer$ = this.customerService.getCustomer(customerId).pipe(
+        tap((res: any) => {
+          if (res != null) {
+            this.customerBasicForm.patchValue({
+              'Customer_Id': res.Customer_Id,
+              'Address': res.Address,
+              'State': res.State,
+              'Tax_Number': res.Tax_Number,
+              'Is_Exent': res.Is_Exent,
+              'Reason': res.Reason,
+              'Status': 1
+            });
+          }
+        }),
+        catchError(err => {
+          this.openDialog('Error !', err.Message, false, true, false);
+          this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
+          return throwError(err || err.message); 
+        })
+      );
     } else {
       this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
     }
@@ -199,10 +205,11 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
     this.filterCustomers.unsubscribe();
+    this.custForm.unsubscribe();
   }
 
   onValueChanges(): void {
-    this.customerBasicForm.valueChanges.subscribe(val=>{
+    this.custForm = this.customerBasicForm.valueChanges.subscribe(val=>{
       if (val.Is_Exent === true) {
         this.customerBasicForm.controls["Is_Exent"].setValue(1);
         this.customerBasicForm.get("Reason").setValidators([Validators.required, Validators.minLength(3)]);
@@ -242,9 +249,4 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
     return this.customerBasicForm.valid ? null : { customerInfo: { valid: false, message: "customerForm fields are invalid"} };
   }
 
-  // validate(c: AbstractControl): ValidationErrors | null{
-  //   // console.log("Customer Info validation", c);
-  //   console.log('Customer Valid --> ' +this.customerBasicForm.valid);
-  //   return this.customerBasicForm.valid ? null : { customerInfo: {valid: false, message: "customerForm fields are invalid"}};
-  // }
 }

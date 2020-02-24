@@ -6,11 +6,17 @@
       [ngStyle]="{'width': collapse === true ? '45px' : '200px'}">
     <mat-toolbar color="primary">Cashier 2 Go<button mat-icon-button *ngIf="!collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_left</mat-icon></button><button mat-icon-button *ngIf="collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_right</mat-icon></button></mat-toolbar>
     <mat-nav-list color="primary">
-      <a mat-list-item [routerLink]="['/dashboard']" routerLinkActive="menu-active"><mat-icon class="mr-2">view_quilt</mat-icon>Dashboard</a>
+      <ng-container class="" *ngFor="let item of apps$ | async">
+        <a *ngIf="item.Active" mat-list-item [routerLink]="['/'+item.Route]" routerLinkActive="menu-active"><mat-icon class="mr-2">{{item.Icon}}</mat-icon>{{item.Name}}</a>
+      </ng-container>
+      <!-- <a mat-list-item [routerLink]="['/dashboard']" routerLinkActive="menu-active"><mat-icon class="mr-2">view_quilt</mat-icon>Dashboard</a>
       <a mat-list-item [routerLink]="['/sales']" routerLinkActive="menu-active"><mat-icon class="mr-2">description</mat-icon>Sales</a>
       <a mat-list-item [routerLink]="['/customers']" routerLinkActive="menu-active"><mat-icon class="mr-2">people</mat-icon>Customers</a>
       <a mat-list-item [routerLink]="['/products']" routerLinkActive="menu-active"><mat-icon class="mr-2">layers</mat-icon>Products</a>
       <a mat-list-item [routerLink]="['/categories']" routerLinkActive="menu-active"><mat-icon class="mr-2">category</mat-icon>Categories</a>
+      <a mat-list-item [routerLink]="['/inventorystore']" routerLinkActive="menu-active"><mat-icon class="mr-2">store</mat-icon>Query Inventory</a>
+      <a mat-list-item [routerLink]="['/invoices']" routerLinkActive="menu-active"><mat-icon class="mr-2">library_books</mat-icon>Invoices</a>
+      <a mat-list-item [routerLink]="['/reports']" routerLinkActive="menu-active"><mat-icon class="mr-2">pie_chart</mat-icon>Reports</a> -->
       <div *ngIf="isAdmin">
         <mat-divider></mat-divider>
         <a mat-list-item class="item-list"><mat-icon class="mr-2">settings</mat-icon>Settings</a>

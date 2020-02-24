@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent } from '@modules/index';
+import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -15,6 +15,10 @@ import { ProductComponent } from '@modules/products/product/product.component';
 import { ProductListComponent } from '@modules/products/product-list/product-list.component';
 import { UserComponent } from '@modules/users/user/user.component';
 import { UserListComponent } from '@modules/users/user-list/user-list.component';
+import { InventoryDetailComponent } from '@modules/inventory-query/inventory-detail/inventory-detail.component';
+import { InvoicesDetailComponent } from '@modules/invoices/invoices-detail/invoices-detail.component';
+import { RoleComponent } from '@modules/roles/role/role.component';
+import { RoleListComponent } from '@modules/roles/role-list/role-list.component';
 
 const routes: Routes = [
   { 
@@ -30,6 +34,11 @@ const routes: Routes = [
       { path: 'documents', component: DocumentsComponent, canActivate: [AuthGuard] },
       { path: 'company', component: CompanyComponent, canActivate: [AuthGuard] },
       { path: 'categories', component: CategoriesComponent, canActivate: [AuthGuard] },
+      { path: 'invoices', component: InvoicesComponent, canActivate: [AuthGuard] },
+      { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
+      { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard] },
+      { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
+      { path: 'inventorystore', component: InventoryQueryComponent, canActivate: [AuthGuard] },
       { path: 'help', component: HelpComponent, canActivate: [AuthGuard] }
       //to send parameters between components
       // { path: 'taxes/:idTax', component: TaxComponent, canActivate: [AuthGuard] }
@@ -77,7 +86,16 @@ export const routingComponents = [
   UserComponent,
   UsersComponent,
   UserListComponent,
+  RolesComponent,
+  RoleComponent,
+  RoleListComponent,
   SalesComponent,
   HelpComponent,
-  ForgotpassComponent
+  ForgotpassComponent,
+  InvoicesComponent, 
+  InventoryComponent, 
+  InventoryQueryComponent, 
+  ReportsComponent,
+  InventoryDetailComponent,
+  InvoicesDetailComponent
 ]

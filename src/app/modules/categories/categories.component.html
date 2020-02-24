@@ -24,7 +24,7 @@
                         <mat-checkbox formControlName="Status">Status</mat-checkbox>
                     </div>
                     <button mat-flat-button color="primary" id="save" [disabled]="!categoryForm.valid" class="ml-3 mr-3 mt-2">Save</button>
-                    <button mat-flat-button color="accent" id="cancel" (click)="onCancel()" class="mt-2">Cancel</button>
+                    <button mat-flat-button color="accent" id="cancel" type="button" (click)="onCancel()" class="mt-2">Cancel</button>
                     <!-- {{ categoryForm.value | json }} -->
                 </form>
                 <mat-list class="form-field pl-3 pr-3 mt-3 mb-3">

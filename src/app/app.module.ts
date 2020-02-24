@@ -30,11 +30,7 @@ import { SearchFilterPipe } from '@shared/filterpipe';
 import { CustomerbasicComponent } from '@shared/customerbasic/customerbasic.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { UsersComponent } from '@modules/users/users.component';
-import { UserComponent } from '@modules/users/user/user.component';
-import { UserListComponent } from '@modules/users/user-list/user-list.component';
 import { CategoriesComponent } from '@modules/categories/categories.component';
-
 
 @NgModule({
   declarations: [
@@ -49,9 +45,6 @@ import { CategoriesComponent } from '@modules/categories/categories.component';
     SearchFilterPipe,
     CustomerbasicComponent,
     DialogComponent,
-    UsersComponent,
-    UserComponent,
-    UserListComponent,
     CategoriesComponent,
   ],
   imports: [

@@ -61,6 +61,11 @@ export class AuthService {
         return this.currentUserTknSubject.value;
     }
 
+    roleId(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Role_Id;
+    }
+
     currency() {
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.Currency;

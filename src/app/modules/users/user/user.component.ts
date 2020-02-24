@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
-import { User, StoreDocto } from '@app/_models';
+import { User, StoreDocto, Role } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
-import { UserService, StoresService } from "@app/services";
+import { UserService, StoresService, RolesService } from "@app/services";
 import { AuthService } from '@core/services';
 import { Router } from '@angular/router';
 import { MonitorService } from "@shared/monitor.service";
@@ -29,6 +29,7 @@ export class UserComponent implements OnInit {
   companyId: string='';
   changesUser: Subscription;
   stores$: Observable<StoreDocto[]>;
+  roles$: Observable<Role[]>;
   displayForm: boolean = true;
   availability$: Observable<any>;
   userSave$: Observable<any>;
@@ -45,6 +46,7 @@ export class UserComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private usersService: UserService,
+    private rolesService: RolesService,
     private storeService: StoresService,
     private router: Router,
     private data: MonitorService,
@@ -61,6 +63,7 @@ export class UserComponent implements OnInit {
     Password: ['',[Validators.minLength(6), Validators.maxLength(20)]],
     Avatar: [''],
     StoreId: [''],
+    RoleId: ['', [Validators.required]],
     Is_Admin: [{value: 0, disabled: true}],
     Status: [1]
   })
@@ -69,6 +72,7 @@ export class UserComponent implements OnInit {
     this.companyId = this.authService.companyId();
     this.message$ = this.data.monitorMessage;
     this.loadStores();
+    this.loadRoles();
     this.onValueChanges();
   }
 
@@ -120,6 +124,10 @@ export class UserComponent implements OnInit {
         this.f.Password.hasError('maxlength') ? 'Maximun length 20' :
           '';
     }
+    if (component === 'RoleId'){
+      return this.f.RoleId.hasError('required') ? 'You must select a value' :
+        '';
+    }
   }
 
   onValueChanges(): void {
@@ -144,12 +152,17 @@ export class UserComponent implements OnInit {
     if (changes.user.currentValue != undefined) {
       this.loading = true;
       let userResult = changes.user.currentValue;
-      this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+      this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
       this.user$ = this.usersService.getUser(userResult.User_Id).
         pipe(
           tap(user => { 
             this.userForm.controls.UserName.disable();
             this.loading = false;
+            if (user.Is_Admin === 1){
+              this.userForm.controls['RoleId'].clearValidators();
+            } else {
+              this.userForm.controls['RoleId'].setValidators([Validators.required]);
+            }
             this.userForm.setValue({
               UserId: user.User_Id,
               CompanyId: user.Company_Id,
@@ -160,6 +173,7 @@ export class UserComponent implements OnInit {
               Password: '',
               Avatar: '',
               StoreId: user.Store_Id,
+              RoleId: (user.Is_Admin === 1 ? 'None' : user.Role_Id),
               Is_Admin: user.Is_Admin,
               Status: user.Status
             });
@@ -171,12 +185,16 @@ export class UserComponent implements OnInit {
           })
         );
     } else {
-      this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+      this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
     }
   }
   
   loadStores(){
     this.stores$ = this.storeService.getStoresDoctos(this.companyId);
+  }
+
+  loadRoles(){
+    this.roles$ = this.rolesService.getRoles(this.companyId);
   }
 
   onSubmit(){
@@ -195,6 +213,7 @@ export class UserComponent implements OnInit {
           "Password": this.userForm.value.Password,
           "StoreId": this.userForm.value.StoreId,
           "UserLogId": userLoggedId,
+          "RoleId": this.userForm.value.RoleId,
           "Status": this.userForm.value.Status
         }
         this.userSave$ = this.usersService.updateUser(userId, dataForm).pipe(
@@ -203,7 +222,7 @@ export class UserComponent implements OnInit {
             this.loading = false;
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
-            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: '', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User updated successful', true, false, false);
           }),
@@ -224,6 +243,7 @@ export class UserComponent implements OnInit {
           "Last_Name": this.userForm.value.Last_Name,
           "Password": this.userForm.value.Password,
           "StoreId": this.userForm.value.StoreId,
+          "RoleId": this.userForm.value.RoleId,
           "UserLogId": userLoggedId
         }
         this.userSave$ = this.usersService.postUser(dataForm).pipe(
@@ -232,7 +252,7 @@ export class UserComponent implements OnInit {
             this.loading = false;
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
-            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: '', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User created successful', true, false, false);
           }),
@@ -248,9 +268,10 @@ export class UserComponent implements OnInit {
   }
 
   onCancel(){
+    this.userForm.controls['RoleId'].setValidators([Validators.required]);
     this.userNameValidated = false;
     this.userForm.controls.UserName.enable();
-    this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', Is_Admin: 0, Status: 1});
+    this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
   }
 
   // allow only digits and dot

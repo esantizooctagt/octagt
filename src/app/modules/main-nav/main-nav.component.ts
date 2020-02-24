@@ -4,9 +4,10 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 
-import { User } from '@app/_models';
+import { User, Access } from '@app/_models';
 import { AuthService } from '@core/services';
 import { environment } from '@environments/environment';
+import { RolesService } from '@app/services';
 
 @Component({
   selector: 'app-main-nav',
@@ -18,8 +19,11 @@ export class MainNavComponent implements OnInit {
   companyId: string='';
   userId: string='';
   avatar: string='';
+  roleId: string='';
   isAdmin: boolean=false;
   collapse: boolean=false;
+
+  apps$: Observable<Access[]>;
   readonly imgPath = environment.bucket;
 
   users: User[] = [];
@@ -33,27 +37,33 @@ export class MainNavComponent implements OnInit {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthService,
+    private roleService: RolesService,
     private router: Router
     ) {
-    // this.currentUserSubscription = this.authService.currentUser.subscribe(user => {
-    // //this.currentUser = user;
-    // });
   }
 
   ngOnInit(){
     this.companyId = this.authService.companyId();
+    this.roleId = this.authService.roleId();
     this.userId = this.authService.userId();
     this.isAdmin = this.authService.isAdmin();
     if (this.authService.avatar() != '') {
       this.avatar = this.imgPath + this.authService.avatar();
     }
+    this.loadAccess();
+  }
+
+  loadAccess(){
+    this.apps$ = this.roleService.getApplications((this.roleId != '' ? this.roleId : 1));
   }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
   OnCollapse(){
     this.collapse = !this.collapse;
   }
+
 }

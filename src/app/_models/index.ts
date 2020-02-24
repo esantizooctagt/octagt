@@ -14,3 +14,6 @@ export * from './cashier';
 export * from './storesdocto';
 export * from './documents';
 export * from './category';
+export * from './role';
+export * from './access';
+export * from './applications';
