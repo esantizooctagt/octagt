@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SalesService, CompanyService } from '@app/services';
-import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+import { SalesService } from '@app/services';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { AuthService } from '@app/core/services';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-invoices-detail',
@@ -24,7 +25,7 @@ export class InvoicesDetailComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private companyService: CompanyService,
+    private spinnerService: SpinnerService,
     private salesService: SalesService
   ) { }
 
@@ -68,6 +69,7 @@ export class InvoicesDetailComponent implements OnInit {
   displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
 
   ngOnInit() {
+    var spinnerRef = this.spinnerService.start("Loading Invoice...");  
     this.invoiceId = this.route.snapshot.paramMap.get('idInvoice');
     this.companyId = this.authService.companyId();
     this.country = this.authService.country();
@@ -105,6 +107,7 @@ export class InvoicesDetailComponent implements OnInit {
               Lines: []
             });
             this.invoiceForm.setControl('Lines', this.setExistingLines(res.Lines));
+            this.spinnerService.stop(spinnerRef);
           }
         })
       );

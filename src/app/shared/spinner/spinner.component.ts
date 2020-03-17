@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 @Component({
   selector: 'app-spinner',
   templateUrl: './spinner.component.html',
   styleUrls: ['./spinner.component.scss']
 })
-export class SpinnerComponent implements OnInit {
+export class SpinnerComponent{
+  constructor(
+    private dialogRef: MatDialogRef<SpinnerComponent>,
+    @Inject(MAT_DIALOG_DATA) 
+    public data: any
+  ) { }
 
-  message:string = '';
-  constructor() { }
-
-  ngOnInit() {
-
+  close() {
+    this.dialogRef.close();
   }
-
 }

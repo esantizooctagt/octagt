@@ -23,16 +23,16 @@
                     <!-- {{inventoryForm.value | json}} -->
                     <mat-table *ngIf="inventoryForm.get('StoreId').value != ''" [dataSource]="inventoryForm.get('Detail').controls" formArrayName="Detail" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8 col-md">
                         <ng-container matColumnDef="SKU">
-                            <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Name"> SKU </mat-header-cell>
+                            <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th"> SKU </mat-header-cell>
                             <mat-cell *matCellDef="let element;let i=index" class="col-md-2 mat-column-td-Name"> {{element.value.SKU}} </mat-cell>
                         </ng-container>
                         <!-- Position Column -->
                         <ng-container matColumnDef="Name">
-                            <mat-header-cell *matHeaderCellDef class="col-md-6 mat-column-th-Name"> Name </mat-header-cell>
+                            <mat-header-cell *matHeaderCellDef class="col-md-6 mat-column-th"> Name </mat-header-cell>
                             <mat-cell *matCellDef="let element;let i=index" class="col-md-6 mat-column-td-Name"> {{element.value.Name}} </mat-cell>
                         </ng-container>
                         <ng-container matColumnDef="Unit_Price">
-                            <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Unit Price </mat-header-cell>
+                            <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th"> Unit Price </mat-header-cell>
                             <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
                                 <mat-form-field [floatLabel]="never">
                                     <input matInput type="number" min="0.01"
@@ -45,7 +45,7 @@
                         </ng-container>
                         <!-- Position Column  -->
                         <ng-container matColumnDef="Qty">
-                            <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Qty"> Qty </mat-header-cell>
+                            <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th"> Qty </mat-header-cell>
                             <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Qty" [formGroup]="element">
                                 <mat-form-field [floatLabel]="never">
                                     <input matInput type="number" min="0.0001"

@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // services
 import { NgxImageCompressService } from 'ngx-image-compress';
+import { SpinnerService } from '@shared/spinner.service';
 
 // helpers interceptors jwt, errors, cache
 import { JwtInterceptor, ErrorInterceptor, CacheInterceptor } from '@app/core/interceptors';
@@ -83,6 +84,7 @@ import { CategoriesComponent } from '@modules/categories/categories.component';
   ],
   providers: [
     NgxImageCompressService,
+    SpinnerService,
     // { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }

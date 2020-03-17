@@ -40,8 +40,7 @@
                 <mat-form-field hintLabel="Only decimal values">
                     <input matInput placeholder="SKU" min="0" max="999999999999999" type="number"
                         (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,15}$"
-                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="SKU" class="values-right-align"
-                        required>
+                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="SKU" class="values-right-align">
                     <mat-error *ngIf="SKU.invalid && SKU.touched">{{getErrorMessage('SKU')}}</mat-error>
                 </mat-form-field>
             </div>

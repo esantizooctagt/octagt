@@ -9,8 +9,9 @@
     -webkit-hyphens: auto;
     hyphens: auto;
 }
-.mat-column-th-Name {
-    text-align: center;
+.mat-column-th {
+    justify-content: center;
+    font-weight: 600;
     padding-left: 0px !important;
 }
 .mat-column-td-Unit_Price {
@@ -18,17 +19,9 @@
     text-align: right;
     justify-content: flex-end;
 }
-.mat-column-th-Unit_Price {
-    text-align: center;
-    padding-left: 0px !important;
-}
 .mat-column-td-Qty {
     padding-right: 8px;
     text-align: right;
-}
-.mat-column-th-Qty {
-    text-align: center;
-    padding-left: 0px !important;
 }
 .mat-column-Actions {
     text-align: center;
