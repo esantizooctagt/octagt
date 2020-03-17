@@ -8,7 +8,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Observable, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
-
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-user-list',
@@ -18,7 +18,7 @@ import { map, tap, catchError } from 'rxjs/operators';
 export class UserListComponent implements OnInit {
 
   @Output() userSelected = new EventEmitter<User>();
-  @Output() modLoading = new EventEmitter<string>();
+  // @Output() modLoading = new EventEmitter<string>();
   public length: number = 0;
   public pageSize: number = 10;
   public users: User[] = [];
@@ -44,6 +44,7 @@ export class UserListComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private userService: UserService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog
   ) { }
 
@@ -65,7 +66,7 @@ export class UserListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.modLoading.emit('display');
+    // this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadUsers(this._currentPage, this.pageSize, this._currentSearchValue);
     this.message$ = this.data.monitorMessage.pipe(
@@ -82,6 +83,7 @@ export class UserListComponent implements OnInit {
 
   loadUsers(crPage, crNumber, crValue) {
     this.onError = '';
+    var spinnerRef = this.spinnerService.start("Loading Users...");
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.users$ = this.userService.getUsers(data).pipe(
@@ -89,13 +91,15 @@ export class UserListComponent implements OnInit {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
-          this.modLoading.emit('none');
+          // this.modLoading.emit('none');
         }
+        this.spinnerService.stop(spinnerRef);
         return res.users;
       }),
       catchError(err => {
         this.onError = err.Message;
-        this.modLoading.emit('none');
+        this.spinnerService.stop(spinnerRef);
+        // this.modLoading.emit('none');
         return this.onError;
       })
     )
@@ -146,14 +150,14 @@ export class UserListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if(result != undefined){
         this.deleted = result;
+        var spinnerRef = this.spinnerService.start("Deleting User...");
         if (this.deleted){
           let delUser: User;
-          this.loading = true;
           this.deleted = false; 
           this.deleteUser$ = this.userService.deleteUser(user.User_Id).pipe(
             tap(res => {
               this.userSelected.emit(delUser);
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.deletingUser = true;
               this.loadUsers(
@@ -166,7 +170,7 @@ export class UserListComponent implements OnInit {
             }),
             catchError(err => {
               this.deletingUser = false;
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.openDialog('Error ! ', err.Message, false, true, false);
               return throwError (err || err.message);

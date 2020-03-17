@@ -10,6 +10,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { tap, catchError } from 'rxjs/operators';
 import { MatListOption, MatSelectionList } from '@angular/material';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-role',
@@ -29,7 +30,6 @@ export class RoleComponent implements OnInit {
   }
 
   companyId: string = '';
-  loading = false;
   displayForm: boolean = true;
   savingRole: boolean=false;
 
@@ -47,6 +47,7 @@ export class RoleComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private roleService: RolesService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog
   ) { }
 
@@ -108,7 +109,7 @@ export class RoleComponent implements OnInit {
     }
     if (this.roleForm.touched){
       let roleId = this.roleForm.value.RoleId;
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving Role...");
       let userId = this.authService.userId();
       if (roleId !== '' && roleId !== null) {
         let dataForm =  { 
@@ -122,7 +123,7 @@ export class RoleComponent implements OnInit {
         this.roleSave$ = this.roleService.updateRole(roleId, dataForm).pipe(
           tap(res => { 
             this.savingRole = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.roleForm.patchValue({RoleId: ''});
             this.loadAccess();
             this.roleForm.reset({RoleId: '', CompanyId: this.companyId, Name: '', Status:1, Access: this.apps$});
@@ -130,7 +131,7 @@ export class RoleComponent implements OnInit {
             this.openDialog('Roles', 'Role updated successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingRole = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
@@ -150,7 +151,7 @@ export class RoleComponent implements OnInit {
         this.roleSave$ = this.roleService.postRole(dataForm).pipe(
           tap(res => { 
             this.savingRole = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.roleForm.patchValue({RoleId: ''});
             this.loadAccess();
             this.roleForm.reset({RoleId: '', CompanyId: this.companyId, Name: '', Status:1, Access: this.apps$});
@@ -158,7 +159,7 @@ export class RoleComponent implements OnInit {
             this.openDialog('Roles', 'Role created successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingRole = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
@@ -218,7 +219,7 @@ export class RoleComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     // changes.prop contains the old and the new value...
     if (changes.role.currentValue != undefined) {
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Loading Role...");
       let roleResult = changes.role.currentValue;
       this.roleForm.reset({RoleId: '', CompanyId: '', Name: '', Status: 1});
       this.g.clear();
@@ -235,10 +236,10 @@ export class RoleComponent implements OnInit {
             this.loadAccess();
             this.roleForm.patchValue({Access: this.apps$});
           }
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
         }),
         catchError(err => {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Error !', err.Message, false, true, false);
           return throwError(err || err.message);
         })

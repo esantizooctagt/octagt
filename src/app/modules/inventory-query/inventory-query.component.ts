@@ -7,6 +7,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-inventory-query',
@@ -36,6 +37,7 @@ export class InventoryQueryComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private productService: ProductService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog
   ) { }
 
@@ -67,6 +69,7 @@ export class InventoryQueryComponent implements OnInit {
 
   loadProducts(crPage, crNumber, crValue){
     this.onError = '';
+    var spinnerRef = this.spinnerService.start("Loading Products..."); 
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
@@ -76,9 +79,11 @@ export class InventoryQueryComponent implements OnInit {
           this.length = res.pagesTotal.count;
           // this.modLoading.emit('none');
         }
+        this.spinnerService.stop(spinnerRef);
         return res.products;
       }),
       catchError(err => {
+        this.spinnerService.stop(spinnerRef);
         this.onError = err.Message;
         // this.modLoading.emit('none');
         return this.onError;

@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
   styleUrls: ['./spinner.component.scss']
 })
 export class SpinnerComponent{
+  public message: string = '';
   constructor(
     private dialogRef: MatDialogRef<SpinnerComponent>,
     @Inject(MAT_DIALOG_DATA) 

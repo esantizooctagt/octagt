@@ -5,6 +5,7 @@ import { SalesService } from '@app/services';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-invoices',
@@ -31,6 +32,7 @@ export class InvoicesComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private salesService: SalesService,
+    private spinnerService: SpinnerService,
     private router: Router,
     private fb: FormBuilder
   ) { }
@@ -76,20 +78,21 @@ export class InvoicesComponent implements OnInit {
 
   loadInvoices(crPage, crNumber, crValue){
     this.onError = '';
+
+    var spinnerRef = this.spinnerService.start("Loading Invoices...");
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (this.storeId === '' ? '' : '&storeId=' + this.storeId) + (crValue === '' ? '' : '&searchValue=' + crValue);
-    this.loading = true;
     this.invoices$ = this.salesService.getInvoices(data).pipe(
       map((res: any) => {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
         }
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         return res.sales;
       }),
       catchError(err => {
-        this.loading = false;
         this.onError = err.Message;
+        this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
     );

@@ -1,10 +1,13 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { MonitorService } from "@shared/monitor.service";
 import { Role } from '@app/_models';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { RolesService } from "@app/services";
 import { AuthService } from '@core/services';
-import { delay, map, catchError } from 'rxjs/operators';
+import { delay, map, catchError, tap } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-role-list',
@@ -13,7 +16,6 @@ import { delay, map, catchError } from 'rxjs/operators';
 })
 export class RoleListComponent implements OnInit {
   @Output() roleSelected = new EventEmitter<Role>();
-  @Output() modLoading = new EventEmitter<string>();
   
   public onError: string='';
   
@@ -21,6 +23,8 @@ export class RoleListComponent implements OnInit {
   message: string = '';
   lastRole: Role;
   deletingRole: boolean = false;
+  deleted: boolean = false;
+  displayYesNo: boolean = false;
   
   deleteRole$: Observable<any>;
   message$: Observable<string>;
@@ -29,11 +33,29 @@ export class RoleListComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private data: MonitorService,
-    private rolesService: RolesService
+    private spinnerService: SpinnerService,
+    private rolesService: RolesService,
+    private dialog: MatDialog
   ) { }
 
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
+
   ngOnInit() {
-    this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadRoles();
     this.message$ = this.data.monitorMessage.pipe(
@@ -49,16 +71,17 @@ export class RoleListComponent implements OnInit {
   }
 
   loadRoles(){
+    var spinnerRef = this.spinnerService.start("Loading Roles...");
     this.roles$ = this.rolesService.getRoles(this.companyId).pipe(
       map((res: any) => {
         if (res != null) {
-          this.modLoading.emit('none');
+          this.spinnerService.stop(spinnerRef);
         }
         return res;
       }),
       catchError(err => {
         this.onError = err.Message;
-        this.modLoading.emit('none');
+        this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
     );
@@ -77,6 +100,54 @@ export class RoleListComponent implements OnInit {
       })();
     }
     window.scroll(0,0);
+  }
+
+  onDelete(role: Role){
+    this.displayYesNo = true;
+
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    dialogConfig.data = {
+      header: 'Role', 
+      message: 'Are you sure to delete this Role?', 
+      success: false, 
+      error: false, 
+      warn: false,
+      ask: this.displayYesNo
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+
+    const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      if(result != undefined){
+        this.deleted = result;
+        var spinnerRef = this.spinnerService.start("Deleting Role...");
+        if (this.deleted){
+          let delRole: Role;
+          this.deleted = false; 
+          this.deleteRole$ = this.rolesService.deleteRole(role.Role_Id).pipe(
+            tap(res => {
+              this.roleSelected.emit(delRole);
+              this.spinnerService.stop(spinnerRef);
+              this.displayYesNo = false;
+              this.deletingRole = true;
+              this.loadRoles();
+              this.openDialog('Role', 'Role deleted successful', true, false, false);
+              window.scroll(0,0);
+            }),
+            catchError(err => {
+              this.deletingRole = false;
+              this.spinnerService.stop(spinnerRef);
+              this.displayYesNo = false;
+              this.openDialog('Error ! ', err.Message, false, true, false);
+              return throwError (err || err.message);
+            })
+          );
+        }
+      }
+    });
   }
 
 }

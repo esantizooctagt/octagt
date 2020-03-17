@@ -1,10 +1,6 @@
 <div class="pl-0 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
     <h4>Roles</h4>
 </div>
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinRole" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Processing Role...</mat-label>
-</div>
 <ng-container *ngIf="(roleSave$ | async) && savingRole"></ng-container>
 <mat-card *ngIf="(role$ | async) || displayForm">
     <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">

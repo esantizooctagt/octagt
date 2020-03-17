@@ -9,6 +9,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Router } from '@angular/router';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-categories',
@@ -42,6 +43,7 @@ export class CategoriesComponent implements OnInit {
     private authService: AuthService,
     private dialog: MatDialog,
     private categoryService: CategoryService,
+    private spinnerService: SpinnerService,
     private roleService: RolesService,
     private router: Router
   ) { }
@@ -72,6 +74,7 @@ export class CategoriesComponent implements OnInit {
   ngOnInit() {
     let isAdmin = this.authService.isAdmin();
     let roleId = this.authService.roleId();
+    var spinnerRef = this.spinnerService.start("Loading Categories...");
     if (roleId != '' && isAdmin != 1){
       this.access = this.roleService.getAccess(roleId, 'Categories').subscribe(res => {
         if (res != null){
@@ -84,6 +87,7 @@ export class CategoriesComponent implements OnInit {
 
     this.companyId = this.authService.companyId();
     this.categories$ = this.categoryService.getCategories(this.companyId);
+    this.spinnerService.stop(spinnerRef);
   }
 
   getErrorMessage(component: string) {
@@ -97,7 +101,7 @@ export class CategoriesComponent implements OnInit {
 
   onSelect(value: string){
     if (value != undefined) {
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Loading Category...");
       this.categoryForm.reset({ CategoryId: "", CompanyId: this.companyId, Description: "", Status: 1 });
       this.category$ = this.categoryService.getCategory(value).pipe(
         tap(res => {
@@ -109,10 +113,10 @@ export class CategoriesComponent implements OnInit {
               Status: res.Status
             });
           }
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
         }),
         catchError(err => {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Error !', err.Message, false, true, false);
           return throwError(err || err.message);
         })
@@ -143,13 +147,14 @@ export class CategoriesComponent implements OnInit {
       const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
       dialogRef.afterClosed().subscribe(result => {
         if(result != undefined){
+          var spinnerRef = this.spinnerService.start("Deleting Category...");
           this.deleted = result;
           if (this.deleted){
             this.loading = true;
             this.deleted = false; 
             this.deleteCategory$ = this.categoryService.deleteCategory(value).pipe(
               tap(res => {
-                this.loading = false;
+                this.spinnerService.stop(spinnerRef);
                 this.displayYesNo = false;
                 this.deletingCategory = true;
                 this.categories$ = this.categoryService.getCategories(this.companyId);
@@ -157,7 +162,7 @@ export class CategoriesComponent implements OnInit {
                 window.scroll(0,0);
               }),
               catchError(err => {
-                this.loading = false;
+                this.spinnerService.stop(spinnerRef);
                 this.displayYesNo = false;
                 this.deletingCategory = false;
                 this.openDialog('Error ! ', err.Message, false, true, false);
@@ -180,7 +185,7 @@ export class CategoriesComponent implements OnInit {
     }
     if (this.categoryForm.touched){
       let catId = this.categoryForm.value.CategoryId;
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving Category...");
       let userId = this.authService.userId();
       if (catId !== '' && catId !== null) {
         let dataForm =  { 
@@ -192,13 +197,13 @@ export class CategoriesComponent implements OnInit {
         this.categorySave$ = this.categoryService.updateCategory(catId, dataForm).pipe(
           tap(res => { 
             this.savingCategory = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.categoryForm.reset({ CategoryId: "", CompanyId: this.companyId, Description: "", Status: 1 });
             this.categories$ = this.categoryService.getCategories(this.companyId);
             this.openDialog('Categories', 'Category updated successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingCategory = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
@@ -214,13 +219,13 @@ export class CategoriesComponent implements OnInit {
         this.categorySave$ = this.categoryService.postCategory(dataForm).pipe(
           tap(res => { 
             this.savingCategory = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.categoryForm.reset({ CategoryId: "", CompanyId: this.companyId, Description: "", Status: 1 });
             this.categories$ = this.categoryService.getCategories(this.companyId);
             this.openDialog('Categories', 'Category created successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingCategory = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);

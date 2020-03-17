@@ -1,10 +1,6 @@
 <div class="pl-0 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
     <h4>Taxes</h4>
 </div>
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinTax" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Processing Tax...</mat-label>
-</div>
 <ng-container *ngIf="(taxSave$ | async) && savingTax"></ng-container>
 <mat-card *ngIf="(tax$ | async) || displayForm">
     <form [formGroup]="taxForm" (ngSubmit)="onSubmit()">

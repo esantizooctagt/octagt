@@ -10,6 +10,7 @@ import { MatTable, MatSnackBar } from '@angular/material';
 import { map, catchError, tap } from 'rxjs/operators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-inventory',
@@ -22,6 +23,13 @@ export class InventoryComponent implements OnInit {
   
   get f() { return this.inventoryForm.controls; }
 
+  get Unit_Price(){
+    return this.inventoryForm.get('Unit_Price');
+  }
+  get Qty(){
+    return this.inventoryForm.get('Qty');
+  }
+
   stores$: Observable<StoreDocto[]>;
   inventory$: Observable<any>;
   prods$: Observable<Product[]>;
@@ -31,7 +39,6 @@ export class InventoryComponent implements OnInit {
   companyId: string = '';
   userId: string = '';
   displayForm: boolean = true;
-  loading: boolean = false;
 
   private _currentPage: number = 1;
   public length: number = 0;
@@ -46,6 +53,7 @@ export class InventoryComponent implements OnInit {
     private fb: FormBuilder,
     private storeService: StoresService,
     private productService: ProductService,
+    private spinnerService: SpinnerService,
     private authService: AuthService,
     private _snackBar: MatSnackBar,
     private dialog: MatDialog
@@ -61,8 +69,8 @@ export class InventoryComponent implements OnInit {
       Product_Id: [''],
       SKU: [''],
       Name: [''],
-      Unit_Price: [0, [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]], 
-      Qty: [0, [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]]
+      Unit_Price: [0, [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11), Validators.pattern("^[0-9]{0,8}\.?[0-9]{0,2}$")]], 
+      Qty: [0, [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13), Validators.pattern("^[0-9]{0,8}\.?[0-9]{0,2}$")]]
     });
     return itemsDet;
   }
@@ -91,15 +99,18 @@ export class InventoryComponent implements OnInit {
   }
 
   getProducts(storeId: string){
+    var spinnerRef = this.spinnerService.start("Loading Products...");
     this.prods$ = this.productService.getProductsStore(storeId, this._currentPage, this.pageSize, this.companyId).pipe(
       map((res: any) => {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
         }
+        this.spinnerService.stop(spinnerRef);
         return res.products;
       }),
       catchError(err => {
+        this.spinnerService.stop(spinnerRef);
         this.onError = err.Message;
         return this.onError;
       })
@@ -109,7 +120,7 @@ export class InventoryComponent implements OnInit {
 
   setExistingProds(prods: Observable<Product[]>){
     const formArray = new FormArray([]);
-    this.loading = true;
+    var spinnerRef = this.spinnerService.start("Loading Products...");
     prods.forEach(res => {
       res.forEach(prod => {
         formArray.push(
@@ -123,16 +134,14 @@ export class InventoryComponent implements OnInit {
           }));
           this.invTable.renderRows();
       });
-      this.loading = false;
+      this.spinnerService.stop(spinnerRef);
     });
     return formArray;
   }
 
-  getErrorMessage(component: string){
-
-  }
-
   updateItem(productId: string, qty: number, unitPrice: number){
+    if (qty == undefined || qty < 0) { return; }
+    if (unitPrice == undefined || unitPrice < 0) { return; }
     let prod = {
       Store_Id: this.inventoryForm.get('StoreId').value,
       Product_Id: productId,

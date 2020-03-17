@@ -8,6 +8,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Observable, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-tax-list',
@@ -17,7 +18,7 @@ import { map, tap, catchError } from 'rxjs/operators';
 export class TaxListComponent implements OnInit {
 
   @Output() taxSelected = new EventEmitter<Tax>();
-  @Output() modLoading = new EventEmitter<string>();
+  // @Output() modLoading = new EventEmitter<string>();
   public length: number = 0;
   public pageSize: number = 10;
   public taxes: Tax[] = [];
@@ -30,7 +31,6 @@ export class TaxListComponent implements OnInit {
 
   companyId: string = '';
   message: string;
-  loading = false;
   lastTax: Tax;
   deleted: boolean = false;
   displayYesNo: boolean = false;
@@ -43,6 +43,7 @@ export class TaxListComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private taxService: TaxService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog
   ) { }
 
@@ -64,7 +65,7 @@ export class TaxListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.modLoading.emit('display');
+    // this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
     this.message$ = this.data.monitorMessage.pipe(
@@ -81,6 +82,7 @@ export class TaxListComponent implements OnInit {
   
   loadTaxes(crPage, crNumber, crValue) {
     this.onError = '';
+    var spinnerRef = this.spinnerService.start("Loading Taxes...");
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.taxes$ = this.taxService.getTaxes(data).pipe(
@@ -88,13 +90,15 @@ export class TaxListComponent implements OnInit {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
-          this.modLoading.emit('none');
+          // this.modLoading.emit('none');
+          this.spinnerService.stop(spinnerRef);
         }
         return res.taxes;
       }),
       catchError(err => {
         this.onError = err.Message;
-        this.modLoading.emit('none');
+        // this.modLoading.emit('none');
+        this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
     );
@@ -122,8 +126,6 @@ export class TaxListComponent implements OnInit {
       })();
     }
     window.scroll(0,0);
-    //to send parameters between components
-    // this.router.navigate(['/taxes', tax.Tax_Id]);
   }
 
   onDelete(tax: Tax) {
@@ -147,14 +149,14 @@ export class TaxListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if(result != undefined){
         this.deleted = result;
+        var spinnerRef = this.spinnerService.start("Deleting Tax...");
         if (this.deleted){
           let delTax: Tax;
-          this.loading = true;
           this.deleted = false; 
           this.deleteTax$ = this.taxService.deleteTax(tax.Tax_Id).pipe(
             tap(res => {
               this.taxSelected.emit(delTax);
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.deletingTax = true;
               this.loadTaxes(
@@ -167,7 +169,7 @@ export class TaxListComponent implements OnInit {
             }),
             catchError(err => {
               this.deletingTax = false;
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.openDialog('Error ! ', err.Message, false, true, false);
               return throwError (err || err.message);

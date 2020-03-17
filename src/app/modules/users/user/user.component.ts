@@ -10,6 +10,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Subscription, Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-user',
@@ -25,7 +26,6 @@ export class UserComponent implements OnInit {
   }
 
   message$: Observable<string>;
-  loading = false;
   companyId: string='';
   changesUser: Subscription;
   stores$: Observable<StoreDocto[]>;
@@ -48,6 +48,7 @@ export class UserComponent implements OnInit {
     private usersService: UserService,
     private rolesService: RolesService,
     private storeService: StoresService,
+    private spinnerService: SpinnerService,
     private router: Router,
     private data: MonitorService,
     private dialog: MatDialog
@@ -150,14 +151,13 @@ export class UserComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     // changes.prop contains the old and the new value...
     if (changes.user.currentValue != undefined) {
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Loading User...");
       let userResult = changes.user.currentValue;
       this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
       this.user$ = this.usersService.getUser(userResult.User_Id).
         pipe(
           tap(user => { 
             this.userForm.controls.UserName.disable();
-            this.loading = false;
             if (user.Is_Admin === 1){
               this.userForm.controls['RoleId'].clearValidators();
             } else {
@@ -177,9 +177,10 @@ export class UserComponent implements OnInit {
               Is_Admin: user.Is_Admin,
               Status: user.Status
             });
+            this.spinnerService.stop(spinnerRef);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.Message);
           })
@@ -203,7 +204,7 @@ export class UserComponent implements OnInit {
     }
     if (this.userForm.touched){
       let userId = this.userForm.value.UserId;
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving User...");
       if (userId !== '' && userId !== null) {  
         let userLoggedId = this.authService.userId();
         let dataForm =  {
@@ -219,15 +220,15 @@ export class UserComponent implements OnInit {
         this.userSave$ = this.usersService.updateUser(userId, dataForm).pipe(
           tap(res => { 
             this.savingUser = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
-            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: '', Is_Admin: 0, Status: 1});
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User updated successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingUser = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
@@ -249,15 +250,15 @@ export class UserComponent implements OnInit {
         this.userSave$ = this.usersService.postUser(dataForm).pipe(
           tap(res => { 
             this.savingUser = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
-            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: '', Is_Admin: 0, Status: 1});
+            this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User created successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingUser = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);

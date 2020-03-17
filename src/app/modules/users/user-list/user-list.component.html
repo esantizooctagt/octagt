@@ -1,9 +1,5 @@
 <app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)">
 </app-search>
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinUser" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Deleting User...</mat-label>
-</div>
 <ng-container *ngIf="(deleteUser$ | async) && deletingUser"></ng-container>
 <div class="list-cards" *ngIf="listView">
     <ng-container *ngIf="message$ | async">

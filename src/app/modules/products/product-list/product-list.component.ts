@@ -9,6 +9,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-product-list',
@@ -20,7 +21,6 @@ export class ProductListComponent implements OnInit {
   @Output() productSelected = new EventEmitter<Product>();
   @Output() newStep = new EventEmitter<string>();
   @Output() addItem = new EventEmitter<Object>();
-  @Output() modLoading = new EventEmitter<string>();
 
   stores$: Observable<StoreDocto[]>;
   
@@ -38,7 +38,6 @@ export class ProductListComponent implements OnInit {
 
   companyId: string = '';
   message:string;
-  loading = false;
   lastProd: Product;
   deleted: boolean = false;
   displayYesNo: boolean = false;
@@ -54,6 +53,7 @@ export class ProductListComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private productService: ProductService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog,
     private storeService: StoresService
   ) { }
@@ -76,7 +76,6 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.storeId = this.authService.storeId();
     if (this.storeId === '' || this.storeId === undefined) {
@@ -106,6 +105,7 @@ export class ProductListComponent implements OnInit {
 
   loadProducts(crPage, crNumber, crValue, crStoreId){
     this.onError = '';
+    var spinnerRef = this.spinnerService.start("Loading Products...");
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crStoreId === '' ? '' : "&storeId=" + crStoreId) + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
@@ -113,13 +113,13 @@ export class ProductListComponent implements OnInit {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
-          this.modLoading.emit('none');
+          this.spinnerService.stop(spinnerRef);
         }
         return res.products;
       }),
       catchError(err => {
         this.onError = err.Message;
-        this.modLoading.emit('none');
+        this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
     );
@@ -195,14 +195,15 @@ export class ProductListComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       if(result != undefined){
+        var spinnerRef = this.spinnerService.start("Deleting Product...");
         this.deleted = result;
         if (this.deleted){
           let delProd: Product;
-          this.loading = true;
+          // this.loading = true;
           this.deleteProduct$ = this.productService.deleteProduct(product.Product_Id).pipe(
             tap(res => {
               this.productSelected.emit(delProd);
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.deletingProduct = true;
               this.loadProducts(
@@ -216,7 +217,7 @@ export class ProductListComponent implements OnInit {
             }),
             catchError(err => {
               this.deletingProduct = false;
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.openDialog('Error ! ', err.Message, false, true, false);
               return throwError (err || err.message);

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Tax } from '@app/_models';
-import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-taxes',
@@ -8,9 +7,7 @@ import { delay } from 'rxjs/operators';
   styleUrls: ['./taxes.component.scss']
 })
 export class TaxesComponent implements OnInit {
-
   public clickedTax: Tax;
-  loading: boolean =false;
   
   constructor() { }
 
@@ -21,14 +18,4 @@ export class TaxesComponent implements OnInit {
     this.clickedTax = tax;
   }
 
-  displayLoading(event){
-    if (event === 'display') {
-      setTimeout(() => {
-        delay(50);
-        this.loading = true;
-      });
-    } else {
-      this.loading = false;
-    }
-  }
 }

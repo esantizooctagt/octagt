@@ -3,10 +3,6 @@
         <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
             <h4>Profile</h4>
         </div>
-        <div class="overlay" *ngIf="loading">
-            <mat-progress-spinner id="spinProfile" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-            <mat-label class="label-overlay">Processing Profile...</mat-label>
-        </div>
         <ng-container *ngIf="userUpdate$ | async"></ng-container>
         <ng-container *ngIf="imgAvatar$ | async"></ng-container>
         <mat-card class="col-md-6" *ngIf="(user$ | async) && displayForm">

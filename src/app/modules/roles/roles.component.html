@@ -1,13 +1,8 @@
 <div class="container-fluid h-100">
     <div class="row pl-2 pr-1">
-        <div class="overlay" *ngIf="loading">
-            <mat-progress-spinner id="spinRoles" class="form-spinner" mode="indeterminate">
-            </mat-progress-spinner>
-            <mat-label class="label-overlay">Processing Roles...</mat-label>
-        </div>
         <app-role [role]="clickedRole" class="col-md-6"></app-role>
         <div class="col-md-6">
-            <app-role-list (roleSelected)="roleClicked($event)" (modLoading)="displayLoading($event)"></app-role-list>
+            <app-role-list (roleSelected)="roleClicked($event)"></app-role-list>
         </div> 
     </div>
 </div>

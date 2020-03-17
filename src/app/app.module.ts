@@ -23,7 +23,6 @@ import { CropperComponent } from '@shared/cropper/cropper.component';
 import { DialogComponent } from '@shared/dialog/dialog.component';
 
 // Directives
-import { AppSpinnerDirective } from '@shared/app-spinner.directive';
 import { ClickOutsideDirective } from '@shared/clickoutside.directive';
 
 // Custom Pipes
@@ -40,7 +39,6 @@ import { CategoriesComponent } from '@modules/categories/categories.component';
     AlertComponent,
     SearchComponent,
     SpinnerComponent,
-    AppSpinnerDirective,
     CropperComponent,
     ClickOutsideDirective,
     SearchFilterPipe,

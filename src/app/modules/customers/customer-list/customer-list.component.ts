@@ -9,6 +9,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-customer-list',
@@ -18,7 +19,7 @@ import { Observable, throwError } from 'rxjs';
 export class CustomerListComponent implements OnInit {
 
   @Output() customerSelected = new EventEmitter<Customer>();
-  @Output() modLoading = new EventEmitter<string>();
+  // @Output() modLoading = new EventEmitter<string>();
 
   public length: number = 0;
   public pageSize: number = 10;
@@ -32,7 +33,6 @@ export class CustomerListComponent implements OnInit {
 
   companyId: string = '';
   message:string;
-  loading = false;
   lastCustomer: Customer;
   deleted: boolean = false;
   displayYesNo: boolean = false;
@@ -44,6 +44,7 @@ export class CustomerListComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private customerService: CustomerService,
+    private spinnerService: SpinnerService,
     private dialog: MatDialog
   ) { }
 
@@ -65,7 +66,7 @@ export class CustomerListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.modLoading.emit('display');
+    // this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
     this.loadCustomers(this._currentPage, this.pageSize, this._currentSearchValue);
     this.message$ = this.data.monitorMessage.pipe(
@@ -82,6 +83,7 @@ export class CustomerListComponent implements OnInit {
   
   loadCustomers(crPage, crNumber, crValue){
     this.onError = '';
+    var spinnerRef = this.spinnerService.start("Loading Customers...");
     let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.customers$ = this.customerService.getCustomers(data).pipe(
@@ -89,13 +91,15 @@ export class CustomerListComponent implements OnInit {
         if (res != null) {
           this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           this.length = res.pagesTotal.count;
-          this.modLoading.emit('none');
+          // this.modLoading.emit('none');
         }
+        this.spinnerService.stop(spinnerRef);
         return res.customers;
       }),
       catchError(err => {
         this.onError = err.Message;
-        this.modLoading.emit('none');
+        // this.modLoading.emit('none');
+        this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
     );
@@ -145,14 +149,14 @@ export class CustomerListComponent implements OnInit {
     const dialogRef = this.dialog.open(DialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       if(result != undefined){
+        var spinnerRef = this.spinnerService.start("Deleting Customer...");
         this.deleted = result;
         if (this.deleted){
           let delCustomer: Customer;
-          this.loading = true;
           this.deleteCustomer$ = this.customerService.deleteCustomer(customer.Customer_Id).pipe(
             tap(res => {
               this.customerSelected.emit(delCustomer);
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.deletingCustomer = true;
               this.loadCustomers(
@@ -165,7 +169,7 @@ export class CustomerListComponent implements OnInit {
             }),
             catchError(err => {
               this.deletingCustomer = false;
-              this.loading = false;
+              this.spinnerService.stop(spinnerRef);
               this.displayYesNo = false;
               this.openDialog('Error ! ', err.Message, false, true, false);
               return throwError (err || err.message);

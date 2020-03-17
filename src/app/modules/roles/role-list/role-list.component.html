@@ -1,7 +1,3 @@
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinRole" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Deleting Role...</mat-label>
-</div>
 <ng-container *ngIf="(deleteRole$ | async) && deletingRole"></ng-container>
 <ng-container *ngIf="message$ | async">
     <mat-list class="form-field pl-3 pr-3 mt-3 mb-3" *ngIf="onError==''">

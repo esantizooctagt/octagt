@@ -10,6 +10,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Subscription, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-tax',
@@ -31,7 +32,6 @@ export class TaxComponent implements OnInit {
   taxSave$: Observable<any>;
   displayForm: boolean = true;
   message: string='';
-  loading = false;
   companyId: string='';
   country: string='';
   subsTaxes: Subscription;
@@ -45,6 +45,7 @@ export class TaxComponent implements OnInit {
     private authService: AuthService,
     private taxService: TaxService,
     private companyService: CompanyService,
+    private spinnerService: SpinnerService,
     private router: Router,
     private data: MonitorService,
     private dialog: MatDialog
@@ -82,22 +83,6 @@ export class TaxComponent implements OnInit {
     this.country = this.authService.country();
     this.message$ = this.data.monitorMessage;
     this.onValueChanges();
-    // to send parameters between components
-    // let id = this.route.snapshot.paramMap.get('idTax');
-    // if (id != undefined) {
-    //   this.taxId = id;
-    //   let tokenId = this.authService.tokenId();
-    //   this.taxService.getTax('',this.taxId).subscribe((res: any) => {
-    //     if (res.length > 0) {
-    //       this.taxes = res;
-    //       console.log(this.taxId);
-    //     }
-    //   },
-    //   err => {
-    //     console.log(err);
-    //   });
-    //   console.log(this.taxData);
-    // }
   }
 
   getErrorMessage(component: string) {
@@ -141,7 +126,7 @@ export class TaxComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     // changes.prop contains the old and the new value...
     if (changes.tax.currentValue != undefined) {
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Loading Tax..");
       let taxResult = changes.tax.currentValue;
       this.taxForm.reset({Include_Tax:0, To_To: 0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
       this.tax$ = this.taxService.getTax(taxResult.Tax_Id).pipe(
@@ -157,10 +142,10 @@ export class TaxComponent implements OnInit {
               Status: res.Status
             });
           }
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
         }),
         catchError(err => {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Error !', err.Message, false, true, false);
           return throwError(err || err.message);
         })
@@ -176,7 +161,7 @@ export class TaxComponent implements OnInit {
     }
     if (this.taxForm.touched){
       let taxId = this.taxForm.value.TaxId;
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving Tax..");
       let userId = this.authService.userId();
       if (taxId !== '' && taxId !== null) {  
         let perc = +this.taxForm.value.Percentage;
@@ -192,13 +177,13 @@ export class TaxComponent implements OnInit {
         this.taxSave$ = this.taxService.updateTax(taxId, dataForm).pipe(
           tap(res => { 
             this.savingTax = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
             this.data.changeData('taxes');
             this.openDialog('Taxes', 'Tax updated successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingTax = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
@@ -219,13 +204,13 @@ export class TaxComponent implements OnInit {
         this.taxSave$ = this.taxService.postTax(dataForm).pipe(
           tap(res => { 
             this.savingTax = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.taxForm.reset({Include_Tax:0, To_Go:0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
             this.data.changeData('taxes');
             this.openDialog('Taxes', 'Tax created successful', true, false, false);
           }),
           catchError(err => {
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.savingTax = false;
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);

@@ -1,4 +1,3 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, OnInit, Input, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { Product, Category } from '@app/_models';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -12,6 +11,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { Subscription, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-product',
@@ -45,7 +45,6 @@ export class ProductComponent implements OnInit {
 
   readonly bucketURL = environment.bucket;
   message: string='';
-  loading = false;
   companyId: string='';
   subsProds: Subscription;
   message$: Observable<string>;
@@ -68,6 +67,7 @@ export class ProductComponent implements OnInit {
     private authService: AuthService,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private spinnerService: SpinnerService,
     private data: MonitorService,
     private dialog: MatDialog,
     private imageCompress: NgxImageCompressService
@@ -211,10 +211,12 @@ export class ProductComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.product.currentValue != undefined) {
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Loading Product...");
       let prodResult = changes.product.currentValue;
+      this.fileDataText.nativeElement.value = '';
       this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
       this.fileString = null;
+      this.pathImg = '';
 
       this.product$ = this.productService.getProduct(prodResult.Product_Id).pipe(
         tap(res => {
@@ -233,14 +235,14 @@ export class ProductComponent implements OnInit {
             });
             linkValue = res.Img_Url;
           }
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           if (res.Img_Path != ''){
             // this.fileString = 'data:image/png;base64,'+res.Img_Path;
             this.pathImg = this.bucketURL+linkValue;
           }
         }),
         catchError(err => {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Error !', err.Message, false, true, false);
           return throwError(err || err.message);
         })
@@ -257,7 +259,7 @@ export class ProductComponent implements OnInit {
     }
     if (this.productForm.touched){
       let productId = this.productForm.value.ProductId;
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving Product...");
       if (productId !== '' && productId !== null) {  
         let userId = this.authService.userId();
         const fd = new FormData();
@@ -273,7 +275,7 @@ export class ProductComponent implements OnInit {
         this.productSave$ = this.productService.updateProduct(productId, fd).pipe(
           tap(res => {
             this.savingProduct = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.fileString = null;
             this.pathImg = '';
             this.fileDataText.nativeElement.value = '';
@@ -283,7 +285,7 @@ export class ProductComponent implements OnInit {
           }),
           catchError(err => {
             this.savingProduct = false;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
           })
@@ -304,7 +306,7 @@ export class ProductComponent implements OnInit {
         this.productSave$ = this.productService.postProduct(fd).pipe(
           tap(res => {
             this.savingProduct = true;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.fileString = null;
             this.pathImg = '';
             this.fileDataText.nativeElement.value = '';
@@ -314,7 +316,7 @@ export class ProductComponent implements OnInit {
           }),
           catchError(err => {
             this.savingProduct = false;
-            this.loading = false;
+            this.spinnerService.stop(spinnerRef);
             this.openDialog('Error !', err.Message, false, true, false);
             return throwError(err || err.message);
           })

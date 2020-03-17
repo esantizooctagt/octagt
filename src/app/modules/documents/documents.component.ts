@@ -8,6 +8,7 @@ import { StoreDocto, Document } from '@app/_models';
 import { StoresService, DocumentService } from '@app/services';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 interface Type {
   c: string;
@@ -38,6 +39,7 @@ export class DocumentsComponent implements OnInit {
     private dialog: MatDialog,
     private storeService: StoresService,
     private documentService: DocumentService,
+    private spinnerService: SpinnerService,
     private authService: AuthService
   ) { }
 
@@ -116,7 +118,7 @@ export class DocumentsComponent implements OnInit {
 
   getDocuments(value: string){
     if (value === undefined) {return};
-    this.loading = true;
+    var spinnerRef = this.spinnerService.start("Loading Document...");
     this.document$ = this.documentService.getDocumentStore(value).pipe(
       tap(res => {
         if (res != null){
@@ -142,7 +144,7 @@ export class DocumentsComponent implements OnInit {
             Status: 1
           });
         }
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
       }),
       catchError(err => {
         this.documentForm.patchValue({
@@ -155,7 +157,7 @@ export class DocumentsComponent implements OnInit {
           Type: 'sales',
           Status: 1
         });
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         return throwError(err || err.message);
       })
     );
@@ -170,7 +172,7 @@ export class DocumentsComponent implements OnInit {
       return;
     }
     if (this.documentForm.touched){
-      this.loading = true;
+      var spinnerRef = this.spinnerService.start("Saving Document...");
       let info = this.documentForm.value;
       let document =  {
         "DocumentId": info.DocumentId,
@@ -187,12 +189,12 @@ export class DocumentsComponent implements OnInit {
       }
       this.documentSave$ = this.documentService.updateDocument(document).pipe(
         map(res => {
-          this.loading =false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Documents', 'Document updated successful', true, false, false);
           return this.documentForm.reset({StoreId:'None', DocumentId:'', Name:'', Prefix:'', Sufix:'', Next_Number:0, Digits_Qty: 0, Type:'sales', Status:1});
         }),
         catchError(err => {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.openDialog('Error !', err.Message, false, true, false);
           return throwError(err || err.message);
         })

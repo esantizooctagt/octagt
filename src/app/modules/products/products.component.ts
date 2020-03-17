@@ -41,17 +41,6 @@ export class ProductsComponent implements OnInit {
     this.clickedProduct = product;
   }
 
-  displayLoading(event){
-    if (event === 'display') {
-      setTimeout(() => {
-        delay(50);
-        this.loading = true;
-      });
-    } else {
-      this.loading = false;
-    }
-  }
-
   ngOnDestroy() {
     if (this.access != undefined){
       this.access.unsubscribe();

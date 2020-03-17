@@ -1,10 +1,6 @@
 <div class="pl-0 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
     <h4>Customers</h4>
 </div>
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinProd" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Processing Customer...</mat-label>
-</div>
 <ng-container *ngIf="(customerSave$ | async) && savingCustomer"></ng-container>
 <mat-card class="col-md-12" *ngIf="(customer$ | async) || displayForm">
     <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">

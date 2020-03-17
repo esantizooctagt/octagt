@@ -11,6 +11,7 @@ import { ConfirmValidParentMatcher } from '@app/validators';
 import { environment } from '@environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
   selector: 'app-profile',
@@ -26,7 +27,6 @@ export class ProfileComponent implements OnInit {
   userId: string = '';
   fileName: string= '';
   fileString: any;
-  loading: boolean=false;
   displayForm: boolean=true;
   readonly imgPath = environment.bucket;
 
@@ -41,6 +41,7 @@ export class ProfileComponent implements OnInit {
     private dialog: MatDialog,
     private authService: AuthService,
     private storeService: StoresService,
+    private spinnerService: SpinnerService,
     private usersService: UserService,
     private imageCompress: NgxImageCompressService
   ) { }
@@ -63,7 +64,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
-    this.loading = true;
+    var spinnerRef = this.spinnerService.start("Loading Profile...");
     this.stores$ = this.storeService.getStores(this.companyId);
     this.user$ = this.usersService.getUser(this.userId).pipe(
       tap(res => {
@@ -77,10 +78,10 @@ export class ProfileComponent implements OnInit {
           StoreId: res.Store_Id,
           Password: res.Password
         });
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
       }),
       catchError(err => {
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         this.openDialog('Error !', err.Message, false, true, false);
         return throwError(err || err.message);
       })
@@ -169,7 +170,7 @@ export class ProfileComponent implements OnInit {
     if (this.profileForm.invalid){
       return;
     }
-    this.loading = true;
+    var spinnerRef = this.spinnerService.start("Saving Profile...");
     let dataForm =  { 
       "Email": this.profileForm.value.Email,
       "First_Name": this.profileForm.value.First_Name,
@@ -181,11 +182,11 @@ export class ProfileComponent implements OnInit {
     }
     this.userUpdate$ = this.usersService.updateUser(this.userId, dataForm).pipe(
       tap(res =>  {
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         this.openDialog('User', 'User updated successful', true, false, false);
       }),
       catchError(err => { 
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         this.openDialog('Error !', err.Message, false, true, false);
         return throwError(err || err.message);
       })
@@ -194,7 +195,7 @@ export class ProfileComponent implements OnInit {
 
   onSubmitAvatar() {
     const formData: FormData = new FormData();
-    this.loading = true
+    var spinnerRef = this.spinnerService.start("Loading Profile Image...");
     formData.append('Image', this.fileString);
     let type: string ='';
     if (this.fileString.toString().indexOf('data:image/') >= 0){
@@ -208,7 +209,7 @@ export class ProfileComponent implements OnInit {
     }
     this.imgAvatar$ = this.usersService.uploadImage(this.userId, formData).pipe(
       tap(response =>  {
-          this.loading = false;
+          this.spinnerService.stop(spinnerRef);
           this.profileForm.patchValue({'Avatar': this.companyId+'/img/avatars/'+this.userId+type});
           this.authService.setUserAvatar(this.companyId+'/img/avatars/'+this.userId+type);
           this.avatarForm.reset({'Avatar':null});
@@ -217,7 +218,7 @@ export class ProfileComponent implements OnInit {
         }
       ),
       catchError(err => { 
-        this.loading = false;
+        this.spinnerService.stop(spinnerRef);
         this.openDialog('Error !', err.Message, false, true, false);
         return throwError(err || err.message);
       })

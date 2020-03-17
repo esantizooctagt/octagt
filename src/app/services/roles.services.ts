@@ -42,6 +42,11 @@ export class RolesService {
                       .pipe(catchError(this.errorHandler));
     }
 
+    deleteRole(roleId){
+      return this.http.delete(this.apiURL + '/role/' + roleId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
     errorHandler(error) {
       return throwError(error || 'Server Error');
     }
