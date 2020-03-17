@@ -1,4 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { StoresService, ProductService } from '@app/services';
+import { AuthService } from '@app/core/services';
+import { Observable, throwError } from 'rxjs';
+import { StoreDocto, Product } from '@app/_models';
+import { FormBuilder, Validators, FormGroup, FormArray } from '@angular/forms';
+import { ArrayValidators } from '@app/validators';
+import { ConfirmValidParentMatcher } from '@app/validators';
+import { MatTable, MatSnackBar } from '@angular/material';
+import { map, catchError, tap } from 'rxjs/operators';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-inventory',
@@ -7,9 +18,177 @@ import { Component, OnInit } from '@angular/core';
 })
 export class InventoryComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(MatTable, {static: false}) invTable :MatTable<any>;
+  
+  get f() { return this.inventoryForm.controls; }
+
+  stores$: Observable<StoreDocto[]>;
+  inventory$: Observable<any>;
+  prods$: Observable<Product[]>;
+  updProduct$: Observable<object>;
+  
+  onError: string ='';
+  companyId: string = '';
+  userId: string = '';
+  displayForm: boolean = true;
+  loading: boolean = false;
+
+  private _currentPage: number = 1;
+  public length: number = 0;
+  public pageSize: number = 10;
+  public pages: number[];
+
+  displayedColumns = ['SKU', 'Name', 'Unit_Price', 'Qty', 'Actions'];
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
+  
+  constructor(
+    private fb: FormBuilder,
+    private storeService: StoresService,
+    private productService: ProductService,
+    private authService: AuthService,
+    private _snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) { }
+
+  inventoryForm = this.fb.group({
+    StoreId: ['', Validators.required],
+    Detail: this.fb.array([this.createDetail()], ArrayValidators.minLength(1))
+  })
+
+  createDetail(): FormGroup {
+    const itemsDet = this.fb.group({
+      Product_Id: [''],
+      SKU: [''],
+      Name: [''],
+      Unit_Price: [0, [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]], 
+      Qty: [0, [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]]
+    });
+    return itemsDet;
+  }
+
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    // dialogConfig.disableClose = true;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
 
   ngOnInit() {
+    this.companyId = this.authService.companyId();
+    this.userId = this.authService.userId();
+    this.stores$ = this.storeService.getStoresDoctos(this.companyId);
+  }
+
+  getProducts(storeId: string){
+    this.prods$ = this.productService.getProductsStore(storeId, this._currentPage, this.pageSize, this.companyId).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+        }
+        return res.products;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
+        return this.onError;
+      })
+    );
+    this.inventoryForm.setControl('Detail', this.setExistingProds(this.prods$));
+  }
+
+  setExistingProds(prods: Observable<Product[]>){
+    const formArray = new FormArray([]);
+    this.loading = true;
+    prods.forEach(res => {
+      res.forEach(prod => {
+        formArray.push(
+          this.fb.group({
+            Product_Id: prod.Product_Id,
+            SKU: prod.SKU,
+            Name: prod.Name,
+            Unit_Price: prod.Unit_Price,
+            Qty: prod.Qty,
+            Actions: ''
+          }));
+          this.invTable.renderRows();
+      });
+      this.loading = false;
+    });
+    return formArray;
+  }
+
+  getErrorMessage(component: string){
+
+  }
+
+  updateItem(productId: string, qty: number, unitPrice: number){
+    let prod = {
+      Store_Id: this.inventoryForm.get('StoreId').value,
+      Product_Id: productId,
+      Qty: qty,
+      Unit_Price: unitPrice
+    }
+    this.updProduct$ = this.productService.setInventory(prod).pipe(
+      tap(res => {
+        this._snackBar.open('Product updated successful', 'Close', {
+          duration: 2000,
+          panelClass: 'style-succes'
+        });
+      }),
+      catchError(err => {
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
+
+  }
+
+  onKeyPress(event, value): boolean { 
+    const charCode = (event.which) ? event.which : event.keyCode;
+    let perc: string = value.toString();
+    var count = (perc.match(/[.]/g) || []).length;
+    if (count  == 1) {
+      if (charCode == 46) return false;
+    }
+    if (charCode == 46) return true;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      return false;
+    }
+    return true;
+  }
+
+  public goToPage(page: number, elements: number): void {
+    if (this.pageSize != elements){
+      this.pageSize = elements;
+      this._currentPage = 1;
+    } else {
+      this._currentPage = page+1;
+    }
+    this.prods$ = this.productService.getProductsStore(this.inventoryForm.get('StoreId').value, this._currentPage, this.pageSize, this.companyId).pipe(
+      map((res: any) => {
+        if (res != null) {
+          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          this.length = res.pagesTotal.count;
+        }
+        return res.products;
+      }),
+      catchError(err => {
+        this.onError = err.Message;
+        return this.onError;
+      })
+    );
+    this.inventoryForm.setControl('Detail', this.setExistingProds(this.prods$));
   }
 
 }

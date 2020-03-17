@@ -1,4 +1,4 @@
-<bg-container *ngIf="(customer$ | async) || displayForm">
+<ng-container *ngIf="(customer$ | async) || displayForm">
     <form [formGroup]="customerBasicForm" *ngIf="!customerValue">
         <div class="form-field">
             <mat-form-field>
@@ -62,4 +62,4 @@
         </div>
         <!-- {{ customerBasicForm.value | json }} -->
     </form>
-</bg-container>
+</ng-container>

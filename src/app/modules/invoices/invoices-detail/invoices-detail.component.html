@@ -1,1 +1,131 @@
-<p>invoices-detail works!</p>
+<div class="container-fluid h-100">
+    <div class="row pl-2 pr-1">
+        <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
+            <h4>Invoice</h4>
+        </div>
+        <div class="overlay" *ngIf="loading">
+            <mat-progress-spinner id="spinInvoice" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
+            <mat-label class="label-overlay">Processing Invoice...</mat-label>
+        </div>
+        <mat-card class="col-md" *ngIf="(invoice$ | async) || displayForm">
+            <div class="invoice-actions">
+                <button mat-icon-button id="back" type="button" [routerLink]="['/invoices']" class="ml-0 mr-3 mt-2">
+                    <mat-icon>keyboard_backspace</mat-icon>
+                </button>
+                <span class="spacer"></span>
+                <button mat-flat-button color="primary" id="save" class="ml-0 mr-3 mt-2">Set Payed</button>
+                <button mat-flat-button color="warn" id="void" class="ml-0 mr-3 mt-2">Void</button>
+                <button mat-flat-button color="accent" type="button" id="cancel" (click)="onPrint()" class="mt-2">Print Invoice</button>
+            </div>
+            <div id="print-area">
+                <form [formGroup]="invoiceForm">
+                    <div class="invoice-info">
+                        <div class="invoice-data">
+                            <h4 class="">Invoice Info</h4>
+                            <p class="item-normal">{{ 'Invoice No. ' +  invoiceForm.value.Invoice_Number }}</p>
+                            <p class="item-bottom">{{ 'Invoice date: ' + invoiceForm.value.Invoice_Date }}</p>
+                        </div>
+                        <div class="invoice-data">
+                            <h4 class="">Status</h4>
+                            <p class="item-normal">{{'Invoice Status: ' + (invoiceForm.value.Status === 1 ? 'Operado' : (invoiceForm.value.Status === 2 ? 'Pend Pago' : 'Anulada') )}}</p>
+                            <p class="item-bottom">{{'Payment Status: ' + (invoiceForm.value.Payment_Status === 1 ? 'Contado' : (invoiceForm.value.Payment_Status === 2 ? 'Tarjeta Credito': 'Credito') )}}</p>
+                        </div>
+                    </div>
+                    <mat-divider class=""></mat-divider>
+                    <div class="invoice-info">
+                        <div class="invoice-data-bottom">
+                            <h4 class="">Bill To</h4>
+                            <p class="item-normal">{{ invoiceForm.value.Name }}</p>
+                            <p class="item-normal">{{ invoiceForm.value.Address }}</p>
+                            <p class="item-bottom">{{ invoiceForm.value.Tax_Number }}</p>
+                            <p></p>
+                            <p class="item-bottom">{{ invoiceForm.value.Email }}</p>
+                        </div>
+                        <div class="invoice-data-from">
+                            <h4 class="">Bill From</h4>
+                            <p class="item-normal">{{ invoiceForm.value.Store_Name }}</p>
+                            <p class="item-normal">{{ invoiceForm.value.Store_Address }}</p>
+                            <p class="item-bottom">{{ invoiceForm.value.Store_Tax }}</p>
+                            <p></p>
+                            <p class="item-bottom">{{ invoiceForm.value.User_Name }}</p>
+                        </div>
+                    </div>
+                    <div class="table-invoice" *ngIf="onError === ''">
+                        <mat-table [dataSource]="invoiceForm.get('Lines').value" formArrayName="Lines" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8" matSort>
+                            <ng-container matColumnDef="Product">
+                                <mat-header-cell *matHeaderCellDef class="col-md-3 mat-column-center"> Product
+                                </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-3 mat-column-td-left">
+                                    {{element.Product}}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <ng-container matColumnDef="Qty">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-center"> Qty
+                                </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-1 mat-column-td-right">{{ (element.Qty  | number: '.4') }}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <ng-container matColumnDef="Unit_Price">
+                                <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-center"> Unit Price
+                                </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-2 mat-column-td-right">
+                                    {{ (element.Unit_Price | number: '.4') }}
+                                </mat-cell>
+                            </ng-container>
+
+                            <ng-container matColumnDef="Percentage">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-center"> Tax Percentage
+                                </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-1 mat-column-td-right">
+                                    {{ (element.Percentage | number: '.2')+'%' }}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <ng-container matColumnDef="To_Go" *ngIf="country==='DEU'">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-center"> To Go </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-1 mat-column-td-left">{{ (element.To_Go === 0 ? 'No' : 'Yes') }}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <ng-container matColumnDef="Discount">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-center"> Discount
+                                </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-1 mat-column-td-right">{{ currency+' '+(element.Discount | number: '.2') }}
+                                </mat-cell>
+                            </ng-container>
+                            
+                            <ng-container matColumnDef="Total">
+                                <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-center"> Total </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-2 mat-column-td-right">{{ currency+' '+(element.Total  | number: '.2') }}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <ng-container matColumnDef="Delivery_Date">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-center"> Delivery Date </mat-header-cell>
+                                <mat-cell *matCellDef="let element" class="col-md-1 mat-column-td-left">{{element.Delivery_Date}}
+                                </mat-cell>
+                            </ng-container>
+        
+                            <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                        </mat-table>
+                    </div>
+                    <div class="invoice-total">
+                        <div class="invoice-total-data">
+                            <p class="invoice-totals">Total Tax</p>
+                            <p class="invoice-totals">Discount</p>
+                            <h5 >Total</h5>
+                        </div>
+                        <div class="">
+                            <p class="invoice-totals-result">{{ currency+' '+(invoiceForm.value.Total_Taxes | number: '.2')}}</p>
+                            <p class="invoice-totals-result">{{ currency+' '+(invoiceForm.value.Total_Discount | number: '.2')}}</p>
+                            <h5 class="total-result">{{ currency+' '+(invoiceForm.value.Total | number: '.2')}}</h5>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </mat-card>
+    </div>
+</div>

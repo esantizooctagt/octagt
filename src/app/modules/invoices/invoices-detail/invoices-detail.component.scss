@@ -1,0 +1,85 @@
+.mat-column-td-left {
+    padding-right: 8px;
+    text-align: left;
+    justify-content: flex-start;
+    font-size: 11px;
+}
+.mat-column-td-right {
+    padding-right: 8px;
+    text-align: right;
+    justify-content: flex-end;
+    font-size: 11px;
+}
+.mat-column-center {
+    justify-content: center;
+    font-weight: 600;
+}
+.invoice-actions{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    margin-bottom: 10px;
+}
+.spacer{
+    flex: 1 1 0%;
+    box-sizing: border-box;
+}
+.table-invoice{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.item-normal{
+    font-size: small;
+    margin-bottom: 2px;
+}
+.item-bottom{
+    font-size: small;
+    margin-bottom: 10px;
+}
+.invoice-total{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    place-content: stretch flex-end;
+    align-items: stretch;
+}
+.invoice-totals{
+    font-size: smaller;
+}
+.invoice-totals-result{
+    text-align: right;
+    font-size: smaller;
+    margin-right: 3px;
+}
+.total-result{
+    margin-right: 3px;
+}
+.invoice-total-data{
+    margin-right: 140px;
+}
+.invoice-info{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    place-content: stretch space-between;
+    align-items: stretch;
+}
+.invoice-data{
+    display: block;
+    box-sizing: border-box;
+}
+.invoice-data-bottom{
+    display: block;
+    box-sizing: border-box;
+    padding-top:10px;
+}
+.invoice-data-from{
+    margin-right: 140px;
+    display: block;
+    box-sizing: border-box;
+    padding-top:10px;
+}
+mat-card{
+    margin-left: 15px;
+    margin-right: 15px;
+}

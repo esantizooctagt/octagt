@@ -13,6 +13,33 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+@media print {
+    .sidenav{
+        display: none !important;
+    }
+    .header-route{
+        display: none !important;
+    }
+    .invoice-actions{
+        display: none !important;
+    }
+    mat-toolbar{
+        display: none !important;
+    }
+    mat-card{
+        width: 100% !important;
+    }
+    mat-sidenav-content{
+        margin-left: 0px !important;
+    }
+    mat-table{
+        box-shadow: none !important;
+    }
+    mat-card{
+        box-shadow: none !important;
+    }
+}
+
 button:focus, button:active:focus, button.active:focus {
     outline: none !important;
     outline-style: none !important;

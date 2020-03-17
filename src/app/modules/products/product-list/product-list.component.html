@@ -51,7 +51,12 @@
                     <mat-card-content>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                         <p *ngIf="!view || (product.Type === 'goods' && view)">Price: {{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
-                        <p>Available : {{ product.Qty | number: '.4' }}</p>
+                        <!-- <p>Available : {{ product.Qty | number: '.4' }}</p> -->
+                        <p>Stores:</p>
+                            <ul class="">
+                                <li *ngFor="let store of product.Stores">
+                                    {{store.StoreName + ' : ' + (store.Qty | number: '.4')}}</li>
+                            </ul>
                         <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                     </mat-card-content>
                     <mat-card-actions align="end" *ngIf="!view">

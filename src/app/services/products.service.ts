@@ -18,6 +18,11 @@ export class ProductService {
                       .pipe(catchError(this.errorHandler));
     }
 
+    getProductsStore(storeId, currPage, perPage, companyId): Observable<Product[]>{
+      return this.http.get<Product[]>(this.apiURL + '/products/' + storeId + "?currPage=" + currPage + "&perPage=" + perPage + "&companyId=" + companyId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
     getProduct(productId): Observable<Product> {
       return this.http.get<Product>(this.apiURL + '/product/' + productId)
                       .pipe(catchError(this.errorHandler));
@@ -35,6 +40,11 @@ export class ProductService {
 
     deleteProduct(productId) {
       return this.http.delete(this.apiURL + '/product/' + productId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
+    setInventory(formData){
+      return this.http.patch(this.apiURL + '/product/inventory', formData)
                       .pipe(catchError(this.errorHandler));
     }
 

@@ -1,0 +1,23 @@
+.mat-column-td-left {
+    padding-right: 8px;
+    text-align: left;
+    justify-content: flex-start;
+    font-size: 11px;
+}
+.mat-column-td-right {
+    padding-right: 8px;
+    text-align: right;
+    justify-content: flex-end;
+    font-size: 11px;
+}
+.mat-column-center {
+    justify-content: center;
+    font-weight: 600;
+}
+.table-invoice{
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.header-route{
+    height: 33px;
+}

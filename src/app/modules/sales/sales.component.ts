@@ -112,7 +112,7 @@ export class SalesComponent implements OnInit {
     Company_Id: ['', Validators.required],
     Status: [1, Validators.required],
     User_Id: [''],
-    Payment_Status: ['', Validators.required],  //1 -- PAGADO, 2 -- CREDITO
+    Payment_Status: ['', Validators.required],  //1 -- PAGADO CONTADO, 2 -- PAGADO TARJETA CREDITO, 3 -- CREDITO
     Payment_Date: ['', Validators.required],
     Total: [0],
     Total_Taxes: [0],

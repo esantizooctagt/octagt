@@ -35,6 +35,7 @@ const routes: Routes = [
       { path: 'company', component: CompanyComponent, canActivate: [AuthGuard] },
       { path: 'categories', component: CategoriesComponent, canActivate: [AuthGuard] },
       { path: 'invoices', component: InvoicesComponent, canActivate: [AuthGuard] },
+      { path: 'invoices/:idInvoice', component: InvoicesDetailComponent, canActivate: [AuthGuard] },
       { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
       { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard] },
       { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },

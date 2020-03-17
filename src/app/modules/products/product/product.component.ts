@@ -31,8 +31,8 @@ export class ProductComponent implements OnInit {
     return this.productForm.get('Unit_Price');
   }
 
-  get Qty(){
-    return this.productForm.get('Qty');
+  get SKU(){
+    return this.productForm.get('SKU');
   }
 
   get Type(){
@@ -43,10 +43,10 @@ export class ProductComponent implements OnInit {
     return this.productForm.get('CategoryId');
   }
 
+  readonly bucketURL = environment.bucket;
   message: string='';
   loading = false;
   companyId: string='';
-  readonly bucketURL = environment.bucket;
   subsProds: Subscription;
   message$: Observable<string>;
   product$: Observable<Product>;
@@ -78,8 +78,8 @@ export class ProductComponent implements OnInit {
     CompanyId: [''],
     Name: ['', [Validators.required, Validators.minLength(3)]],
     CategoryId: ['', Validators.required],
+    SKU: ['',[Validators.minLength(3), Validators.min(1), Validators.max(999999999999999)]],
     Unit_Price: ['', [Validators.required, Validators.max(99999999.90), Validators.min(0.01), Validators.maxLength(11)]],
-    Qty: ['', [Validators.required, Validators.max(99999999.9990), Validators.min(0.0001), Validators.maxLength(13)]],
     File: [''],
     Type: ['goods', Validators.required],
     Status: [1]
@@ -190,12 +190,11 @@ export class ProductComponent implements OnInit {
               this.Unit_Price.hasError('pattern') ? 'Incorrect value':
                 '';
     }
-    if (component === 'Qty'){
-      return this.Qty.hasError('required') ? 'You must enter a value' :
-          this.Qty.hasError('min') ? 'Minimun value 0.0001' :
-            this.Qty.hasError('max') ? 'Maximun value 99999999.9990':
-              this.Qty.hasError('pattern') ? 'Incorrect value':
-                '';
+    if (component === 'SKU'){
+      return this.SKU.hasError('min') ? 'Minimun value 1' :
+        this.SKU.hasError('max') ? 'Maximun value 999999999999999':
+          this.SKU.hasError('minLength') ? 'Incorrect value':
+            '';
     }
   }
 
@@ -214,7 +213,7 @@ export class ProductComponent implements OnInit {
     if (changes.product.currentValue != undefined) {
       this.loading = true;
       let prodResult = changes.product.currentValue;
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
       this.fileString = null;
 
       this.product$ = this.productService.getProduct(prodResult.Product_Id).pipe(
@@ -227,7 +226,7 @@ export class ProductComponent implements OnInit {
               Name: res.Name,
               CategoryId: res.Category_Id,
               Unit_Price: res.Unit_Price,
-              Qty: res.Qty,
+              SKU: res.SKU,
               File: '',
               Type: res.Type,
               Status: res.Status
@@ -247,7 +246,7 @@ export class ProductComponent implements OnInit {
         })
       );
     } else {
-      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+      this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
     }
   }
 
@@ -266,7 +265,7 @@ export class ProductComponent implements OnInit {
         fd.append('Img_Path', this.companyId+ '/img/products/');
         fd.append('Name', this.productForm.value.Name);
         fd.append('Unit_Price', this.productForm.value.Unit_Price);
-        fd.append('Qty', this.productForm.value.Qty);
+        fd.append('SKU', this.productForm.value.SKU);
         fd.append('Type', this.productForm.value.Type);
         fd.append('Status', this.productForm.value.Status);
         fd.append('UserId', userId);
@@ -280,7 +279,7 @@ export class ProductComponent implements OnInit {
             this.fileDataText.nativeElement.value = '';
             this.data.changeData('products');
             this.openDialog('Products', 'Product created successful', true, false, false);
-            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
           }),
           catchError(err => {
             this.savingProduct = false;
@@ -297,7 +296,7 @@ export class ProductComponent implements OnInit {
         fd.append('CompanyId', this.companyId);
         fd.append('Name', this.productForm.value.Name);
         fd.append('Unit_Price', this.productForm.value.Unit_Price);
-        fd.append('Qty', this.productForm.value.Qty);
+        fd.append('SKU', this.productForm.value.SKU);
         fd.append('Type', this.productForm.value.Type);
         fd.append('Status', this.productForm.value.Status);
         fd.append('UserId', userId);
@@ -311,7 +310,7 @@ export class ProductComponent implements OnInit {
             this.fileDataText.nativeElement.value = '';
             this.data.changeData('products');
             this.openDialog('Products', 'Product created successful', true, false, false);
-            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+            this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
           }),
           catchError(err => {
             this.savingProduct = false;
@@ -326,7 +325,7 @@ export class ProductComponent implements OnInit {
 
   onCancel(){
     this.fileDataText.nativeElement.value = '';
-    this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', Qty:'', File:''});
+    this.productForm.reset({Status:1, Type:'goods', Name:'', CategoryId:'None', CompanyId:'', ProductId:'', Unit_Price:'', SKU:'', File:''});
     this.fileString = null;
     this.pathImg = '';
   }

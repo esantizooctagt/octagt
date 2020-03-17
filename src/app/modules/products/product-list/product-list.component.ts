@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Product, Currency } from '@app/_models';
-import { ProductService, CompanyService } from "@app/services";
+import { Product, Currency, StoreDocto } from '@app/_models';
+import { ProductService, CompanyService, StoresService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
@@ -22,8 +22,11 @@ export class ProductListComponent implements OnInit {
   @Output() addItem = new EventEmitter<Object>();
   @Output() modLoading = new EventEmitter<string>();
 
+  stores$: Observable<StoreDocto[]>;
+  
   public length: number = 0;
   public pageSize: number = 10;
+  public storeId: string='';
   public products: Product[] = [];
   public pages: number[];
   public listView:boolean=false;
@@ -51,7 +54,8 @@ export class ProductListComponent implements OnInit {
     private authService: AuthService,
     private data: MonitorService,
     private productService: ProductService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private storeService: StoresService
   ) { }
 
   openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
@@ -74,17 +78,23 @@ export class ProductListComponent implements OnInit {
   ngOnInit() {
     this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
+    this.storeId = this.authService.storeId();
+    if (this.storeId === '' || this.storeId === undefined) {
+      this.storeId = '';
+      //debe cargar stores y pedir que se seleccione una
+      this.stores$ = this.storeService.getStoresDoctos(this.companyId);
+    }
     let currencyId = this.authService.currency();
     let currencyVal: Currency[];
     currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
     this.currencyCompany = currencyVal[0].n;
-    this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
+    this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
     this.message$ = this.data.monitorMessage.pipe(
       map(res => {
         this.message = 'init';
         if (res === 'products') {
           this.message = res;
-          this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
+          this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
         }
         return this.message;
       })
@@ -94,9 +104,9 @@ export class ProductListComponent implements OnInit {
     } 
   }
 
-  loadProducts(crPage, crNumber, crValue){
+  loadProducts(crPage, crNumber, crValue, crStoreId){
     this.onError = '';
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crStoreId === '' ? '' : "&storeId=" + crStoreId) + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
       map((res: any) => {
@@ -120,7 +130,8 @@ export class ProductListComponent implements OnInit {
     this.loadProducts(
       this._currentPage,
       this.pageSize,
-      this._currentSearchValue
+      this._currentSearchValue,
+      this.storeId
     );
   }
 
@@ -197,7 +208,8 @@ export class ProductListComponent implements OnInit {
               this.loadProducts(
                 this._currentPage,
                 this.pageSize,
-                this._currentSearchValue
+                this._currentSearchValue,
+                this.storeId
               );
               this.openDialog('Product', 'Product deleted successful', true, false, false);
               window.scroll(0,0);
@@ -225,7 +237,8 @@ export class ProductListComponent implements OnInit {
     this.loadProducts(
       this._currentPage,
       this.pageSize,
-      this._currentSearchValue
+      this._currentSearchValue,
+      this.storeId
     );
   }
   

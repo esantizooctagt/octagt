@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule, MatTableModule, MatRadioModule, MatStepperModule, MatExpansionModule, MatChipsModule } from '@angular/material';
+import { MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatPaginatorModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatSnackBarModule, MatSelectModule, MatDialogModule, MatAutocompleteModule, MatSidenavModule, MatMenuModule, MatTableModule, MatRadioModule, MatStepperModule, MatExpansionModule, MatChipsModule, MatSortModule } from '@angular/material';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
@@ -74,6 +74,7 @@ import { CategoriesComponent } from '@modules/categories/categories.component';
     MatStepperModule,
     MatExpansionModule,
     MatChipsModule,
+    MatSortModule,
     DragDropModule,
     HttpClientModule,
     BrowserAnimationsModule,

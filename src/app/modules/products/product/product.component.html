@@ -38,11 +38,11 @@
             </div>
             <div class="form-field pl-3 pr-3 col-md-4">
                 <mat-form-field hintLabel="Only decimal values">
-                    <input matInput placeholder="Quantity" min="0.0001" max="99999999.9990" type="number"
-                        (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
-                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="Qty" class="values-right-align"
+                    <input matInput placeholder="SKU" min="0" max="999999999999999" type="number"
+                        (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,15}$"
+                        [errorStateMatcher]="confirmValidParentMatcher" formControlName="SKU" class="values-right-align"
                         required>
-                    <mat-error *ngIf="Qty.invalid && Qty.touched">{{getErrorMessage('Quantity')}}</mat-error>
+                    <mat-error *ngIf="SKU.invalid && SKU.touched">{{getErrorMessage('SKU')}}</mat-error>
                 </mat-form-field>
             </div>
             <div class="from-field pl-3 pr-3 col-md-3">
