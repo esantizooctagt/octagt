@@ -41,10 +41,6 @@ export class RoleComponent implements OnInit {
 
   //variable to handle errors on inputs components
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
-
-  get fAccess(){
-    return this.roleForm.get('Access');
-  }
   
   constructor(
     private fb: FormBuilder,
@@ -55,6 +51,10 @@ export class RoleComponent implements OnInit {
     private dialog: MatDialog
   ) { }
 
+  get fAccess(){
+    return this.roleForm.get('Access') as FormArray;
+  }
+  
   roleForm = this.fb.group({
     RoleId: [''],
     CompanyId: [''],
