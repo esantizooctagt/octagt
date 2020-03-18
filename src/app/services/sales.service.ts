@@ -26,6 +26,16 @@ export class SalesService {
                       .pipe(retry(3), catchError(this.errorHandler));
     }
 
+    updatePayment(invoiceId){
+      return this.http.patch(this.apiURL + '/sale/'+invoiceId,'')
+                      .pipe(catchError(this.errorHandler));
+    }
+
+    voidInvoice(invoiceId){
+      return this.http.put(this.apiURL + '/sale/'+invoiceId,'')
+                      .pipe(catchError(this.errorHandler));
+    }
+
     errorHandler(error) {
       return throwError(error || 'Server Error');
     }

@@ -17,3 +17,4 @@ export * from './invoices/invoices.component';
 export * from './reports/reports.component';
 export * from './inventory/inventory.component';
 export * from './inventory-query/inventory-query.component';
+export * from './dashboard/dashboard.component';

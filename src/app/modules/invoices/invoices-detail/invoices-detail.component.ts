@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SalesService } from '@app/services';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { AuthService } from '@app/core/services';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-invoices-detail',
@@ -14,6 +16,7 @@ import { SpinnerService } from '@app/shared/spinner.service';
 })
 export class InvoicesDetailComponent implements OnInit {
   public invoice$: Observable<any>;
+  public invoicePayed$: Observable<any>;
   public invoiceId: string = '';
   public displayForm: boolean = true;
   public onError: string = '';
@@ -26,7 +29,8 @@ export class InvoicesDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private authService: AuthService,
     private spinnerService: SpinnerService,
-    private salesService: SalesService
+    private salesService: SalesService,
+    private dialog: MatDialog
   ) { }
 
   invoiceForm = this.fb.group({
@@ -51,6 +55,23 @@ export class InvoicesDetailComponent implements OnInit {
     Payment_Date: [''],
     Lines: this.fb.array([this.invoiceDetail()])
   })
+
+  openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = false;
+    // dialogConfig.disableClose = true;
+    dialogConfig.data = {
+      header: header, 
+      message: message, 
+      success: success, 
+      error: error, 
+      warn: warn
+    };
+    dialogConfig.width ='280px';
+    dialogConfig.minWidth = '280px';
+    dialogConfig.maxWidth = '280px';
+    this.dialog.open(DialogComponent, dialogConfig);
+  }
 
   invoiceDetail(): FormGroup {
     const lineDet = this.fb.group({
@@ -134,5 +155,40 @@ export class InvoicesDetailComponent implements OnInit {
 
   onPrint(){
     window.print();
+  }
+
+  onPayed(invoiceId: string){
+    var spinnerRef = this.spinnerService.start("Updating Invoice...");
+    this.invoicePayed$ = this.salesService.updatePayment(invoiceId).pipe(
+      tap(res => {
+        if (res != null){
+          this.spinnerService.stop(spinnerRef);
+          this.openDialog('Invoices', 'Invoice updated successful', true, false, false);
+        }
+      }),
+      catchError(err => {
+        this.spinnerService.stop(spinnerRef);
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
+  }
+
+  onVoid(invoiceId: string){
+    var spinnerRef = this.spinnerService.start("Void Invoice...");
+    this.invoicePayed$ = this.salesService.voidInvoice(invoiceId).pipe(
+      tap(res => {
+        if (res != null){
+          this.invoiceForm.patchValue({Status:2});
+          this.spinnerService.stop(spinnerRef);
+          this.openDialog('Invoices', 'Invoice void successful', true, false, false);
+        }
+      }),
+      catchError(err => {
+        this.spinnerService.stop(spinnerRef);
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
   }
 }

@@ -31,6 +31,7 @@ import { CustomerbasicComponent } from '@shared/customerbasic/customerbasic.comp
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { CategoriesComponent } from '@modules/categories/categories.component';
+import { DashboardComponent } from './modules/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { CategoriesComponent } from '@modules/categories/categories.component';
     CustomerbasicComponent,
     DialogComponent,
     CategoriesComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,

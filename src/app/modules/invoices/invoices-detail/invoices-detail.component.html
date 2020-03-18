@@ -7,18 +7,19 @@
             <mat-progress-spinner id="spinInvoice" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
             <mat-label class="label-overlay">Processing Invoice...</mat-label>
         </div>
+        <ng-container *ngIf="invoicePayed$ | async"></ng-container>
         <mat-card class="col-md" *ngIf="(invoice$ | async) || displayForm">
-            <div class="invoice-actions">
-                <button mat-icon-button id="back" type="button" [routerLink]="['/invoices']" class="ml-0 mr-3 mt-2">
-                    <mat-icon>keyboard_backspace</mat-icon>
-                </button>
-                <span class="spacer"></span>
-                <button mat-flat-button color="primary" id="save" class="ml-0 mr-3 mt-2">Set Payed</button>
-                <button mat-flat-button color="warn" id="void" class="ml-0 mr-3 mt-2">Void</button>
-                <button mat-flat-button color="accent" type="button" id="cancel" (click)="onPrint()" class="mt-2">Print Invoice</button>
-            </div>
-            <div id="print-area">
-                <form [formGroup]="invoiceForm">
+            <form [formGroup]="invoiceForm">
+                <div class="invoice-actions">
+                    <button mat-icon-button id="back" type="button" [routerLink]="['/invoices']" class="ml-0 mr-3 mt-2">
+                        <mat-icon>keyboard_backspace</mat-icon>
+                    </button>
+                    <span class="spacer"></span>
+                    <button *ngIf="invoiceForm.value.Payment_Status > 2 && invoiceForm.value.Status === 1" mat-flat-button color="primary" id="payed" class="ml-0 mr-3 mt-2" (click)="onPayed(invoiceForm.value.Invoice_Id)">Set Payed</button>
+                    <button *ngIf="invoiceForm.value.Status === 1" mat-flat-button color="warn" id="void" class="ml-0 mr-3 mt-2" (click)="onVoid(invoiceForm.value.Invoice_Id)">Void</button>
+                    <button mat-flat-button color="accent" type="button" id="cancel" (click)="onPrint()" class="mt-2">Print Invoice</button>
+                </div>
+                <div id="print-area">
                     <div class="invoice-info">
                         <div class="invoice-data">
                             <h4 class="">Invoice Info</h4>
@@ -27,7 +28,7 @@
                         </div>
                         <div class="invoice-data">
                             <h4 class="">Status</h4>
-                            <p class="item-normal">{{'Invoice Status: ' + (invoiceForm.value.Status === 1 ? 'Operado' : (invoiceForm.value.Status === 2 ? 'Pend Pago' : 'Anulada') )}}</p>
+                            <p class="item-normal" [ngClass]="{ 'void-status' : invoiceForm.value.Status === 2 }">{{'Invoice Status: ' + (invoiceForm.value.Status === 1 ? 'Operado' : 'Anulada') }}</p>
                             <p class="item-bottom">{{'Payment Status: ' + (invoiceForm.value.Payment_Status === 1 ? 'Contado' : (invoiceForm.value.Payment_Status === 2 ? 'Tarjeta Credito': 'Credito') )}}</p>
                         </div>
                     </div>
@@ -124,8 +125,8 @@
                             <h5 class="total-result">{{ currency+' '+(invoiceForm.value.Total | number: '.2')}}</h5>
                         </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </mat-card>
     </div>
 </div>

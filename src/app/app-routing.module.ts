@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent } from '@modules/index';
+import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent, DashboardComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -28,6 +28,7 @@ const routes: Routes = [
       { path: 'taxes', component: TaxesComponent, canActivate: [AuthGuard] },
       { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
       { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
       { path: 'products', component: ProductsComponent, canActivate: [AuthGuard] },
       { path: 'sales', component: SalesComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
@@ -41,8 +42,6 @@ const routes: Routes = [
       { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
       { path: 'inventorystore', component: InventoryQueryComponent, canActivate: [AuthGuard] },
       { path: 'help', component: HelpComponent, canActivate: [AuthGuard] }
-      //to send parameters between components
-      // { path: 'taxes/:idTax', component: TaxComponent, canActivate: [AuthGuard] }
     ]
   },
   { 
@@ -79,6 +78,7 @@ export const routingComponents = [
   CustomersComponent,
   CustomerComponent,
   CustomerListComponent,
+  DashboardComponent,
   ProductsComponent,
   ProductComponent,
   ProfileComponent,
