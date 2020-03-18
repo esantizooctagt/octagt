@@ -12,10 +12,10 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 import * as cloneDeep  from 'lodash/cloneDeep';
 import { Observable, Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { delay, map, shareReplay } from 'rxjs/operators';
 
-import { MatTable } from '@angular/material';
+import { MatTable } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router } from '@angular/router';

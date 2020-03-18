@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';  
 import { Event, NavigationEnd, Router } from '@angular/router';  
-import { MatDialog, MatDialogRef } from '@angular/material';  
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';  
 import { SpinnerComponent } from '@shared/spinner/spinner.component';  
   
 @Injectable()  

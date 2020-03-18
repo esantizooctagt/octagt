@@ -9,7 +9,7 @@ import { MonitorService } from '@app/shared/monitor.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { tap, catchError } from 'rxjs/operators';
-import { MatListOption, MatSelectionList } from '@angular/material';
+import { MatListOption, MatSelectionList } from '@angular/material/list';
 import { SpinnerService } from '@app/shared/spinner.service';
 
 @Component({
