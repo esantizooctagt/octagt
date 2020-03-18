@@ -150,4 +150,8 @@ export class RoleListComponent implements OnInit {
     });
   }
 
+  trackById(index: number, item: Role) {
+    return item.Role_Id;
+  }
+
 }

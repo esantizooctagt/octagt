@@ -26,7 +26,6 @@ import { Router } from '@angular/router';
   styleUrls: ['./sales.component.scss']
 })
 export class SalesComponent implements OnInit {
-
   @ViewChild(MatTable) productsTable :MatTable<any>;
 
   taxes: Tax[]=[];
@@ -82,7 +81,11 @@ export class SalesComponent implements OnInit {
   }
 
   get fSales(){
-    return this.salesForm.controls;
+    return this.salesForm;
+  }
+
+  get fDetails(){
+    return this.salesForm.get('detail') as FormArray;
   }
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -498,6 +501,10 @@ export class SalesComponent implements OnInit {
     } else {
       this.loading = false;
     }
+  }
+
+  trackRow(index: number, item: any) {
+    return item.Line_No;
   }
 
   ngOnDestroy() {

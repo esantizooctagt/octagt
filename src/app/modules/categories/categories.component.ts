@@ -241,6 +241,10 @@ export class CategoriesComponent implements OnInit {
     }
   }
 
+  trackById(index: number, item: Category) {
+    return item.Category_Id;
+  }
+  
   ngOnDestroy() {
     if (this.access != undefined){
       this.access.unsubscribe();

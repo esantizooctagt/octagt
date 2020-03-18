@@ -21,7 +21,7 @@
                     <ng-container *ngIf="(isHandset$ | async); else isDesktop">
                         <mat-list *ngIf="onError==''">
                             <mat-list-item formArrayName="detail"
-                                *ngFor="let item of salesForm.get('detail').controls; let i = index;">
+                                *ngFor="let item of fSales.controls; let i = index;">
                                 <ng-container [formGroupName]="i">
                                     <div class="pr-0 pl-0">
                                         <h3 matLine class="mb-1">{{item.value.Name}}</h3>
@@ -97,8 +97,8 @@
                         </mat-list>
                     </ng-container>
                     <ng-template #isDesktop>
-                        <mat-table [dataSource]="salesForm.get('detail').controls" formArrayName="detail" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8">
-                            <!-- Checkbox Column -->
+                        <mat-table [dataSource]="fDetails.controls" formArrayName="detail" [trackBy]="trackRow" class="w-100 mat-elevation-z8">
+                            <!-- Checkbox Column [trackBy]="trackByIndex"  mat-table -->
                             <ng-container matColumnDef="ToGo" *ngIf="country==='DEU'">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-ToGo">
                                     <mat-checkbox (change)="$event ? masterToggle() : null"
@@ -122,7 +122,7 @@
                             <ng-container matColumnDef="Unit_Price">
                                 <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
-                                    <mat-form-field [floatLabel]="never" *ngIf="(element.value.Type === 'services'); else Services">
+                                    <mat-form-field floatLabel="never" *ngIf="(element.value.Type === 'services'); else Services">
                                         <input matInput type="number" min="0.01"
                                         max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
                                         pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
@@ -138,7 +138,7 @@
                                 <ng-container matColumnDef="Unit_Price">
                                     <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
                                     <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
-                                        <mat-form-field [floatLabel]="never">
+                                        <mat-form-field floatLabel="never">
                                             <input matInput type="number" min="0.01"
                                             max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
                                             pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
@@ -152,7 +152,7 @@
                             <ng-container matColumnDef="Qty">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Qty"> Qty </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Qty" [formGroup]="element">
-                                    <mat-form-field [floatLabel]="never">
+                                    <mat-form-field floatLabel="never">
                                         <input matInput type="number" min="0.0001"
                                         max="99999999.9990" (keypress)="onKeyPress($event, $event.target.value)"
                                         pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
@@ -166,7 +166,7 @@
                             <ng-container matColumnDef="Discount">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Discount"> Discount </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Discount" [formGroup]="element">
-                                    <mat-form-field [floatLabel]="never">
+                                    <mat-form-field floatLabel="never">
                                         <input matInput type="number" min="0.0001"
                                         max="99999999.9990" (keypress)="onKeyPress($event, $event.target.value)"
                                         pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"
@@ -180,7 +180,7 @@
                             <ng-container matColumnDef="Delivery_Date">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Delivery"> Delivery Date </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Delivery" [formGroup]="element">
-                                    <mat-form-field [floatLabel]="never">
+                                    <mat-form-field floatLabel="never">
                                         <input matInput [matDatepicker]="picker" minDate="minDeliveryDate"
                                             formControlName="Delivery_Date">
                                         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -235,7 +235,7 @@
                     </div>
                     <mat-list *ngIf="onError==''">
                         <mat-list-item formArrayName="detail"
-                            *ngFor="let item of salesForm.get('detail').controls; let i = index;">
+                            *ngFor="let item of fDetails.controls; let i = index;">
                             <ng-container [formGroupName]="i">
                                 <div class="pr-0 pl-0">
                                     <h3 matLine class="mb-1">{{item.value.Name}}</h3>

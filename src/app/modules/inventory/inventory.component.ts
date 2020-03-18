@@ -51,6 +51,10 @@ export class InventoryComponent implements OnInit {
 
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
   
+  get fDetail(){
+    return this.inventoryForm.get('Detail') as FormArray;
+  }
+
   constructor(
     private fb: FormBuilder,
     private storeService: StoresService,
@@ -211,6 +215,10 @@ export class InventoryComponent implements OnInit {
       })
     );
     this.inventoryForm.setControl('Detail', this.setExistingProds(this.prods$));
+  }
+
+  trackRow(index: number, item: any) {
+    return item.Product_Id;
   }
 
 }

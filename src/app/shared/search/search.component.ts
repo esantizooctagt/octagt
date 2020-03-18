@@ -19,6 +19,7 @@ export class SearchComponent implements OnDestroy {
 
   private _searchSubject: Subject<string> = new Subject();
   public loading:boolean = false;
+  public searchValue: string='';
   
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(

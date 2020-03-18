@@ -140,4 +140,8 @@ export class InvoicesComponent implements OnInit {
   goInvoice(invoiceId: string){
     this.router.navigate(['invoices/' + invoiceId]);
   }
+
+  trackRow(index: number, item: any) {
+    return item.Invoice_Id;
+  }
 }

@@ -3,10 +3,6 @@
         <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
             <h4>Invoice</h4>
         </div>
-        <div class="overlay" *ngIf="loading">
-            <mat-progress-spinner id="spinInvoice" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-            <mat-label class="label-overlay">Processing Invoice...</mat-label>
-        </div>
         <ng-container *ngIf="invoicePayed$ | async"></ng-container>
         <mat-card class="col-md" *ngIf="(invoice$ | async) || displayForm">
             <form [formGroup]="invoiceForm">
@@ -52,7 +48,7 @@
                         </div>
                     </div>
                     <div class="table-invoice" *ngIf="onError === ''">
-                        <mat-table [dataSource]="invoiceForm.get('Lines').value" formArrayName="Lines" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8" matSort>
+                        <mat-table [dataSource]="invoiceForm.get('Lines').value" formArrayName="Lines" class="w-100 mat-elevation-z8" matSort>
                             <ng-container matColumnDef="Product">
                                 <mat-header-cell *matHeaderCellDef class="col-md-3 mat-column-center"> Product
                                 </mat-header-cell>

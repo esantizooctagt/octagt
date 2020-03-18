@@ -1,5 +1,5 @@
 <ng-container *ngIf="(customer$ | async) || displayForm">
-    <form [formGroup]="customerBasicForm" *ngIf="!customerValue">
+    <form [formGroup]="customerBasicForm">
         <div class="form-field">
             <mat-form-field>
                 <input type="text" placeholder="Name" maxlength="500" minlength="3" formControlName="Name" form matInput

@@ -14,7 +14,7 @@
         </div>
         <div class="form-field">
             <mat-selection-list #lstApps (selectionChange)=changeValue($event.option)>
-                <mat-list-option formArrayName="Access" *ngFor="let item of roleForm.get('Access').controls; let i = index;" [value]="i" [selected]="item.value.Active">
+                <mat-list-option formArrayName="Access" *ngFor="let item of fAccess.controls; let i = index;" [value]="i" [selected]="item.value.Active">
                     {{item.value.Name}}
                 </mat-list-option>
             </mat-selection-list>

@@ -53,7 +53,7 @@ export class CompanyComponent implements OnInit {
   }
 
   get fStores(){
-    return this.storeForm.controls;
+    return this.storeForm;
   }
 
   get fCashier(): FormArray {

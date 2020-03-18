@@ -11,7 +11,7 @@
             </div>
             <ng-container *ngIf="access$ | async"></ng-container>
             <div class="table-invoice" *ngIf="onError === ''">
-                <mat-table [dataSource]="invoices$" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8" matSort>
+                <mat-table [dataSource]="invoices$" [trackBy]="trackRow" class="w-100 mat-elevation-z8" matSort>
                     <ng-container matColumnDef="Invoice_Number">
                         <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-center"> Invoice Id
                         </mat-header-cell>

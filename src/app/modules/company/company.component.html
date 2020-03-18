@@ -106,7 +106,7 @@
                     <form [formGroup]="storeForm" (ngSubmit)="onSubmitStores()">
                         <ng-template matStepLabel>Stores</ng-template>
                         <mat-accordion>
-                            <ng-container class="" formArrayName="stores" *ngFor="let item of storeForm.get('stores').controls; let i = index;">
+                            <ng-container class="" formArrayName="stores" *ngFor="let item of fStores.controls; let i = index;">
                                 <ng-container [formGroupName]="i">
                                     <mat-expansion-panel>
                                         <mat-expansion-panel-header>

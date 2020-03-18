@@ -36,7 +36,7 @@ export class MainNavComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private authService: AuthService,
+    public authService: AuthService,
     private roleService: RolesService,
     private router: Router
     ) {

@@ -13,11 +13,11 @@
                             <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">{{res.Name}}
                             </mat-option>
                         </mat-select>
-                        <mat-error *ngIf="f.StoreId.invalid && f.StoreId.touched">{{getErrorMessage('StoreId')}}
-                        </mat-error>
+                        <!-- <mat-error *ngIf="f.StoreId.invalid && f.StoreId.touched">{{getErrorMessage('StoreId')}} -->
+                        <!-- </mat-error> -->
                     </mat-form-field>
                     <!-- {{inventoryForm.value | json}} -->
-                    <mat-table *ngIf="inventoryForm.get('StoreId').value != ''" [dataSource]="inventoryForm.get('Detail').controls" formArrayName="Detail" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8 col-md">
+                    <mat-table *ngIf="inventoryForm.get('StoreId').value != ''" [dataSource]="fDetail.controls" formArrayName="Detail" [trackBy]="trackRow" class="w-100 mat-elevation-z8 col-md">
                         <ng-container matColumnDef="SKU">
                             <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th"> SKU </mat-header-cell>
                             <mat-cell *matCellDef="let element;let i=index" class="col-md-2 mat-column-td-Name"> {{element.value.SKU}} </mat-cell>
@@ -30,7 +30,7 @@
                         <ng-container matColumnDef="Unit_Price">
                             <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th"> Unit Price </mat-header-cell>
                             <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
-                                <mat-form-field [floatLabel]="never">
+                                <mat-form-field floatLabel="never">
                                     <input matInput type="number" min="0.01"
                                     max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
                                     pattern="^[0-9]{0,9}\.?[0-9]{0,2}$"
@@ -43,7 +43,7 @@
                         <ng-container matColumnDef="Qty">
                             <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th"> Qty </mat-header-cell>
                             <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Qty" [formGroup]="element">
-                                <mat-form-field [floatLabel]="never">
+                                <mat-form-field floatLabel="never">
                                     <input matInput type="number" min="0.0001"
                                     max="99999999.9990" (keypress)="onKeyPress($event, $event.target.value)"
                                     pattern="^[0-9]{0,8}\.?[0-9]{0,4}$"

@@ -6,6 +6,7 @@ import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ConfirmValidParentMatcher } from '@app/validators';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { map, catchError, tap, first } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
@@ -48,6 +49,8 @@ export class ProductListComponent implements OnInit {
   products$: Observable<Product[]>;
   deleteProduct$: Observable<any>;
   deletingProduct: boolean=false;
+
+  confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
   constructor(
     private authService: AuthService,
