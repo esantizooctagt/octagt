@@ -98,7 +98,7 @@
                     </ng-container>
                     <ng-template #isDesktop>
                         <mat-table [dataSource]="fDetails.controls" formArrayName="detail" [trackBy]="trackRow" class="w-100 mat-elevation-z8">
-                            <!-- Checkbox Column [trackBy]="trackByIndex"  mat-table -->
+                            <!-- Checkbox Column -->
                             <ng-container matColumnDef="ToGo" *ngIf="country==='DEU'">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-ToGo">
                                     <mat-checkbox (change)="$event ? masterToggle() : null"
