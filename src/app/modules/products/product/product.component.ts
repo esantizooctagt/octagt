@@ -21,7 +21,7 @@ import { SpinnerService } from '@app/shared/spinner.service';
 export class ProductComponent implements OnInit {
 
   @Input() product: Product;
-  @ViewChild('uploadFile', {static: false}) fileDataText: ElementRef;
+  @ViewChild('uploadFile') fileDataText: ElementRef;
 
   get Name(){
     return this.productForm.get('Name');

@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
 })
 export class SalesComponent implements OnInit {
 
-  @ViewChild(MatTable, {static: false}) productsTable :MatTable<any>;
+  @ViewChild(MatTable) productsTable :MatTable<any>;
 
   taxes: Tax[]=[];
   onError: string='';

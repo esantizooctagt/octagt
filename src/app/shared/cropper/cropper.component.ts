@@ -7,7 +7,7 @@ import Cropper from "cropperjs";
   styleUrls: ['./cropper.component.scss']
 })
 export class CropperComponent implements OnInit {
-  @ViewChild("image", { static: false })
+  @ViewChild("image")
   public imageElement: ElementRef;
 
   @Input("src")

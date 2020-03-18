@@ -19,7 +19,7 @@ import { SpinnerService } from '@app/shared/spinner.service';
 })
 export class RoleComponent implements OnInit {
   @Input() role: Role;
-  @ViewChild('lstApps', { static : false}) appsOption: MatSelectionList;
+  @ViewChild('lstApps') appsOption: MatSelectionList;
 
   get f(){
     return this.roleForm.controls;

@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
 })
 export class InventoryComponent implements OnInit {
 
-  @ViewChild(MatTable, {static: false}) invTable :MatTable<any>;
+  @ViewChild(MatTable) invTable :MatTable<any>;
   
   get f() { return this.inventoryForm.controls; }
 
