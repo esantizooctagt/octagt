@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { StoresService, ProductService } from '@app/services';
+import { StoresService, ProductService, RolesService } from '@app/services';
 import { AuthService } from '@app/core/services';
 import { Observable, throwError } from 'rxjs';
 import { StoreDocto, Product } from '@app/_models';
@@ -11,6 +11,7 @@ import { map, catchError, tap } from 'rxjs/operators';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventory',
@@ -56,6 +57,7 @@ export class InventoryComponent implements OnInit {
     private spinnerService: SpinnerService,
     private authService: AuthService,
     private _snackBar: MatSnackBar,
+    private router: Router,
     private dialog: MatDialog
   ) { }
 
@@ -92,7 +94,17 @@ export class InventoryComponent implements OnInit {
     this.dialog.open(DialogComponent, dialogConfig);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.router.navigate(['/']);
+    } else {
+      this.initData()
+    }
+  }
+
+  initData(){
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
     this.stores$ = this.storeService.getStoresDoctos(this.companyId);

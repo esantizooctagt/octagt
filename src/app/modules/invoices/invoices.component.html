@@ -9,6 +9,7 @@
             <div *ngIf="onError!=''">
                 <span>{{onError}}</span>
             </div>
+            <ng-container *ngIf="access$ | async"></ng-container>
             <div class="table-invoice" *ngIf="onError === ''">
                 <mat-table [dataSource]="invoices$" [trackBy]="trackByIndex" class="w-100 mat-elevation-z8" matSort>
                     <ng-container matColumnDef="Invoice_Number">

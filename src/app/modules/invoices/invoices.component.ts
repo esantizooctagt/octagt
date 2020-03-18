@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { AuthService } from '@app/core/services';
-import { SalesService } from '@app/services';
+import { SalesService, RolesService } from '@app/services';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -21,6 +21,7 @@ export class InvoicesComponent implements OnInit {
   public listView: boolean = false;
   public onError: string = '';
   public invoices$: Observable<any>;
+  public access$: Observable<any>;
   public pages: number[];
   public loading: boolean = false;
 
@@ -33,6 +34,7 @@ export class InvoicesComponent implements OnInit {
     private authService: AuthService,
     private salesService: SalesService,
     private spinnerService: SpinnerService,
+    private roleService: RolesService,
     private router: Router,
     private fb: FormBuilder
   ) { }
@@ -53,7 +55,27 @@ export class InvoicesComponent implements OnInit {
     Store_Name: ['']
   });
 
-  ngOnInit() {
+  async ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.access$ = await this.roleService.getAccess(roleId, 'Invoices').pipe(
+        map(res => {
+          if (res != null){
+            if (res.Value === 0){
+              this.router.navigate(['/']);
+            } else {
+              this.initData();
+            }
+          }
+        })
+      );
+    } else {
+      this.initData()
+    }
+  }
+
+  initData(){
     this.companyId = this.authService.companyId();
     this.storeId = this.authService.storeId();
     if (this.storeId === '' || this.storeId === undefined) {

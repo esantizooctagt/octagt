@@ -74,17 +74,23 @@ export class CategoriesComponent implements OnInit {
   ngOnInit() {
     let isAdmin = this.authService.isAdmin();
     let roleId = this.authService.roleId();
-    var spinnerRef = this.spinnerService.start("Loading Categories...");
     if (roleId != '' && isAdmin != 1){
       this.access = this.roleService.getAccess(roleId, 'Categories').subscribe(res => {
         if (res != null){
           if (res.Value === 0){
             this.router.navigate(['/']);
+          } else {
+            this.initData();
           }
         }
       });
+    } else {
+      this.initData();
     }
+  }
 
+  initData(){
+    var spinnerRef = this.spinnerService.start("Loading Categories...");
     this.companyId = this.authService.companyId();
     this.categories$ = this.categoryService.getCategories(this.companyId);
     this.spinnerService.stop(spinnerRef);

@@ -5,7 +5,7 @@
         </div>
         <ng-container *ngIf="userUpdate$ | async"></ng-container>
         <ng-container *ngIf="imgAvatar$ | async"></ng-container>
-        <mat-card class="col-md-6" *ngIf="(user$ | async) && displayForm">
+        <mat-card class="col-md-6 ml-3" *ngIf="(user$ | async) && displayForm">
             <form [formGroup]="avatarForm" autocomplete="off" (ngSubmit)="onSubmitAvatar()">
                 <div class="circle">
                     <!-- User Profile Image -->

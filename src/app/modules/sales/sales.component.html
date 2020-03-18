@@ -1,18 +1,19 @@
 <div class="container-fluid h-100">
     <div class="row">
         <div class="col-md-12">
-            <div class="overlay" *ngIf="loading">
-                <mat-progress-spinner id="spinSales" class="form-spinner" mode="indeterminate">
-                </mat-progress-spinner>
-                <mat-label class="label-overlay">Processing Sales...</mat-label>
-            </div>
-            <div class="row pl-3 pr-3 header-route">
+            <ng-container *ngIf="access$ | async"></ng-container>
+            <!-- <div class="row pl-3 pr-3 header-route">
                 <h4 class="col-md-12 pl-0 pt-2">Sales</h4>
                 <mat-divider class="col-md-12"></mat-divider>
-                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2">Store : </h5><span class="col-md-3 pt-3 pb-2 pl-0 pr-0 mb-2 label-data">Hole</span>
+                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2">Store : </h5><span class="col-md-3 pt-3 pb-2 pl-0 pr-0 mb-2 label-data">
+                    <mat-select formControlName="StoreId" (selectionChange)="getProducts($event.value)">
+                        <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">{{res.Name}}
+                        </mat-option>
+                    </mat-select>
+                </span>
                 <span class="col-md"></span>
                 <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">Hola 02</span>
-            </div>
+            </div> -->
             <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
                 <app-product-list *ngIf="step == 1" view="salesView" (newStep)="setStep($event)"
                     (addItem)="productSelected($event)" (modLoading)="displayLoading($event)"></app-product-list>

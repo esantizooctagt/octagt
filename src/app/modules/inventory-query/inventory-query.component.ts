@@ -2,12 +2,13 @@ import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { AuthService } from '@core/services';
 import { Product, Currency } from '@app/_models';
 import { environment } from '@environments/environment';
-import { ProductService } from '@app/services';
+import { ProductService, RolesService } from '@app/services';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventory-query',
@@ -18,6 +19,7 @@ export class InventoryQueryComponent implements OnInit {
   @Output() newStep = new EventEmitter<string>();
   
   products$: Observable<Product[]>;
+  access$: Observable<any>;
 
   public length: number = 0;
   public pageSize: number = 10;
@@ -38,6 +40,8 @@ export class InventoryQueryComponent implements OnInit {
     private authService: AuthService,
     private productService: ProductService,
     private spinnerService: SpinnerService,
+    private roleService: RolesService,
+    private router: Router,
     private dialog: MatDialog
   ) { }
 
@@ -58,7 +62,27 @@ export class InventoryQueryComponent implements OnInit {
     this.dialog.open(DialogComponent, dialogConfig);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.access$ = await this.roleService.getAccess(roleId, 'Query Inventory').pipe(
+        map(res => {
+          if (res != null){
+            if (res.Value === 0){
+              this.router.navigate(['/']);
+            } else {
+              this.initData();
+            }
+          }
+        })
+      );
+    } else {
+      this.initData()
+    }
+  }
+
+  initData(){
     this.companyId = this.authService.companyId();
     let currencyId = this.authService.currency();
     let currencyVal: Currency[];

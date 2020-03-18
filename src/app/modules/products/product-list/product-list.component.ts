@@ -1,13 +1,13 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '@core/services';
 import { Product, Currency, StoreDocto } from '@app/_models';
-import { ProductService, CompanyService, StoresService } from "@app/services";
+import { ProductService, DocumentService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { map, catchError, tap } from 'rxjs/operators';
+import { map, catchError, tap, first } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { SpinnerService } from '@app/shared/spinner.service';
 
@@ -55,7 +55,7 @@ export class ProductListComponent implements OnInit {
     private productService: ProductService,
     private spinnerService: SpinnerService,
     private dialog: MatDialog,
-    private storeService: StoresService
+    private doctoService: DocumentService
   ) { }
 
   openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
@@ -77,11 +77,16 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.companyId = this.authService.companyId();
-    this.storeId = this.authService.storeId();
+    this.storeId = ''; //this.authService.storeId();
     if (this.storeId === '' || this.storeId === undefined) {
       this.storeId = '';
       //debe cargar stores y pedir que se seleccione una
-      this.stores$ = this.storeService.getStoresDoctos(this.companyId);
+      this.stores$ = this.doctoService.getDoctosCompany(this.companyId);
+      this.stores$.forEach((next: any) => {
+        if (next.length > 0){
+          return this.storeId = next[0].StoreId;
+        }
+      })
     }
     let currencyId = this.authService.currency();
     let currencyVal: Currency[];
@@ -122,6 +127,15 @@ export class ProductListComponent implements OnInit {
         this.spinnerService.stop(spinnerRef);
         return this.onError;
       })
+    );
+  }
+
+  getProducts(storeId: string){
+    this.loadProducts(
+      this._currentPage,
+      this.pageSize,
+      '',
+      storeId
     );
   }
 

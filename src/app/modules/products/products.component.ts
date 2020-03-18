@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from '@app/_models';
-import { delay } from 'rxjs/operators';
 import { RolesService } from '@app/services';
 import { AuthService } from '@app/core/services';
 import { Subscription } from 'rxjs';

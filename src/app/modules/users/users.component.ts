@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '@app/_models';
+import { AuthService } from '@app/core/services';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -9,9 +11,17 @@ import { User } from '@app/_models';
 export class UsersComponent implements OnInit {
   public clickedUser: User;
   
-  constructor() { }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.router.navigate(['/']);
+    }
   }
 
   onSelected(user: User) {

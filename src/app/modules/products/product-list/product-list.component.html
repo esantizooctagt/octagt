@@ -1,9 +1,19 @@
+<ng-container *ngIf="view">
+    <div class="row pl-3 pr-3 header-route">
+        <h4 class="col-md-12 pl-0 pt-2">Sales</h4>
+        <mat-divider class="col-md-12"></mat-divider>
+        <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2">Store : </h5><span class="col-md-3 pt-3 pb-2 pl-0 pr-0 mb-2 label-data">
+            <mat-select [(value)]="storeId" (selectionChange)="getProducts($event.value)">
+                <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">{{res.Name}}
+                </mat-option>
+            </mat-select>
+        </span>
+        <span class="col-md"></span>
+        <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">Hola 02</span>
+    </div>
+</ng-container>
 <app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)" [salesView]="checkOut" (searchStep)="sendStep($event)">
 </app-search>
-<div class="overlay" *ngIf="loading">
-    <mat-progress-spinner id="spinProduct" class="form-spinner" mode="indeterminate"></mat-progress-spinner>
-    <mat-label class="label-overlay">Deleting Product...</mat-label>
-</div>
 <ng-container *ngIf="(deleteProduct$ | async) && deletingProduct"></ng-container>
 <div class="list-cards" *ngIf="listView">
     <ng-container *ngIf="message$ | async">

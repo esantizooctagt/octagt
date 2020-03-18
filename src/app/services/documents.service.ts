@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
-import { Document } from '@app/_models';
+import { Document, StoreDocto } from '@app/_models';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
@@ -22,6 +22,12 @@ export class DocumentService {
       return this.http.patch(this.apiURL + '/document', formData)
                       .pipe(catchError(this.errorHandler));
     }
+
+    getDoctosCompany(companyId): Observable<StoreDocto[]>{
+      return this.http.get<StoreDocto[]>(this.apiURL + '/documents/' + companyId)
+                      .pipe(catchError(this.errorHandler));
+    }
+    
     errorHandler(error) {
       return throwError(error || 'Server Error');
     }

@@ -3,6 +3,7 @@
         <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
             <h4>Query Inventory</h4>
         </div>
+        <ng-container *ngIf="access$ | async"></ng-container>
         <mat-card class="col-md-11 ml-3">
             <app-search placeholder="Search by name" (setValue)="filterList($event)" [salesView]="checkOut"
                 (searchStep)="sendStep($event)">

@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Tax } from '@app/_models';
+import { Tax, StoreDocto } from '@app/_models';
 import { ArrayValidators } from '@app/validators';
-import { CustomerService, ProductService, CompanyService, TaxService, SalesService, RolesService } from "@app/services";
+import { CustomerService, ProductService, CompanyService, TaxService, SalesService, RolesService, StoresService, DocumentService } from "@app/services";
 import { Generic } from '@app/_models';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { formatDate } from '@angular/common';
@@ -37,6 +37,7 @@ export class SalesComponent implements OnInit {
   invoiceDate: Date = new Date();
   customerId: string='';
   companyId: string = '';
+  storeId: string ='';
   userId: string = '';
   country: string = '';
   dispLoading: boolean;
@@ -44,7 +45,8 @@ export class SalesComponent implements OnInit {
   step: number=1;
   filteredCustomers: Observable<Generic[]>;
   subsItems: Subscription;
-  access: Subscription;
+  access$: Observable<any>;
+  stores$: Observable<StoreDocto[]>;
 
   ingresado: string='';
   lineNo: number=0;
@@ -93,6 +95,7 @@ export class SalesComponent implements OnInit {
 
   constructor(
     private customerService: CustomerService,
+    private doctoService: DocumentService,
     private taxeService: TaxService,
     private salesService: SalesService,
     private authService: AuthService,
@@ -108,7 +111,7 @@ export class SalesComponent implements OnInit {
 
   salesForm = this.fb.group({
     Invoice_Date: [formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Validators.required],
-    Document_Id: ['b01238a0371e11eaa2531603e958f2e9', Validators.required],
+    Document_Id: ['', Validators.required], //b01238a0371e11eaa2531603e958f2e9
     Company_Id: ['', Validators.required],
     Status: [1, Validators.required],
     User_Id: [''],
@@ -117,7 +120,7 @@ export class SalesComponent implements OnInit {
     Total: [0],
     Total_Taxes: [0],
     Total_Discount: [0],
-    Store_Id: ['135557c3371e11eaa2531603e958f2e9', Validators.required],
+    Store_Id: ['', Validators.required], //135557c3371e11eaa2531603e958f2e9
     customerInfo: new FormControl(''),
     detail: this.fb.array([this.createDetail()], ArrayValidators.minLength(1))
   });
@@ -166,17 +169,30 @@ export class SalesComponent implements OnInit {
     let isAdmin = this.authService.isAdmin();
     let roleId = this.authService.roleId();
     if (roleId != '' && isAdmin != 1){
-      this.access = this.roleService.getAccess(roleId, 'Sales').subscribe(res => {
-        if (res != null){
-          if (res.Value === 0){
-            this.router.navigate(['/']);
+      this.access$ = this.roleService.getAccess(roleId, 'Sales').pipe(
+        map(res => {
+          if (res != null){
+            if (res.Value === 0){
+              this.router.navigate(['/']);
+            } else {
+              this.initData();
+            }
           }
-        }
-      });
+        })
+      );
+    } else {
+      this.initData();
     }
+  }
 
+  initData(){
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
+    this.storeId = ''; // this.authService.storeId();
+
+    if (this.storeId === '' || this.storeId === undefined){
+      this.stores$ = this.doctoService.getDoctosCompany(this.companyId);
+    }
 
     let data = "companyId=" + this.companyId + "&currPage=1&perPage=20";
     this.taxeService.getTaxes(data).subscribe((res: any) => {
@@ -204,6 +220,10 @@ export class SalesComponent implements OnInit {
 
     this.salesForm.controls['User_Id'].setValue(this.userId);
     this.salesForm.controls['Company_Id'].setValue(this.companyId);
+  }
+
+  getProducts(storeId: string){
+    
   }
 
   openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
@@ -482,8 +502,5 @@ export class SalesComponent implements OnInit {
 
   ngOnDestroy() {
     this.subsItems.unsubscribe();
-    if (this.access != undefined){
-      this.access.unsubscribe();
-    }
   }
 }

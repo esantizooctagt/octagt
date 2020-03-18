@@ -5,10 +5,11 @@ import { AuthService } from '@core/services';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoreDocto, Document } from '@app/_models';
-import { StoresService, DocumentService } from '@app/services';
+import { StoresService, DocumentService, RolesService } from '@app/services';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { Router } from '@angular/router';
 
 interface Type {
   c: string;
@@ -40,6 +41,7 @@ export class DocumentsComponent implements OnInit {
     private storeService: StoresService,
     private documentService: DocumentService,
     private spinnerService: SpinnerService,
+    private router: Router,
     private authService: AuthService
   ) { }
 
@@ -55,7 +57,17 @@ export class DocumentsComponent implements OnInit {
     Status: [1]
   })
 
-  ngOnInit() {
+  async ngOnInit() {
+    let isAdmin = this.authService.isAdmin();
+    let roleId = this.authService.roleId();
+    if (roleId != '' && isAdmin != 1){
+      this.router.navigate(['/']);
+    } else {
+      this.initData()
+    }
+  }
+
+  initData(){
     this.companyId = this.authService.companyId();
     this.userId = this.authService.userId();
     this.stores$ = this.storeService.getStoresDoctos(this.companyId);
