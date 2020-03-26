@@ -9,9 +9,10 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoresService } from '@app/services/stores.service';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { environment } from '@environments/environment';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, Subscription } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { QRCodeModule } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-profile',
@@ -23,12 +24,15 @@ export class ProfileComponent implements OnInit {
   user$: Observable<User>;
   userUpdate$: Observable<any>;
   imgAvatar$: Observable<any>;
+
   companyId: string = '';
   userId: string = '';
   fileName: string= '';
   fileString: any;
   displayForm: boolean=true;
+
   readonly imgPath = environment.bucket;
+  public qrCode: string = null;
 
   get f(){
     return this.profileForm.controls;
@@ -54,6 +58,7 @@ export class ProfileComponent implements OnInit {
     Avatar: [''],
     Company_Name: [''],
     StoreId: [''],
+    MFact_Auth: [''],
     Password: ['']
   })
 
@@ -76,8 +81,11 @@ export class ProfileComponent implements OnInit {
           Avatar: res.Avatar,
           Company_Name: res.Company_Name,
           StoreId: res.Store_Id,
+          MFact_Auth: res.MFact_Auth,
           Password: res.Password
         });
+        //Cashier2GoOCTAGT2020 Base 32 --> INQXG2DJMVZDER3PJ5BVIQKHKQZDAMRQ
+        this.qrCode = "otpauth://totp/Cashier%202Go:" + res.User_Name  + "?secret=INQXG2DJMVZDER3PJ5BVIQKHKQZDAMRQ&issuer=Cashier%202Go"; //&counter=1
         this.spinnerService.stop(spinnerRef);
       }),
       catchError(err => {
@@ -85,7 +93,7 @@ export class ProfileComponent implements OnInit {
         this.openDialog('Error !', err.Message, false, true, false);
         return throwError(err || err.message);
       })
-    )
+    );
   }
 
   openDialog(header: string, message: string, success: boolean, error: boolean, warn: boolean): void {
@@ -176,7 +184,9 @@ export class ProfileComponent implements OnInit {
       "First_Name": this.profileForm.value.First_Name,
       "Last_Name": this.profileForm.value.Last_Name,
       "StoreId": this.profileForm.value.StoreId,
+      "MFact_Auth": (this.profileForm.value.MFact_Auth ? 1 : 0),
       "Password": '',
+      "RoleId": 'None',
       "Status": 1,
       "UserLogId": this.userId
     }
@@ -224,5 +234,4 @@ export class ProfileComponent implements OnInit {
       })
     );
   }
-
 }

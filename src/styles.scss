@@ -13,6 +13,10 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+.print-area{
+    display: none;
+}
+
 @media print {
     .sidenav{
         display: none !important;
@@ -37,6 +41,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     }
     mat-card{
         box-shadow: none !important;
+    }
+    .customer-form{
+        display: none !important;
+    }
+    .payment-form{
+        display: none !important;
+    }
+    .invoice-total{
+        display: none !important;
+    }
+    .invoice-buttons{
+        display: none !important;
+    }
+    .print-area{
+        display: block;
     }
 }
 

@@ -18,12 +18,12 @@ export class SalesService {
 
     getInvoices(formData){
       return this.http.get(this.apiURL + '/sales?'+ formData)
-                      .pipe(retry(3), catchError(this.errorHandler));
+                      .pipe(retry(1), catchError(this.errorHandler));
     }
 
     getInvoice(id){
       return this.http.get(this.apiURL + '/sales/'+ id)
-                      .pipe(retry(3), catchError(this.errorHandler));
+                      .pipe(retry(1), catchError(this.errorHandler));
     }
 
     updatePayment(invoiceId){

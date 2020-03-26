@@ -9,7 +9,12 @@
             </mat-select>
         </span>
         <span class="col-md"></span>
-        <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">Hola 02</span>
+        <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">
+            <mat-select [(value)]="cashierId" (selectionChange)="setCashier($event.value)">
+                <mat-option *ngFor="let res of cashiers$ | async" [value]="res.CashierId">{{res.Description}}
+                </mat-option>
+            </mat-select>
+        </span>
     </div>
 </ng-container>
 <app-search placeholder="Search by name" (setValue)="filterList($event)" (view)="setView($event)" [salesView]="checkOut" (searchStep)="sendStep($event)">
@@ -54,16 +59,16 @@
         <ng-container *ngIf="onError==''">
             <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
                 <mat-card class="card grid-card mt-1 mb-1 mr-2">
-                    <mat-card-header>
-                        <mat-card-title>{{ 'Name: ' + product.Name }}</mat-card-title>
-                    </mat-card-header>
                     <img mat-card-image *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
-                    <mat-card-content>
+                    <!-- <mat-card-header>
+                        <mat-card-title>{{ product.Name }}</mat-card-title>
+                    </mat-card-header> -->
+                    <mat-card-content class="mb-2">
+                        <p class="card-title mb-1">{{ product.Name }}</p>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
-                        <p *ngIf="!view || (product.Type === 'goods' && view)">Price: {{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
-                        <!-- <p>Available : {{ product.Qty | number: '.4' }}</p> -->
-                        <p>Stores:</p>
-                            <ul class="">
+                        <p class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">{{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
+                        <p class="card-stores mb-1">Stores:</p>
+                            <ul class="mb-1">
                                 <li *ngFor="let store of product.Stores">
                                     {{store.StoreName + ' : ' + (store.Qty | number: '.4')}}</li>
                             </ul>

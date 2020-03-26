@@ -13,6 +13,7 @@ export class Product {
         public Stores: Inventory[],
         public Qty?: Number,
         public Category_Id?: string,
-        public Img_Url?: string
+        public Img_Url?: string,
+        public Unit?: Number
     ){}
 }

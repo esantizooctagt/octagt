@@ -12,6 +12,11 @@ export class StoresService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
 
+    getStore(storeId, cashierId): Observable<any>{
+      return this.http.get<any>(this.apiURL + '/store/' + storeId + '/' + cashierId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
     getStores(companyId): Observable<Store[]> {
         return this.http.get<Store[]>(this.apiURL + '/stores?companyId=' + companyId)
                         .pipe(catchError(this.errorHandler));

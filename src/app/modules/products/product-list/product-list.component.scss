@@ -8,3 +8,28 @@ mat-label{
     font-size: 0.83em;
     text-align: right;
 }
+.card-title{
+    font-size: 17px !important;
+    font-weight: 500;
+    // display: block;
+    // text-overflow: ellipsis;
+    // word-wrap: break-word;
+    // overflow: hidden;
+    // max-height: 3.6em;
+    // line-height: 1.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.card-stores{
+    font-weight: 500;
+}
+ul{
+    padding: 5px;
+}
+ul li {
+    list-style-type: none;
+    margin: 5px;
+}

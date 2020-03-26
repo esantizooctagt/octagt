@@ -11,5 +11,7 @@ export class User {
     Avatar?: string;
     Is_Admin?: number;
     Role_Id?: string;
-    Status?: number
+    Status?: number;
+    MFact_Auth?: number;
+    Cashier_Id: string;
 }

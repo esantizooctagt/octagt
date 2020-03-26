@@ -25,10 +25,12 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { QRCodeModule } from 'angularx-qrcode';
 
 // services
 import { NgxImageCompressService } from 'ngx-image-compress';
@@ -74,6 +76,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    QRCodeModule,
     MatDatepickerModule,
     MatInputModule,
     MatFormFieldModule,
@@ -98,6 +101,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
     MatExpansionModule,
     MatChipsModule,
     MatSortModule,
+    MatSlideToggleModule,
     DragDropModule,
     HttpClientModule,
     BrowserAnimationsModule,

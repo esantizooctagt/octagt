@@ -1,25 +1,20 @@
 <div class="container-fluid h-100">
     <div class="row">
         <div class="col-md-12">
+            {{ salesForm.status }}
             <ng-container *ngIf="access$ | async"></ng-container>
-            <!-- <div class="row pl-3 pr-3 header-route">
-                <h4 class="col-md-12 pl-0 pt-2">Sales</h4>
-                <mat-divider class="col-md-12"></mat-divider>
-                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2">Store : </h5><span class="col-md-3 pt-3 pb-2 pl-0 pr-0 mb-2 label-data">
-                    <mat-select formControlName="StoreId" (selectionChange)="getProducts($event.value)">
-                        <mat-option *ngFor="let res of stores$ | async" [value]="res.StoreId">{{res.Name}}
-                        </mat-option>
-                    </mat-select>
-                </span>
-                <span class="col-md"></span>
-                <h5 class="col-md-1 pl-0 pr-0 pt-3 pb-2 label-data-cashier">Cashier : </h5><span class="col-md-1 pt-3 pb-2 pl-0 pr-0 mb-2 label-data-cashier">Hola 02</span>
-            </div> -->
+            <ng-container *ngIf="taxes$ | async"></ng-container>
             <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
+                <ng-container *ngIf="setCashier$ | async"></ng-container>
                 <app-product-list *ngIf="step == 1" view="salesView" (newStep)="setStep($event)"
-                    (addItem)="productSelected($event)" (modLoading)="displayLoading($event)"></app-product-list>
+                    (addItem)="productSelected($event)" (storeSelected)="setStore($event)" (doctoSelected)="setDocto($event)" (cashierSelected)="setCashier($event)" [cashier]="cashierId"></app-product-list>
                 <div class="detail-form" *ngIf="step == 2">
+                    <div class="row pl-3 pr-3 header-route">
+                        <h4 class="col-md-12 pl-0 pt-2">Sales</h4>
+                        <mat-divider class="col-md-12"></mat-divider>
+                    </div>
                     <ng-container *ngIf="(isHandset$ | async); else isDesktop">
-                        <mat-list *ngIf="onError==''">
+                        <mat-list *ngIf="onError==''" class="mt-4 mb-4">
                             <mat-list-item formArrayName="detail"
                                 *ngFor="let item of fSales.controls; let i = index;">
                                 <ng-container [formGroupName]="i">
@@ -39,7 +34,7 @@
                                                 </mat-error>
                                             </mat-form-field>
                                         </div>
-                                        <div matLine class="form-field">
+                                        <!-- <div matLine class="form-field">
                                             <mat-form-field hintLabel="Only decimal values">
                                                 <input id="{{'detailDiscount'+i}}" matInput placeholder="Discount"
                                                     min="0.00" max="99999999.90" type="number"
@@ -51,7 +46,7 @@
                                                     {{getErrorMessage('Discount', i)}}
                                                 </mat-error>
                                             </mat-form-field>
-                                        </div>
+                                        </div> -->
                                         <ng-container *ngIf="country==='DEU'">
                                             <div matLine class="form-field-check">
                                                 <mat-checkbox (change)="setTax($event, i)" id="{{'detailToGo'+i}}"
@@ -73,7 +68,7 @@
                                                 <mat-label>Tax Id:</mat-label>
                                                 <mat-select id="{{'detailTaxId'+i}}" formControlName="Tax_Id"
                                                     (selectionChange)="changeTax($event, i)">
-                                                    <mat-option *ngFor="let res of taxes" [value]="res.Tax_Id">
+                                                    <mat-option *ngFor="let res of taxes$ | async" [value]="res.Tax_Id">
                                                         {{res.Name}}
                                                     </mat-option>
                                                 </mat-select>
@@ -97,7 +92,7 @@
                         </mat-list>
                     </ng-container>
                     <ng-template #isDesktop>
-                        <mat-table [dataSource]="fDetails.controls" formArrayName="detail" [trackBy]="trackRow" class="w-100 mat-elevation-z8">
+                        <mat-table [dataSource]="fDetails.controls" formArrayName="detail" [trackBy]="trackRow" class="w-100 mt-4 mb-4 mat-elevation-z8">
                             <!-- Checkbox Column -->
                             <ng-container matColumnDef="ToGo" *ngIf="country==='DEU'">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-ToGo">
@@ -115,13 +110,13 @@
 
                             <!-- Position Column -->
                             <ng-container matColumnDef="Name">
-                                <mat-header-cell *matHeaderCellDef class="col-md-5 mat-column-th-Name"> Name </mat-header-cell>
-                                <mat-cell *matCellDef="let element;let i=index" class="col-md-5 mat-column-td-Name"> {{element.value.Name}} </mat-cell>
+                                <mat-header-cell *matHeaderCellDef class="col-md-7 mat-column-th-Name"> Name </mat-header-cell>
+                                <mat-cell *matCellDef="let element;let i=index" class="col-md-7 mat-column-td-Name"> {{element.value.Name}} </mat-cell>
                             </ng-container>
 
                             <ng-container matColumnDef="Unit_Price">
-                                <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
-                                <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
+                                <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Unit_Price"> Price </mat-header-cell>
+                                <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Unit_Price" [formGroup]="element">
                                     <mat-form-field floatLabel="never" *ngIf="(element.value.Type === 'services'); else Services">
                                         <input matInput type="number" min="0.01"
                                         max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
@@ -136,8 +131,8 @@
                             </ng-container>
                             <ng-template #Services>
                                 <ng-container matColumnDef="Unit_Price">
-                                    <mat-header-cell *matHeaderCellDef class="col-md-2 mat-column-th-Unit_Price"> Price </mat-header-cell>
-                                    <mat-cell *matCellDef="let element; let i = index" class="col-md-2 mat-column-td-Unit_Price" [formGroup]="element">
+                                    <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Unit_Price"> Price </mat-header-cell>
+                                    <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Unit_Price" [formGroup]="element">
                                         <mat-form-field floatLabel="never">
                                             <input matInput type="number" min="0.01"
                                             max="99999999.90" (keypress)="onKeyPress($event, $event.target.value)"
@@ -163,7 +158,7 @@
                             </ng-container>
 
                             <!-- Position Column -->
-                            <ng-container matColumnDef="Discount">
+                            <!-- <ng-container matColumnDef="Discount">
                                 <mat-header-cell *matHeaderCellDef class="col-md-1 mat-column-th-Discount"> Discount </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Discount" [formGroup]="element">
                                     <mat-form-field floatLabel="never">
@@ -174,7 +169,7 @@
                                         class="values-right-align" required>
                                     </mat-form-field>
                                 </mat-cell>
-                            </ng-container>
+                            </ng-container> -->
 
                             <!-- Position Column -->
                             <ng-container matColumnDef="Delivery_Date">
@@ -194,7 +189,7 @@
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-td-Tax" [formGroup]="element">
                                 <mat-select formControlName="Tax_Id"
                                     (selectionChange)="changeTax($event, i)">
-                                    <mat-option *ngFor="let res of taxes" [value]="res.Tax_Id">
+                                    <mat-option *ngFor="let res of taxes$ | async" [value]="res.Tax_Id">
                                         {{res.Name}}
                                     </mat-option>
                                 </mat-select>
@@ -202,7 +197,7 @@
                             </ng-container>
 
                             <ng-container matColumnDef="Actions">
-                                <mat-header-cell *matHeaderCellDef class="col-md-1">  </mat-header-cell>
+                                <mat-header-cell *matHeaderCellDef class="col-md-1"> Actions </mat-header-cell>
                                 <mat-cell *matCellDef="let element; let i = index" class="col-md-1 mat-column-Actions">
                                     <button mat-icon-button color="warn" (click)="removeItem(i)">
                                         <mat-icon>delete</mat-icon>
@@ -214,74 +209,137 @@
                             <mat-row *matRowDef="let row; columns: displayedColumns; let i=index" (click)="selection.toggle(row)"></mat-row>
                         </mat-table>
                     </ng-template>
-                    <p>Total Discount: {{salesForm.value.Total_Discount | number: '.2'}}</p>
-                    <p>Total Tax: {{salesForm.value.Total_Taxes | number: '.2'}}</p>
-                    <p>Total: {{salesForm.value.Total | number: '.2'}}</p>
+                    <div class="invoice-total">
+                        <div class="invoice-total-data">
+                            <p class="invoice-totals">Total Tax</p>
+                            <p class="invoice-totals">Discount</p>
+                            <h5 >Total</h5>
+                        </div>
+                        <div class="">
+                            <p class="invoice-totals-result">{{ currency+' '+(salesForm.value.Total_Taxes | number: '.2')}}</p>
+                            <p class="invoice-totals-result">{{ currency+' '+(salesForm.value.Total_Discount | number: '.2')}}</p>
+                            <h5 class="total-result">{{ currency+' '+(salesForm.value.Total | number: '.2')}}</h5>
+                        </div>
+                    </div>
                     <button type="button" mat-flat-button color="accent" (click)="step=1"
                         class="mr-3 mt-2">Back</button>
                     <button type="button" mat-flat-button color="primary" (click)="step=3"
                         class="mr-3 mt-2" [disabled]="!salesForm.get('detail').valid">Next</button>
-                    Chosen name: {{ salesForm.value | json }}
                 </div>
                 <div *ngIf="step == 3">
-                    <app-customerbasic formControlName="customerInfo"></app-customerbasic>
-                    <div class="payment-form">
+                    <div class="row pl-3 pr-3 header-route">
+                        <h4 class="col-md-12 pl-0 pt-2">Sales Resume</h4>
+                        <mat-divider class="col-md-12"></mat-divider>
+                    </div>
+                    <div class="col-md-6">
+                        <app-customerbasic class="customer-form" formControlName="customerInfo"></app-customerbasic>
+                    </div>
+                    <div class="payment-form mt-4 mb-3 col-md-6">
                         <div class="payment-type">
-                            <mat-radio-group>
-                                <mat-radio-button value="cash" (click)="paymentMethod('cash')">Cash</mat-radio-button>
-                                <mat-radio-button value="credit" (click)="paymentMethod('credit')">Credit</mat-radio-button>
-                              </mat-radio-group>
+                            <mat-radio-group class="col-md-12 pl-0">
+                                <mat-radio-button class="col-md-3 pl-0" value="cash" (click)="paymentMethod('cash')">Cash</mat-radio-button>
+                                <mat-radio-button class="col-md-3 pl-0" value="creditcard" (click)="paymentMethod('creditcard')">Credit Card</mat-radio-button>
+                                <mat-radio-button class="col-md-3 pl-0" value="credit" (click)="paymentMethod('credit')">Credit</mat-radio-button>
+                            </mat-radio-group>
+                            <div class="" *ngIf="paymentOpt === 'cash'">
+                                <div class="form-field col-md-4 pl-0 mt-2">
+                                    <mat-form-field>
+                                        <input matInput placeholder="Total Payed">
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="" *ngIf="paymentOpt === 'creditcard'">
+                                <div class="form-field col-md-4 pl-0 mt-2 mb-0">
+                                    <mat-form-field>
+                                        <input matInput placeholder="Last Four Number">
+                                    </mat-form-field>
+                                </div>
+                                <div class="form-field col-md-4 pl-0">
+                                    <mat-form-field>
+                                        <input matInput placeholder="Auth Number">
+                                    </mat-form-field>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <mat-list *ngIf="onError==''">
-                        <mat-list-item formArrayName="detail"
-                            *ngFor="let item of fDetails.controls; let i = index;">
-                            <ng-container [formGroupName]="i">
-                                <div class="pr-0 pl-0">
-                                    <h3 matLine class="mb-1">{{item.value.Name}}</h3>
-                                    <p matLine class="mb-1">Unit Price: {{item.value.Unit_Price | number: '.2' }}</p>
-                                    <p matLine class="mb-1">Quantity: {{item.value.Qty | number: '.2' }}</p>
-                                    <p matLine class="mb-1">Discount: {{item.value.Discount | number: '.2' }}</p>
-                                    <p matLine class="mb-1">To Go: {{item.value.ToGo}}</p>
-                                    <small matLine class="text-muted">Total: {{item.value.Total | number: '.2'}}</small>
-                                    <small matLine class="text-muted">Total Tax:
-                                        {{item.value.Total_Tax | number: '.2'}}</small>
+                    <mat-divider class="col-md-6"></mat-divider>
+                    <div class="invoice-total col-md-6 mt-3">
+                        <div class="invoice-total-data">
+                            <p class="invoice-totals">Total Tax</p>
+                            <p class="invoice-totals">Discount</p>
+                            <h5 >Total</h5>
+                        </div>
+                        <div class="">
+                            <p class="invoice-totals-result">{{ currency+' '+(salesForm.value.Total_Taxes | number: '.2')}}</p>
+                            <p class="invoice-totals-result">{{ currency+' '+(salesForm.value.Total_Discount | number: '.2')}}</p>
+                            <h5 class="total-result">{{ currency+' '+(salesForm.value.Total | number: '.2')}}</h5>
+                        </div>
+                    </div>
+                    <div class="invoice-buttons">
+                        <button type="button" mat-flat-button color="accent" (click)="step=2"
+                            class="mr-3 mt-2">Back</button>
+                        <button type="submit" mat-flat-button color="primary" id="save" [disabled]="!salesForm.valid"
+                            class="mr-3 mt-2">Save</button>
+                    </div>
+                    <div class="print-area">
+                        <ng-container *ngIf="salesDocto$ | async"></ng-container>
+                        <ng-container *ngFor="let info of storeInfo$ | async">
+                            <div class="col-md-4 mt-2 mb-3">
+                                <div class="row">
+                                    <small class="col-md-12 print-title-company">{{info.Name}}</small>
+                                    <small class="col-md-12 print-company">{{info.Address + ' ' + info.Postal_Code}}</small>
+                                    <small class="col-md-12 print-company">{{info.Tax_Number}}</small>
+                                    <small class="col-md-12 print-company">{{invoiceNumber}}</small>
                                 </div>
-                            </ng-container>
-                        </mat-list-item>
-                        <mat-divider></mat-divider>
-                    </mat-list>
-                    <p>Total Discount: {{salesForm.value.Total_Discount | number: '.2'}}</p>
-                    <p>Total Tax: {{salesForm.value.Total_Taxes | number: '.2'}}</p>
-                    <p>Total: {{salesForm.value.Total | number: '.2'}}</p>
-                    <button type="button" mat-flat-button color="accent" (click)="step=2"
-                        class="mr-3 mt-2">Back</button>
-                    <button type="submit" mat-flat-button color="primary" id="save" [disabled]="!salesForm.valid"
-                        class="mr-3 mt-2">Save</button>
-                    Chosen name: {{ salesForm.value | json }}
+                            </div>
+                            <div class="col-md-4 mt-2 mb-3">
+                                <div class="row">
+                                    <small class="col-md-12 print-company" *ngIf="fCustomer.value.Name != undefined">{{ fCustomer.value.Name.Name }}</small>
+                                    <small class="col-md-12 print-company">{{ fCustomer.value.Address }}</small>
+                                    <small class="col-md-12 print-company">{{ fCustomer.value.Tax_Number }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4" formArrayName="detail"
+                                *ngFor="let item of fDetails.controls; let i = index;">
+                                <ng-container [formGroupName]="i">
+                                    <div class="pr-0 pl-0 row">
+                                        <small class="col-md-12" *ngIf="item.value.Qty > 1">{{ (item.value.Qty | number: '.4') + ' x ' + (item.value.Unit_Price | number: '.2') }}</small>
+                                    </div>
+                                    <div class="pr-0 pl-0 row">
+                                        <small class="col-md-8 mb-1 item-descrip">{{ item.value.Name }}</small>
+                                        <small class="pr-0 pl-0 col-md-2 item-price">{{ item.value.Total | number: '.2'}}</small>
+                                        <small *ngIf="country === 'DEU'" class="col-md-1">{{ item.value.Percentage | number: '.0' }}</small>
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="col-md-4 mt-2">
+                                <div class="pr-0 pl-0 row">
+                                    <small class="col-md-8 mb-1 item-descrip">{{ 'Total Taxes ' }}</small>
+                                    <small class="pr-0 pl-0 col-md-3 item-price">{{ currency+' '+(salesForm.value.Total_Taxes | number: '.2') }}</small>
+                                </div>
+                                <div class="pr-0 pl-0 row">
+                                    <small class="col-md-8 mb-1 item-descrip">{{ 'Total Discount ' }}</small>
+                                    <small class="pr-0 pl-0 col-md-3 item-price">{{ currency+' '+(salesForm.value.Total_Discount | number: '.2') }}</small>
+                                </div>
+                                <div class="pr-0 pl-0 row">
+                                    <small class="col-md-8 mb-1 item-total-print">{{ 'Total  ' }}</small>
+                                    <small class="pr-0 pl-0 col-md-3 item-price-print">{{ currency+' '+(salesForm.value.Total | number: '.2') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-4">
+                                <div class="row">
+                                    <small class="col-md-6">{{ 'Cashier : ' + info.Description }}</small>
+                                    <small class="col-md-6 footer-invoice">{{ 'User : ' + userName }}</small>
+                                </div>
+                                <div class="row">
+                                    <small class="col-md-6">{{ 'Date : ' + (salesForm.value.Invoice_Date | date) }}</small>
+                                    <small class="col-md-6 footer-invoice">{{ 'Hora : ' + (salesForm.value.Invoice_Date | date:'shortTime') }}</small>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-         <!--<label>Unit Price:</label>
-        <input type="text" class="" [ngModelOptions]="{standalone: true}" [(ngModel)]="unitPrice" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" />
-    -->
-
-<!-- <div class="calculator" *ngIf="cash">
-                <div class="mainDisplay" name="mainDisp">{{ingresado}}</div>
-                <div class="numberCalc" (click)="pressKey('1')">1</div>
-                <div class="numberCalc" (click)="pressKey('2')">2</div>
-                <div class="numberCalc" (click)="pressKey('3')">3</div>
-                <div class="numberCalc" (click)="pressKey('4')">4</div>
-                <div class="numberCalc" (click)="pressKey('5')">5</div>
-                <div class="numberCalc" (click)="pressKey('6')">6</div>
-                <div class="numberCalc" (click)="pressKey('7')">7</div>
-                <div class="numberCalc" (click)="pressKey('8')">8</div>
-                <div class="numberCalc" (click)="pressKey('9')">9</div>
-                <div class="numberCalc" (click)="pressKey('.')">.</div>
-                <div class="numberCalc" (click)="pressKey('0')">0</div>
-                <div class="numberCalc" (click)="pressKey('AC')">AC</div>
-                <div>Vuelto: {{ingresado-salesForm.value.Total | number: '.2'}}</div>
-            </div> -->

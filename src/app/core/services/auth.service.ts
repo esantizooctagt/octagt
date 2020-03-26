@@ -32,19 +32,20 @@ export class AuthService {
         return this.currentUserTknSubject.value;
     }
 
-    login(userName: string, password: string) {
-        return this.http.post<any>(this.apiURL + '/user/login', { "UserName": userName, "Password": password })
-            .pipe(map(user => {
-                if (user && user.token) {
-                    // store user details in local storage to keep user logged in
-                    sessionStorage.setItem('OCT_USS', JSON.stringify(user.user));
-                    this.currentUserSubject.next(user.user);
-                    sessionStorage.setItem('OCT_TKN', JSON.stringify(user.token));
-                    this.currentUserTknSubject.next(user.token);
-                }
-
-                return user;
-            }));
+    login(userName: string, password: string, authCode: string) {
+        return this.http.post<any>(this.apiURL + '/user/login', { "UserName": userName, "Password": password, "MFact_Auth": authCode })
+            .pipe(
+                map(user => {
+                    if (user && user.token && user.Code == 100) {
+                        // store user details in local storage to keep user logged in
+                        sessionStorage.setItem('OCT_USS', JSON.stringify(user.user));
+                        this.currentUserSubject.next(user.user);
+                        sessionStorage.setItem('OCT_TKN', JSON.stringify(user.token));
+                        this.currentUserTknSubject.next(user.token);
+                    }
+                    return user;
+                })
+            );
     }
 
     companyId() {
@@ -55,6 +56,11 @@ export class AuthService {
     userId(){
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.User_Id;
+    }
+    
+    userName(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.User_Name;
     }
 
     storeId(){
@@ -84,6 +90,11 @@ export class AuthService {
     avatar(){
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.Avatar;
+    }
+
+    cashier(){
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Cashier_Id;
     }
 
     get userAvatar() {

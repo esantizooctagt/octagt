@@ -1,16 +1,17 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '@core/services';
-import { Product, Currency, StoreDocto } from '@app/_models';
-import { ProductService, DocumentService } from "@app/services";
+import { Product, Currency, StoreDocto, Cashier } from '@app/_models';
+import { ProductService, DocumentService, CashiersService } from "@app/services";
 import { MonitorService } from "@shared/monitor.service";
 import { delay } from 'q';
 import { environment } from '@environments/environment';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
-import { map, catchError, tap, first } from 'rxjs/operators';
+import { map, catchError, tap, first, filter } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-product-list',
@@ -19,15 +20,21 @@ import { SpinnerService } from '@app/shared/spinner.service';
 })
 export class ProductListComponent implements OnInit {
   @Input() view: string='';
+  @Input() cashier: string='';
   @Output() productSelected = new EventEmitter<Product>();
   @Output() newStep = new EventEmitter<string>();
-  @Output() addItem = new EventEmitter<Object>();
+  @Output() addItem = new EventEmitter<Product>();
+  @Output() storeSelected = new EventEmitter<string>();
+  @Output() cashierSelected = new EventEmitter<string>();
+  @Output() doctoSelected = new EventEmitter<string>();
 
   stores$: Observable<StoreDocto[]>;
+  cashiers$: Observable<Cashier[]>;
   
   public length: number = 0;
   public pageSize: number = 10;
   public storeId: string='';
+  public cashierId: string = '';
   public products: Product[] = [];
   public pages: number[];
   public listView:boolean=false;
@@ -57,6 +64,8 @@ export class ProductListComponent implements OnInit {
     private data: MonitorService,
     private productService: ProductService,
     private spinnerService: SpinnerService,
+    private cashierService: CashiersService,
+    private _snackBar: MatSnackBar,
     private dialog: MatDialog,
     private doctoService: DocumentService
   ) { }
@@ -80,22 +89,49 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.companyId = this.authService.companyId();
-    this.storeId = ''; //this.authService.storeId();
+    this.storeId = this.authService.storeId();
     if (this.storeId === '' || this.storeId === undefined) {
-      this.storeId = '';
-      //debe cargar stores y pedir que se seleccione una
       this.stores$ = this.doctoService.getDoctosCompany(this.companyId);
       this.stores$.forEach((next: any) => {
         if (next.length > 0){
-          return this.storeId = next[0].StoreId;
+          this.storeSelected.emit(next[0].StoreId);
+          this.doctoSelected.emit(next[0].DocumentId);
+          this.storeId = next[0].StoreId;
+          this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
+          if (this.view === "salesView"){
+            this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+            if (this.cashier != ''){
+              this.cashierId = this.cashier;
+              this.checkOut = true;
+            }
+          }
         }
       })
+    } else {
+      this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
+      this.stores$ = this.doctoService.getDoctosCompany(this.companyId).pipe(
+        map(res => { return res.filter(store => store.StoreId === this.storeId); })
+      );
+      this.stores$.forEach((next: any) => {
+        if (next.length > 0){
+          this.storeSelected.emit(this.storeId);
+          this.doctoSelected.emit(next[0].DocumentId);
+          if (this.view === "salesView"){
+            this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+            if (this.cashier != ''){
+              this.cashierId = this.cashier;
+              this.checkOut = true;
+            }
+          }
+        }
+      });
     }
+
     let currencyId = this.authService.currency();
     let currencyVal: Currency[];
     currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
     this.currencyCompany = currencyVal[0].n;
-    this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
+    
     this.message$ = this.data.monitorMessage.pipe(
       map(res => {
         this.message = 'init';
@@ -105,10 +141,7 @@ export class ProductListComponent implements OnInit {
         }
         return this.message;
       })
-    );
-    if (this.view === "salesView"){
-      this.checkOut = true;
-    } 
+    ); 
   }
 
   loadProducts(crPage, crNumber, crValue, crStoreId){
@@ -133,13 +166,29 @@ export class ProductListComponent implements OnInit {
     );
   }
 
-  getProducts(storeId: string){
+  getProducts(store: string){
+    this.storeId = store;
+    this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+    this.stores$.forEach((next: any) => {
+      next.forEach(element => {
+        if (element.StoreId === this.storeId){
+          this.storeSelected.emit(this.storeId);
+          this.doctoSelected.emit(element.DocumentId);
+        }
+      });
+    })
+
     this.loadProducts(
       this._currentPage,
       this.pageSize,
       '',
-      storeId
+      store
     );
+  }
+
+  setCashier(cashier: string){
+    this.cashierSelected.emit(cashier);
+    this.checkOut = true;
   }
 
   public filterList(searchParam: string) {
@@ -170,23 +219,46 @@ export class ProductListComponent implements OnInit {
   onAddItem(product: Product, qtyField: string, unitPriceField: string, i: number){
     let qty = (<HTMLInputElement>document.getElementById(qtyField)).value;
     let unitPrice = (<HTMLInputElement>document.getElementById(unitPriceField));
-    let unitValue ='';
+    let unitValue = 0;
+
     if (unitPrice != null){
-      unitValue = (<HTMLInputElement>document.getElementById(unitPriceField)).value;
+      unitValue = +(<HTMLInputElement>document.getElementById(unitPriceField)).value;
     }
     if (qty === '') { qty = '1.00';}
+
+    if (product.Stores.length > 0){
+      if (+qty > product.Stores[0].Qty) { 
+        this._snackBar.open('Qty must be less than ' + product.Stores[0].Qty, 'Close', {
+          duration: 2000,
+          panelClass: 'style-error'
+        });
+        (<HTMLInputElement>document.getElementById(qtyField)).value = "";
+        if (unitValue > 0) { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
+        
+        const prod: Product = {'Product_Id': '', 'Company_Id': '', 'SKU': '', 'Name': '', 'Unit_Price':0, 'Img_Path': '', 'Type': '', 'Status': 0, 'Qty': 0, 'Unit': 0, 'Stores': []};
+        this.addItem.emit(prod);
+        return;
+      }
+    }
+    
     if (this.lastProd != product){
-      this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString(), "Unit": unitValue } );
+      product.Qty = +qty;
+      product.Unit = +unitValue;
+      this.addItem.emit(product);
       this.lastProd = product;
       (<HTMLInputElement>document.getElementById(qtyField)).value = "";
-      if (unitValue != '') { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
+      if (unitValue > 0) { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
     } else {
       (async () => {
-        this.addItem.emit("{ 'P_Id': '', 'Qty': '', 'Unit': '' }");
+        const prod: Product = {'Product_Id': '', 'Company_Id': '', 'SKU': '', 'Name': '', 'Unit_Price':0, 'Img_Path': '', 'Type': '', 'Status': 0, 'Qty': 0, 'Unit': 0, 'Stores': []};
+        this.addItem.emit(prod);
         await delay(20);
-        this.addItem.emit( { "P_Id": product.Product_Id, "Qty": qty.toString(), "Unit": unitValue } );
+
+        product.Qty = +qty;
+        product.Unit = +unitValue;
+        this.addItem.emit(product);
         (<HTMLInputElement>document.getElementById(qtyField)).value = "";
-        if (unitValue != '') { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
+        if (unitValue > 0) { (<HTMLInputElement>document.getElementById(unitPriceField)).value = ""; }
       })();
     }
     if (!this.view) { window.scroll(0,0) };
@@ -216,7 +288,6 @@ export class ProductListComponent implements OnInit {
         this.deleted = result;
         if (this.deleted){
           let delProd: Product;
-          // this.loading = true;
           this.deleteProduct$ = this.productService.deleteProduct(product.Product_Id).pipe(
             tap(res => {
               this.productSelected.emit(delProd);
@@ -269,7 +340,7 @@ export class ProductListComponent implements OnInit {
   }
 
   public sendStep(event){
-    this.newStep.emit( event );
+    this.newStep.emit(event);
   }
 
   trackById(index: number, item: Product) {

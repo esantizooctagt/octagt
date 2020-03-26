@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { ConfirmValidParentMatcher } from '@app/validators';
-
 import { AuthService } from '@core/services';
 
 @Component({
@@ -17,6 +16,7 @@ export class LoginComponent implements OnInit {
   submitted = false;
   returnUrl: string;
   error = '';
+  showAuth: boolean =false;
 
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
@@ -35,7 +35,8 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
         username: ['', Validators.required],
-        password: ['', Validators.required]
+        password: ['', Validators.required],
+        authcode: ['',[Validators.max(999999), Validators.min(1), Validators.maxLength(6), Validators.minLength(6)]]
     });
 
     // get return url from route parameters or default to '/'
@@ -54,15 +55,25 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authService.login(this.f.username.value, this.f.password.value)
+    this.authService.login(this.f.username.value, this.f.password.value, this.f.authcode.value)
       .pipe(first())
       .subscribe(
           data => {
+            if (data.Code == 100){
               this.router.navigate([this.returnUrl]);
+            }
+            if (data.Code == 300){
+              this.showAuth = true;
+              this.loading = false;
+            }
+            if (data.Code == 200){
+              this.error = data.Message;
+              this.loading = false;
+            }
           },
           error => {
-              this.error = error.Message;
-              this.loading = false;
+            this.error = error.Message;
+            this.loading = false;
           });
   }
 

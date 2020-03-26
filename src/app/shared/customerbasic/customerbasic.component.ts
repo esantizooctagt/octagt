@@ -54,6 +54,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
       Name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
       Address: ['', [Validators.minLength(3), Validators.maxLength(500)]],
       State: ['', [Validators.maxLength(100), Validators.minLength(2)]],
+      Email: ['', [Validators.minLength(6), Validators.maxLength(200), Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")]],
       Tax_Number: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       Is_Exent:[0],
       Reason: [''],
@@ -106,6 +107,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
                     'Address': '',
                     'State': '',
                     'Tax_Number': '',
+                    'Email': '',
                     'Is_Exent': 0,
                     'Reason': '',
                     'Status': 1
@@ -148,6 +150,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
               'Customer_Id': res.Customer_Id,
               'Address': res.Address,
               'State': res.State,
+              'Email': res.Email,
               'Tax_Number': res.Tax_Number,
               'Is_Exent': res.Is_Exent,
               'Reason': res.Reason,
@@ -157,12 +160,12 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
         }),
         catchError(err => {
           this.openDialog('Error !', err.Message, false, true, false);
-          this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
+          this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
           return throwError(err || err.message); 
         })
       );
     } else {
-      this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
+      this.customerBasicForm.get('customerInfo').reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1});
     }
   }
 
@@ -182,6 +185,11 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
         this.fCustomer.Address.hasError('minlength') ? 'Minimun length 3' :
           this.fCustomer.Address.hasError('maxlength') ? 'Maximum length 500' :
             '';
+    }
+    if (component === 'Email'){
+      return this.fCustomer.Email.hasError('maxlength') ? 'Maximun length 200' :
+        this.fCustomer.Email.hasError('pattern') ? 'Invalid Email' :
+          '';
     }
     if (component === 'State'){
       return this.fCustomer.State.hasError('maxlength') ? 'Maximun length 100' :
@@ -204,8 +212,12 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
-    this.filterCustomers.unsubscribe();
-    this.custForm.unsubscribe();
+    if (this.filterCustomers != undefined){
+      this.filterCustomers.unsubscribe();
+    }
+    if (this.custForm != undefined){
+      this.custForm.unsubscribe();
+    }
   }
 
   onValueChanges(): void {
@@ -226,7 +238,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   public onChange: any = () => {};
 
   writeValue(val: any): void {
-    if (val === '' || val === null) { this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); return; }
+    if (val === '' || val === null) { this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); return; }
     val && this.customerBasicForm.setValue(val, { emitEvent: false });
   }
   

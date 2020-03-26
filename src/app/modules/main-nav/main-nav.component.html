@@ -66,6 +66,7 @@
         </ng-template>
       </button>
       <mat-menu #userMenu="matMenu" xPosition="before">
+        <ng-container *ngIf="cashier$ | async"></ng-container>
         <button mat-menu-item [routerLink]="['/profile']"><mat-icon>perm_identity</mat-icon>Profle</button>
         <!-- <button *ngIf="isAdmin" [routerLink]="['/settings']" mat-menu-item><mat-icon>settings</mat-icon>Settings</button> -->
         <button mat-menu-item (click)="logout()"><mat-icon>exit_to_app</mat-icon>Logout</button>

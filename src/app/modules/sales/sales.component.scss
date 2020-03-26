@@ -119,3 +119,48 @@ input.values-right-align {
     font-size: 0.83em;
     text-align: right;
 }
+.invoice-total{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    place-content: stretch flex-end;
+    align-items: stretch;
+}
+.invoice-totals{
+    font-size: smaller;
+}
+.invoice-totals-result{
+    text-align: right;
+    font-size: smaller;
+    margin-right: 3px;
+}
+.total-result{
+    margin-right: 3px;
+}
+.invoice-total-data{
+    margin-right: 140px;
+}
+.item-price{
+    text-align: right;
+}
+.item-descrip{
+    text-transform: uppercase;
+}
+.item-total-print{
+    text-transform: uppercase;
+    font-weight: 500;
+}
+.item-price-print{
+    text-align: right;
+    font-weight: 500;
+}
+.print-company{
+    text-align: center;
+}
+.print-title-company{
+    text-align: center;
+    font-weight: 500;
+}
+.footer-invoice{
+    text-align: right;
+}
