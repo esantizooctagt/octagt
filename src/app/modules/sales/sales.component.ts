@@ -155,6 +155,7 @@ export class SalesComponent implements OnInit {
     Cash_Value: [0],
     Credit_Auth: [0],
     Credit_Digits: [0],
+    Guest: [false],
     detail: this.fb.array([this.createDetail()], ArrayValidators.minLength(1))
   });
 
@@ -238,6 +239,36 @@ export class SalesComponent implements OnInit {
         this.addTaxes();
       }
     });
+  }
+
+  continueGuest(){
+    if (!this.salesForm.get('Guest').value){
+      this.salesForm.patchValue({Name: '', Address: '', State: '', Email: '', Tax_Number: '', Customer_Id: ''}, {emitEvent: false});
+      this.salesForm.get("Name").setValidators([Validators.required, Validators.minLength(3), Validators.maxLength(500)]);
+      this.salesForm.get("Address").setValidators([Validators.required, Validators.minLength(3), Validators.maxLength(500)]);
+      this.salesForm.get("State").setValidators([Validators.required, Validators.maxLength(100), Validators.minLength(2)]);
+      this.salesForm.get("Email").setValidators([Validators.required, Validators.minLength(6), Validators.maxLength(200), Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")]);
+      this.salesForm.get("Tax_Number").setValidators([Validators.required, Validators.minLength(2), Validators.maxLength(50)]);
+    
+      this.salesForm.get("Name").updateValueAndValidity();
+      this.salesForm.get("Address").updateValueAndValidity();
+      this.salesForm.get("State").updateValueAndValidity();
+      this.salesForm.get("Email").updateValueAndValidity();
+      this.salesForm.get("Tax_Number").updateValueAndValidity();
+    } else {
+      this.salesForm.patchValue({Name: '.', Address: '.', State: '.', Email: '.', Tax_Number: '.', Customer_Id: ''}, {emitEvent: false});
+      this.salesForm.get("Name").setValidators(null);
+      this.salesForm.get("Address").setValidators(null);
+      this.salesForm.get("State").setValidators(null);
+      this.salesForm.get("Email").setValidators(null);
+      this.salesForm.get("Tax_Number").setValidators(null);
+
+      this.salesForm.get("Name").updateValueAndValidity();
+      this.salesForm.get("Address").updateValueAndValidity();
+      this.salesForm.get("State").updateValueAndValidity();
+      this.salesForm.get("Email").updateValueAndValidity();
+      this.salesForm.get("Tax_Number").updateValueAndValidity();
+    }
   }
 
   removeTaxes(){
@@ -595,16 +626,16 @@ export class SalesComponent implements OnInit {
     });
   }
 
-  // validateControls(){
-  //   const invalid = [];
-  //   const controls = this.salesForm.controls;
-  //   for (const name in controls) {
-  //       if (controls[name].invalid) {
-  //           invalid.push(name);
-  //       }
-  //   }
-  //   return invalid;
-  // }
+  validateControls(){
+    const invalid = [];
+    const controls = this.salesForm.controls;
+    for (const name in controls) {
+        if (controls[name].invalid) {
+            invalid.push(name);
+        }
+    }
+    return invalid;
+  }
 
   onSubmit(){
     if (this.salesForm.invalid) { return; }
@@ -634,6 +665,7 @@ export class SalesComponent implements OnInit {
       "Tax_Number": form.value.Tax_Number,
       "Customer_Address": form.value.Address,
       "Customer_Email": form.value.Email,
+      "State": form.value.State,
       "Is_Exent": form.value.Is_Exent,
       "Reason": form.value.Reason,
       "Payment_Status": form.value.Payment_Status,
@@ -672,7 +704,7 @@ export class SalesComponent implements OnInit {
       delay(500),
       tap((res: any)  => {
         if (res === 100){
-          this.salesForm.reset({Invoice_Date:formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Document_Id: this.doctoId, Company_Id: this.companyId, Cashier_Id: this.cashierId, Status: 1, User_Id: this.userId, Payment_Status: '', Payment_Date: '', Payment_Auth: '', Total: 0, Total_Taxes: 0, Total_Discount:0, Store_Id: this.storeId, Customer_Id:'', Name:'', Address:'', State:'', Email: '', Tax_Number:'', Is_Exent: 0, Reason: '',  Cash_Value: '', Credit_Auth: '', Credit_Digits: '', detail: this.fb.array([], ArrayValidators.minLength(1)) });
+          this.salesForm.reset({Invoice_Date:formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Document_Id: this.doctoId, Company_Id: this.companyId, Cashier_Id: this.cashierId, Status: 1, User_Id: this.userId, Payment_Status: '', Payment_Date: '', Payment_Auth: '', Total: 0, Total_Taxes: 0, Total_Discount:0, Store_Id: this.storeId, Customer_Id:'', Name:'', Address:'', State:'', Email: '', Tax_Number:'', Is_Exent: 0, Reason: '',  Cash_Value: '', Credit_Auth: '', Credit_Digits: '', Guest: false, detail: this.fb.array([], ArrayValidators.minLength(1)) });
           if (this.subCustomer){
             this.subCustomer.unsubscribe();
           }
@@ -795,7 +827,7 @@ export class SalesComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if (this.filterCustomers != undefined){
+    if (this.filterCustomers){
       this.filterCustomers.unsubscribe();
     }
     if (this.subsItems){

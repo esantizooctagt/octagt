@@ -31,6 +31,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { QRCodeModule } from 'angularx-qrcode';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 // services
 import { NgxImageCompressService } from 'ngx-image-compress';
@@ -106,7 +107,8 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
-    LayoutModule
+    LayoutModule,
+    NgxEchartsModule
   ],
   providers: [
     NgxImageCompressService,

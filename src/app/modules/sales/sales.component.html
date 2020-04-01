@@ -229,11 +229,16 @@
                 </div>
                 <div *ngIf="step == 3">
                     <div class="row pl-3 pr-3 header-route">
-                        <h4 class="col-md-12 pl-0 pt-2">Sales Resume</h4>
+                        <h4 class="col-md-12 pl-0 pt-2">Billing Information</h4>
                         <mat-divider class="col-md-12"></mat-divider>
                     </div>
                     <div class="invoice-form col-md-6">
-                        <div class="mt-3">
+                        <div class="">
+                            <div class="form-field-check mt-4">
+                                <mat-checkbox formControlName="Guest" (change)="continueGuest()">Continue as Guest</mat-checkbox>
+                            </div>
+                        </div>
+                        <div class="mt-3" *ngIf="!salesForm.value.Guest">
                             <div class="form-field">
                                 <mat-form-field>
                                     <input type="text" placeholder="Name" maxlength="500" minlength="3" formControlName="Name" matInput
