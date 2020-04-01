@@ -217,7 +217,7 @@ export class RoleComponent implements OnInit {
       if (val.Status === false){
         this.roleForm.controls["Status"].setValue(0);
       }
-    })
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {

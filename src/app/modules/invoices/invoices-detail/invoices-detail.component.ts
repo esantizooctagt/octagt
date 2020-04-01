@@ -53,6 +53,7 @@ export class InvoicesDetailComponent implements OnInit {
     Reason: [''],
     Total_Discount: [''],
     Payment_Date: [''],
+    Payment_Auth: [''],
     Lines: this.fb.array([this.invoiceDetail()])
   })
 
@@ -105,6 +106,13 @@ export class InvoicesDetailComponent implements OnInit {
       this.invoice$ = this.salesService.getInvoice(this.invoiceId).pipe(
         map((res: any) => {
           if (res != null){
+            let infoPay = '';
+            if (res.Payment_Status === 1 && (res.Payment_Auth != null || res.Payment_Auth != '')){
+              infoPay = JSON.parse(res.Payment_Auth).Cash;
+            }  
+            if (res.Payment_Status === 2 && (res.Payment_Auth != null || res.Payment_Auth != '')){
+              infoPay = JSON.parse(res.Payment_Auth).Auth + ' / ' + JSON.parse(res.Payment_Auth).CC;
+            }
             this.invoiceForm.patchValue({
               Invoice_Id: res.Invoice_Id,
               Invoice_Number: res.Invoice_Number,
@@ -114,6 +122,7 @@ export class InvoicesDetailComponent implements OnInit {
               Email: res.Email,
               Address: res.Address,
               Payment_Status: res.Payment_Status,
+              Payment_Auth: infoPay,
               User_Name: res.User_Name,
               Total_Taxes: res.Total_Taxes,
               Total: res.Total,

@@ -25,6 +25,7 @@
                         <div class="invoice-data">
                             <h4 class="">Status</h4>
                             <p class="item-normal" [ngClass]="{ 'void-status' : invoiceForm.value.Status === 2, 'testing-status' : invoiceForm.value.Status === 3 }">{{'Invoice Status: ' + (invoiceForm.value.Status === 1 ? 'Open' : (invoiceForm.value.Status === 2 ? 'Void' : 'Testing' )) }}</p>
+                            <p class="item-normal" *ngIf="invoiceForm.value.Payment_Auth">{{ (invoiceForm.value.Payment_Status === 1 ?  'Cash: ' : 'Auth: ') + invoiceForm.value.Payment_Auth }}</p>
                             <p class="item-bottom">{{'Payment Status: ' + (invoiceForm.value.Payment_Status === 1 ? 'Cash' : (invoiceForm.value.Payment_Status === 2 ? 'Credit Card': 'Credit') )}}</p>
                         </div>
                     </div>

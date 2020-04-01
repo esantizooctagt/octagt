@@ -54,8 +54,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     .invoice-buttons{
         display: none !important;
     }
+    .invoice-form{
+        display: none !important;
+    }
     .print-area{
         display: block;
+        height: 100%;
+        overflow: visible;
     }
 }
 

@@ -10,6 +10,7 @@ import { throwError, Observable } from 'rxjs';
 })
 export class UserService {
     readonly apiURL = environment.apiUrl;
+    // readonly apiLocUrl = environment.apiLocUrl;
     constructor(private http: HttpClient) { }
 
     getUser(userId): Observable<User> {
@@ -52,6 +53,15 @@ export class UserService {
                       .pipe(catchError(this.errorHandler));
     }
 
+    // getUserIP(){
+    //   return this.http.get('https://api.ipify.org/?format=json')
+    //                   .pipe(catchError(this.errorHandler));
+    // }
+
+    // getUserLocation(ipAddress: string){
+    //   return this.http.get('http://api.ipapi.com/'+ipAddress+'?access_key='+this.apiLocUrl)
+    //                   .pipe(catchError(this.errorHandler));
+    // }
     errorHandler(error) {
       return throwError(error || 'Server Error');
     }

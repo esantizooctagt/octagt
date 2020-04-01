@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { AuthService } from '@core/services';
+import { UserService } from '@app/services';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +19,10 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   error = '';
   showAuth: boolean =false;
+  ipAddress: string = '';
+  location: string = '';
+  subIP: Subscription;
+  subLoc: Subscription;
 
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
@@ -24,7 +30,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService
   ) {
     // redirect to home if already logged in
     if (this.authService.currentUserValue) { 
@@ -41,6 +48,18 @@ export class LoginComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    // this.subIP = this.userService.getUserIP().subscribe((res:any)=>{
+    //   if (res != null){
+    //     this.ipAddress = res.ip;
+    //     console.log(this.ipAddress);
+    //     this.subLoc = this.userService.getUserLocation(this.ipAddress).subscribe((res:any) => {
+    //       if (res != null){
+    //         this.location = res.country_code; //continent_name
+    //         console.log(this.location);
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   // convenience getter for easy access to form fields
@@ -85,6 +104,15 @@ export class LoginComponent implements OnInit {
     if (component === 'Password'){
       return this.f.password.hasError('required') ? 'You must enter a password' :
         '';
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.subIP){
+      this.subIP.unsubscribe();
+    }
+    if (this.subLoc){
+      this.subLoc.unsubscribe();
     }
   }
 

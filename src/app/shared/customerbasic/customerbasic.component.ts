@@ -41,6 +41,16 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
     return this.customerBasicForm.controls;
   }
 
+  get value() {
+    return this.customerBasicForm.value;
+  }
+
+  set value(value: any){
+    this.customerBasicForm.setValue(value);
+    this.onChange(value);
+    this.onTouched();
+  }
+
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
   
   constructor(
@@ -52,9 +62,9 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
     this.customerBasicForm = this.fb.group({
       Customer_Id: [''],
       Name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
-      Address: ['', [Validators.minLength(3), Validators.maxLength(500)]],
-      State: ['', [Validators.maxLength(100), Validators.minLength(2)]],
-      Email: ['', [Validators.minLength(6), Validators.maxLength(200), Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")]],
+      Address: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
+      State: ['', [Validators.required, Validators.maxLength(100), Validators.minLength(2)]],
+      Email: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(200), Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")]],
       Tax_Number: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       Is_Exent:[0],
       Reason: [''],
@@ -187,14 +197,16 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
             '';
     }
     if (component === 'Email'){
-      return this.fCustomer.Email.hasError('maxlength') ? 'Maximun length 200' :
-        this.fCustomer.Email.hasError('pattern') ? 'Invalid Email' :
-          '';
+      return this.fCustomer.Email.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.Email.hasError('maxlength') ? 'Maximun length 200' :
+          this.fCustomer.Email.hasError('pattern') ? 'Invalid Email' :
+            '';
     }
     if (component === 'State'){
-      return this.fCustomer.State.hasError('maxlength') ? 'Maximun length 100' :
-        this.fCustomer.State.hasError('minlength') ? 'Minimun length 2' :
-          '';
+      return this.fCustomer.State.hasError('required') ? 'You must enter a value' :
+        this.fCustomer.State.hasError('maxlength') ? 'Maximun length 100' :
+          this.fCustomer.State.hasError('minlength') ? 'Minimun length 2' :
+            '';
     }
     if (component === 'Tax_Number'){
       return this.fCustomer.Tax_Number.hasError('required') ? 'You must enter a value' :
@@ -238,18 +250,20 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
   public onChange: any = () => {};
 
   writeValue(val: any): void {
-    if (val === '' || val === null) { this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); return; }
-    val && this.customerBasicForm.setValue(val, { emitEvent: false });
+    if (val === '' || val === null) { this.customerBasicForm.reset({'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}); } //return;
+    //{'Customer_Id':'', 'Name':'', 'Address':'', 'State':'', 'Email': '', 'Tax_Number':'', 'Is_Exent': 0, 'Reason': '', 'Status': 1}
+    //val && this.customerBasicForm.setValue(val, { emitEvent: false });
+    if (val){
+      this.value = val;
+    }
   }
   
   registerOnChange(fn: any): void {
-    // console.log("on change");
     // this.customerBasicForm.valueChanges.subscribe(fn);
     this.onChange = fn;
   }
   
   registerOnTouched(fn: any): void {
-    // console.log("on blur");
     this.onTouched = fn;
   }
 
