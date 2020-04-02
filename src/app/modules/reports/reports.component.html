@@ -1,1 +1,55 @@
-<p>reports works!</p>
+<div class="container-fluid h-100">
+    <div class="row pl-2 pr-1">
+        <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
+            <h4>Daily Reports</h4>
+        </div>
+        <mat-card class="col-md-6 ml-3">
+            <table mat-table [dataSource]="cashierday$" class="mat-elevation-z8">
+                <!-- Position Column -->
+                <ng-container matColumnDef="No">
+                  <th mat-header-cell *matHeaderCellDef> No. </th>
+                  <td mat-cell *matCellDef="let element"> {{element.No}} </td>
+                </ng-container>
+              
+                <!-- Name Column -->
+                <ng-container matColumnDef="Total">
+                  <th mat-header-cell *matHeaderCellDef> Total </th>
+                  <td mat-cell *matCellDef="let element"> {{element.Total}} </td>
+                </ng-container>
+              
+                <!-- Weight Column -->
+                <ng-container matColumnDef="Net_Total">
+                  <th mat-header-cell *matHeaderCellDef> Net Tot </th>
+                  <td mat-cell *matCellDef="let element"> {{element.Net_Total}} </td>
+                </ng-container>
+              
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="Total_Taxes">
+                  <th mat-header-cell *matHeaderCellDef> Tot Taxes </th>
+                  <td mat-cell *matCellDef="let element"> {{element.Total_Taxes}} </td>
+                </ng-container>
+
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="Status">
+                    <th mat-header-cell *matHeaderCellDef> Status </th>
+                    <td mat-cell *matCellDef="let element"> {{(element.Status === 1 ? 'Active' : 'Void')}} </td>
+                </ng-container>
+
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="Cashier">
+                    <th mat-header-cell *matHeaderCellDef> Cashier </th>
+                    <td mat-cell *matCellDef="let element"> {{element.Cashier}} </td>
+                </ng-container>
+
+                  <!-- Symbol Column -->
+                <ng-container matColumnDef="Store">
+                    <th mat-header-cell *matHeaderCellDef> Store </th>
+                    <td mat-cell *matCellDef="let element"> {{element.Store}} </td>
+                </ng-container>
+            
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+        </mat-card>
+    </div>
+</div>    

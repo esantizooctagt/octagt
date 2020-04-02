@@ -1,7 +1,7 @@
-<div class="card card-accent-info">
+<!-- <div class="card card-accent-info">
     <div class="card-body">
       <h5 class="card-title">- Sales -</h5>
-      <div class="mt-4">
+      <div class="mt-4"> -->
         <!-- <tabset>
           <tab heading="demo"> -->
             <!-- <div echarts [options]="options" [merge]="updateOptions" class="demo-chart"></div> -->
@@ -18,7 +18,26 @@
             (chartContextMenu)="onChartEvent($event, 'chartContextMenu')"
             (chartDataZoom)="onChartEvent($event, 'chartDataZoom')"
            -->
-        <div echarts [options]="options" class="demo-chart"></div>
+        <!-- <div echarts [options]="options" class="demo-chart"></div>
       </div>
     </div>
+  </div> -->
+<div class="container-fluid h-100">
+  <div class="row pl-2 pr-1">
+      <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
+          <h4>Dashboard</h4>
+      </div>
+      <mat-card class="col-md-5 ml-3">
+        <div echarts [options]="salebyday"></div>
+      </mat-card>
+      <mat-card class="col-md-5 ml-3">
+        <div echarts [options]="topProducts"></div>
+      </mat-card>
+      <mat-card class="col-md-5 ml-3 mt-3">
+        <div echarts [options]="doctosbyday"></div>
+      </mat-card>
+      <mat-card class="col-md-5 ml-3 mt-3">
+        <div echarts [options]="salesbymonth"></div>
+      </mat-card>
   </div>
+</div>
