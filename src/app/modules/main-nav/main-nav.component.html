@@ -4,7 +4,7 @@
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [opened]="(isHandset$ | async) === false"
       [ngStyle]="{'width': collapse === true ? '45px' : '200px'}">
-    <mat-toolbar color="primary">Cashier 2 Go<button mat-icon-button *ngIf="!collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_left</mat-icon></button><button mat-icon-button *ngIf="collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_right</mat-icon></button></mat-toolbar>
+    <mat-toolbar color="primary">Cashier 2Go<button mat-icon-button *ngIf="!collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_left</mat-icon></button><button mat-icon-button *ngIf="collapse" (click)="OnCollapse()"><mat-icon class="mr-2">arrow_right</mat-icon></button></mat-toolbar>
     <mat-nav-list color="primary">
       <ng-container class="" *ngFor="let item of apps$ | async">
         <a *ngIf="item.Active" mat-list-item [routerLink]="['/'+item.Route]" routerLinkActive="menu-active"><mat-icon class="mr-2">{{item.Icon}}</mat-icon>{{item.Name}}</a>
@@ -49,12 +49,13 @@
       <!-- <span>OCTAGT 365</span> -->
       <span class="spacer"></span>
       <button mat-icon-button [matMenuTriggerFor]="languageMenu" class="mr-1">
-        <mat-icon>language</mat-icon>
+        <mat-icon *ngIf="language === ''">language</mat-icon>
+        <img [src]="language" width="20"/>
       </button>
       <mat-menu #languageMenu="matMenu" xPosition="before">
-        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>English</button>
-        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>Espanol</button>
-        <button mat-menu-item [routerLink]="['/products']"><mat-icon>flag</mat-icon>Deutsch</button>
+        <button mat-menu-item [routerLink]="['/en/home']"><img class="mr-4 ml-1" src="assets/images/icon/EN.svg" width="30"/>  English</button>
+        <button mat-menu-item [routerLink]="['/es/home']"><img class="mr-4 ml-1" src="assets/images/icon/ES.svg" width="30"/>  Español</button>
+        <button mat-menu-item [routerLink]="['/de/home']"><img class="mr-4 ml-1" src="assets/images/icon/DE.svg" width="30"/>  Deutsch</button>
       </mat-menu>
       <button mat-icon-button class="mr-1" [routerLink]="['/help']">
         <mat-icon>help</mat-icon>

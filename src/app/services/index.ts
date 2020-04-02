@@ -9,3 +9,4 @@ export * from './cashiers.service';
 export * from './documents.service';
 export * from './categories.service';
 export * from './roles.services';
+export * from './reports.service';

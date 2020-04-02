@@ -77,11 +77,11 @@
                             <input matInput placeholder="Email" formControlName="Email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" [errorStateMatcher]="confirmValidParentMatcher" required>
                             <mat-error *ngIf="fCompany.Email.invalid && fCompany.Email.touched">{{getErrorMessage('Email')}}</mat-error>
                         </mat-form-field>
-                        <div class="form-field pr-3">
+                        <!-- <div class="form-field pr-3">
                             <mat-label class="">
                                 Language : 
                             </mat-label>English
-                        </div>
+                        </div> -->
                         <div class="form-field pr-3">
                             <mat-label class="">
                                 Number of Stores : 
@@ -176,7 +176,7 @@
                               [cdkDropListConnectedTo]="connectedTo"
                               class="element-list"
                               (cdkDropListDropped)="drop($event)">
-                              <div class="item-box" *ngFor="let det of item.Cashiers" cdkDrag>{{det.Description}}</div>
+                              <div class="item-box" *ngFor="let det of item.Cashiers"  [cdkDragDisabled]="det.Disabled == 1" cdkDrag>{{det.Description}}</div>
                             </div>
                         </div>
                     </form>

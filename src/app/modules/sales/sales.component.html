@@ -5,6 +5,10 @@
             <ng-container *ngIf="taxes$ | async"></ng-container>
             <ng-container *ngIf="(salesDocto$ | async) && savingSale"></ng-container>
             <!-- {{ salesForm.value | json }} -->
+            <button *ngIf="salesForm.value.Status === 1" type="button" mat-flat-button id="online" (click)="changeStatus()"
+                            class="online mt-2"><mat-icon class="mr-2 ml-0">check_circle_outline</mat-icon> Online</button>
+            <button *ngIf="salesForm.value.Status === 3" type="button" mat-flat-button id="offline" (click)="changeStatus()"
+                            class="offline mt-2"><mat-icon class="mr-2 ml-0">cancel</mat-icon> Offline</button>
             <form [formGroup]="salesForm" (ngSubmit)="onSubmit()">
                 <ng-container *ngIf="setCashier$ | async"></ng-container>
                 <app-product-list *ngIf="step == 1" view="salesView" (newStep)="setStep($event)"
@@ -363,6 +367,8 @@
                             class="mr-3 mt-2">Back</button>
                         <button type="submit" mat-flat-button color="primary" id="save" [disabled]="!salesForm.valid"
                             class="mr-3 mt-2">Save</button>
+                        <button type="button" mat-flat-button color="warn" id="cancel" (click)="onCancel()" 
+                            class="mt-2">Cancel</button>
                     </div>
                     <div class="print-area">
                         <ng-container *ngFor="let info of storeInfo$ | async">

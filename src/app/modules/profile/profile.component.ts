@@ -9,7 +9,7 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 import { StoresService } from '@app/services/stores.service';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { environment } from '@environments/environment';
-import { Observable, throwError, Subscription } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { SpinnerService } from '@app/shared/spinner.service';
 import { QRCodeModule } from 'angularx-qrcode';
@@ -58,6 +58,7 @@ export class ProfileComponent implements OnInit {
     Avatar: [''],
     Company_Name: [''],
     StoreId: [''],
+    LanguageId: [''],
     MFact_Auth: [''],
     Password: ['']
   })
@@ -81,6 +82,7 @@ export class ProfileComponent implements OnInit {
           Avatar: res.Avatar,
           Company_Name: res.Company_Name,
           StoreId: res.Store_Id,
+          LanguageId: res.Language_Id,
           MFact_Auth: res.MFact_Auth,
           Password: res.Password
         });
@@ -185,6 +187,7 @@ export class ProfileComponent implements OnInit {
       "Last_Name": this.profileForm.value.Last_Name,
       "StoreId": this.profileForm.value.StoreId,
       "MFact_Auth": (this.profileForm.value.MFact_Auth ? 1 : 0),
+      "LanguageId": this.profileForm.value.LanguageId,
       "Password": '',
       "RoleId": 'None',
       "Status": 1,

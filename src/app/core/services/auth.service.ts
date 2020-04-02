@@ -82,6 +82,11 @@ export class AuthService {
         return user.Currency;
     }
 
+    language() {
+        let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
+        return user.Language_Id;
+    }
+
     country() {
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
         return user.Country;

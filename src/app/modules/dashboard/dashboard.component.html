@@ -1,12 +1,24 @@
 <div class="card card-accent-info">
     <div class="card-body">
-      <h4 class="card-title">- Ventas -</h4>
+      <h5 class="card-title">- Sales -</h5>
       <div class="mt-4">
         <!-- <tabset>
           <tab heading="demo"> -->
-            <div echarts [options]="options" [merge]="updateOptions" class="demo-chart"></div>
+            <!-- <div echarts [options]="options" [merge]="updateOptions" class="demo-chart"></div> -->
           <!-- </tab>
         </tabset> -->
+        <!-- (chartInit)="onChartEvent($event, 'chartInit')"
+        (chartClick)="onChartEvent($event, 'chartClick')"
+            (chartDblClick)="onChartEvent($event, 'chartDblClick')"
+            (chartMouseDown)="onChartEvent($event, 'chartMouseDown')"
+            (chartMouseUp)="onChartEvent($event, 'chartMouseUp')"
+            (chartMouseOver)="onChartEvent($event, 'chartMouseOver')"
+            (chartMouseOut)="onChartEvent($event, 'chartMouseOut')"
+            (chartGlobalOut)="onChartEvent($event, 'chartGlobalOut')"
+            (chartContextMenu)="onChartEvent($event, 'chartContextMenu')"
+            (chartDataZoom)="onChartEvent($event, 'chartDataZoom')"
+           -->
+        <div echarts [options]="options" class="demo-chart"></div>
       </div>
     </div>
   </div>

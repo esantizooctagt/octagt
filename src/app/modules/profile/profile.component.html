@@ -69,7 +69,11 @@
                     <mat-label class="">
                         Language :
                     </mat-label>
-                    English
+                    <mat-radio-group aria-label="Select an option" formControlName="LanguageId">
+                        <mat-radio-button value="EN">English</mat-radio-button>
+                        <mat-radio-button value="DE">Deutsch</mat-radio-button>
+                        <mat-radio-button value="ES">Español</mat-radio-button>
+                    </mat-radio-group>
                 </div>
                 <div class="form-field pl-3 pr-3">
                     <mat-slide-toggle formControlName="MFact_Auth">{{ '2 Factor authentication ' + (f.MFact_Auth.value ? ' enabled' : ' disabled') }}</mat-slide-toggle>
@@ -82,7 +86,6 @@
                 </div>
                 <div class="form-field pl-3 pr-3">
                     <button mat-flat-button color="primary" id="save" [disabled]="!profileForm.valid" class="mr-3 mt-2">Save</button>
-                    <!-- <button mat-flat-button color="accent" id="cancel" (click)="ngOnInit()" class="mt-2">Cancel</button> -->
                 </div>
             </form>
         </mat-card>

@@ -22,6 +22,7 @@ export class MainNavComponent implements OnInit {
   userId: string='';
   avatar: string='';
   roleId: string='';
+  language: string='';
   isAdmin: boolean=false;
   collapse: boolean=false;
   cashierId: string='';
@@ -70,6 +71,7 @@ export class MainNavComponent implements OnInit {
     this.roleId = this.authService.roleId();
     this.userId = this.authService.userId();
     this.isAdmin = this.authService.isAdmin();
+    this.language = (this.authService.language() != '' ? 'assets/images/icon/'+ this.authService.language()+'.svg' : '');
     if (this.authService.avatar() != '') {
       this.avatar = this.imgPath + this.authService.avatar();
     }

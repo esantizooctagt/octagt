@@ -12,6 +12,7 @@ export class User {
     Is_Admin?: number;
     Role_Id?: string;
     Status?: number;
+    Language_Id?: string;
     MFact_Auth?: number;
     Cashier_Id: string;
 }

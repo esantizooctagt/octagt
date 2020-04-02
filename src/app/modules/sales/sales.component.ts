@@ -636,6 +636,14 @@ export class SalesComponent implements OnInit {
     }
     return invalid;
   }
+  
+  changeStatus(){
+    if (this.salesForm.get('Status').value === 1){
+      this.salesForm.patchValue({Status: 3});
+    } else {
+      this.salesForm.patchValue({Status: 1});
+    }
+  }
 
   onSubmit(){
     if (this.salesForm.invalid) { return; }
@@ -679,6 +687,7 @@ export class SalesComponent implements OnInit {
       "Total_Taxes": form.value.Total_Taxes,
       "Total_Discount": form.value.Total_Discount,
       "Store_Id": form.value.Store_Id,
+      "Status": form.value.Status,
       "detail": []
     }
     let lines = form.value.detail;
@@ -720,6 +729,19 @@ export class SalesComponent implements OnInit {
         }
       })
     );
+  }
+
+  onCancel(){
+    this.salesForm.reset({Invoice_Date:formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Document_Id: this.doctoId, Company_Id: this.companyId, Cashier_Id: this.cashierId, Status: 1, User_Id: this.userId, Payment_Status: '', Payment_Date: '', Payment_Auth: '', Total: 0, Total_Taxes: 0, Total_Discount:0, Store_Id: this.storeId, Customer_Id:'', Name:'', Address:'', State:'', Email: '', Tax_Number:'', Is_Exent: 0, Reason: '',  Cash_Value: '', Credit_Auth: '', Credit_Digits: '', Guest: false, detail: this.fb.array([], ArrayValidators.minLength(1)) });
+    if (this.subCustomer){
+      this.subCustomer.unsubscribe();
+    }
+    this.lineNo = 0;
+    this.step = 1;
+    this.paymentOpt = '';
+    (<FormArray>this.salesForm.get('detail')).clear(); 
+    (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
+    this.savingSale = false;
   }
 
   removeItem(index){
