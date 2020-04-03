@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="f2a966f574e93639d8262b1c84237b560ce871c8" datatype="html">
+        <source>User Login</source>
+        <target>Benutzer-Anmeldung</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4fcb6dbd1b656de4f606e061af0ed606d3fdc547" datatype="html">
+        <source>User Name</source>
+        <target>Nutzername</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="c32ef07f8803a223a83ed17024b38e8d82292407" datatype="html">
+        <source>Password</source>
+        <target>Passwort</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5bc88cad2ac6cc325005423414b09b6f47d28ad4" datatype="html">
+        <source>Type Key</source>
+        <target>Geben Sie Key ein</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="81e735fad17578127b3656519800ec94b116a571" datatype="html">
+        <source>Auth Code</source>
+        <target>Auth-Code</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="479f32d7de710919031484de54e059f75de0c966" datatype="html">
+        <source>Sign Up
+                        </source>
+        <target>Anmelden
+                        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/login/login.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -58,6 +58,10 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { CategoriesComponent } from '@modules/categories/categories.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 
+// import { registerLocaleData } from '@angular/common';
+// import localeEs from '@angular/common/locales/es';
+// import localeDe from '@angular/common/locales/es';
+
 @NgModule({
   declarations: [
     AppComponent,
