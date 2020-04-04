@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -33,7 +33,8 @@ export class AuthService {
     }
 
     login(userName: string, password: string, authCode: string) {
-        return this.http.post<any>(this.apiURL + '/user/login', { "UserName": userName, "Password": password, "MFact_Auth": authCode })
+        const  headers = new HttpHeaders({'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'})
+        return this.http.post<any>(this.apiURL + '/user/login', { "UserName": userName, "Password": password, "MFact_Auth": authCode}, {headers})
             .pipe(
                 map(user => {
                     if (user && user.token && user.Code == 100) {
