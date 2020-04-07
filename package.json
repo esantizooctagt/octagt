@@ -11,8 +11,7 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "aws-deploy": "aws s3 sync dist/octagt/ s3://cashier2go-la"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +29,8 @@
     "@ng-toolkit/serverless": "^8.1.0",
     "acorn": "^7.1.1",
     "angularx-qrcode": "^2.1.0",
+    "aws-amplify": "^3.0.6",
+    "aws-amplify-angular": "^5.0.6",
     "bootstrap": "^4.4.1",
     "cropperjs": "^1.5.6",
     "echarts": "^4.7.0",

@@ -1,0 +1,15 @@
+{
+    "prod": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-cashier2go-prod-131249-authRole",
+            "UnauthRoleArn": "arn:aws:iam::987049471306:role/amplify-cashier2go-prod-131249-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::987049471306:role/amplify-cashier2go-prod-131249-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-cashier2go-prod-131249-deployment",
+            "UnauthRoleName": "amplify-cashier2go-prod-131249-unauthRole",
+            "StackName": "amplify-cashier2go-prod-131249",
+            "StackId": "arn:aws:cloudformation:us-east-1:987049471306:stack/amplify-cashier2go-prod-131249/c9f6d100-7903-11ea-ac9f-121b58656156",
+            "AmplifyAppId": "d3l08u8g8buulu"
+        }
+    }
+}
