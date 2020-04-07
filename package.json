@@ -1,5 +1,5 @@
 {
-  "name": "octagt365",
+  "name": "cashier2go",
   "version": "1.0.0",
   "repository": {
     "type": "git",
@@ -8,7 +8,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --prod --configuration=production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -29,8 +29,6 @@
     "@ng-toolkit/serverless": "^8.1.0",
     "acorn": "^7.1.1",
     "angularx-qrcode": "^2.1.0",
-    "aws-amplify": "^3.0.6",
-    "aws-amplify-angular": "^5.0.6",
     "bootstrap": "^4.4.1",
     "cropperjs": "^1.5.6",
     "echarts": "^4.7.0",
