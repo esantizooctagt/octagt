@@ -7,8 +7,8 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --configuration=production,es,de",
-    "build": "ng build --prod --configuration=production,es,de",
+    "start": "ng serve --localize",
+    "build": "ng build --prod --localize",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
