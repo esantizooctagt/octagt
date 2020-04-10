@@ -147,7 +147,8 @@ export class ProductListComponent implements OnInit {
   loadProducts(crPage, crNumber, crValue, crStoreId){
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Products...");
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crStoreId === '' ? '' : "&storeId=" + crStoreId) + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = "companyId/" + this.companyId + "/currPage/" + (crValue === '' ? crPage : 1) + "/perPage/" + crNumber + "/storeId/" + crStoreId + (crValue === '' ? '/searchValue/_' : '/searchValue/' + crValue);
+    //let data = "companyId/" + this.companyId + "/currPage" + (crValue === '' ? crPage : 1) + "/perPage" + crNumber + (crStoreId === '' ? '' : "&storeId=" + crStoreId) + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
       map((res: any) => {

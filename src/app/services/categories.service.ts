@@ -14,7 +14,7 @@ export class CategoryService {
     constructor(private http: HttpClient) { }
   
     getCategories(companyId: string): Observable<Category[]> {
-      return this.http.get<Category[]>(this.apiURL + '/categories/companyId/'+ companyId)
+      return this.http.get<Category[]>(this.apiURL + '/categories/'+ companyId)
                       .pipe(catchError(this.errorHandler));
     }
   
