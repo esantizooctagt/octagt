@@ -12,10 +12,10 @@ export class CashiersService {
     readonly apiURL = environment.apiUrl;
     constructor(private http: HttpClient) { }
 
-    getCashiers(companyId): Observable<Cashier> {
-        return this.http.get<Cashier>(this.apiURL + '/cashiers?companyId=' + companyId)
-                        .pipe(catchError(this.errorHandler));
-    }
+    // getCashiers(companyId): Observable<Cashier> {
+    //     return this.http.get<Cashier>(this.apiURL + '/cashiers?companyId=' + companyId)
+    //                     .pipe(catchError(this.errorHandler));
+    // }
 
     getCashiersStore(storeId): Observable<Cashier[]>{
       return this.http.get<Cashier[]>(this.apiURL + '/cashiers/store/' + storeId)

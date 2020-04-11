@@ -84,7 +84,7 @@ export class CustomerListComponent implements OnInit {
   loadCustomers(crPage, crNumber, crValue){
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Customers...");
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + (crValue === '' ? '/_' : '/' + crValue);
 
     this.customers$ = this.customerService.getCustomers(data).pipe(
       map((res: any) => {

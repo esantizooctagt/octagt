@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { Product } from '@app/_models';
@@ -19,7 +19,7 @@ export class ProductService {
     }
 
     getProductsStore(storeId, currPage, perPage, companyId): Observable<Product[]>{
-      return this.http.get<Product[]>(this.apiURL + '/products/' + storeId + "?currPage=" + currPage + "&perPage=" + perPage + "&companyId=" + companyId)
+      return this.http.get<Product[]>(this.apiURL + '/products/' + companyId + '/' + currPage + '/' + perPage + '/' + storeId)
                       .pipe(catchError(this.errorHandler));
     }
 

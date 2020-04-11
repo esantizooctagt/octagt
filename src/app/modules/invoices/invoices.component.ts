@@ -102,7 +102,7 @@ export class InvoicesComponent implements OnInit {
     this.onError = '';
 
     var spinnerRef = this.spinnerService.start("Loading Invoices...");
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (this.storeId === '' ? '' : '&storeId=' + this.storeId) + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + (this.storeId === '' ? '/_' : '/' + this.storeId) + (crValue === '' ? '/_' : '/' + crValue);
     this.invoices$ = this.salesService.getInvoices(data).pipe(
       map((res: any) => {
         if (res != null) {

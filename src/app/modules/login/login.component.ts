@@ -48,18 +48,18 @@ export class LoginComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-    // this.subIP = this.userService.getUserIP().subscribe((res:any)=>{
-    //   if (res != null){
-    //     this.ipAddress = res.ip;
-    //     console.log(this.ipAddress);
-    //     this.subLoc = this.userService.getUserLocation(this.ipAddress).subscribe((res:any) => {
-    //       if (res != null){
-    //         this.location = res.country_code; //continent_name
-    //         console.log(this.location);
-    //       }
-    //     });
-    //   }
-    // });
+    this.subIP = this.userService.getUserIP().subscribe((res:any)=>{
+      if (res != null){
+        this.ipAddress = res.ip;
+        console.log(this.ipAddress);
+        this.subLoc = this.userService.getUserLocation(this.ipAddress).subscribe((res:any) => {
+          if (res != null){
+            this.location = res.country_code; //continent_name
+            console.log(this.location);
+          }
+        });
+      }
+    });
   }
 
   // convenience getter for easy access to form fields
@@ -74,7 +74,7 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authService.login(this.f.username.value, this.f.password.value, this.f.authcode.value)
+    this.authService.login(this.f.username.value, this.f.password.value, this.f.authcode.value, this.location)
       .pipe(first())
       .subscribe(
           data => {

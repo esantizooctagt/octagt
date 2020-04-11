@@ -17,7 +17,7 @@ export class SalesService {
     }
 
     getInvoices(formData){
-      return this.http.get(this.apiURL + '/sales?'+ formData)
+      return this.http.get(this.apiURL + '/sales/'+ formData)
                       .pipe(retry(1), catchError(this.errorHandler));
     }
 

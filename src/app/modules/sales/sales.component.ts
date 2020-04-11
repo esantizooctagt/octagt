@@ -318,7 +318,7 @@ export class SalesComponent implements OnInit {
       this.displayedColumns = ['Name', 'Unit_Price', 'Qty', 'Delivery_Date', 'Tax_Id', 'Actions'];
     }
 
-    let data = "companyId=" + this.companyId + "&currPage=1&perPage=20";
+    let data = this.companyId + "/1/20/_";
     this.taxes$ = this.taxeService.getTaxes(data).pipe(
       map((res: any) => {
         if (res != null){
@@ -343,7 +343,7 @@ export class SalesComponent implements OnInit {
         filter(customer => typeof customer === 'string' && customer != ''),
         tap(() => this.isLoading = true),
         switchMap(customer =>  
-          this.customerService.getCustomers("companyId=" + this.companyId + "&currPage=1&perPage=5&searchValue=" + customer)
+          this.customerService.getCustomers(this.companyId + "/1/5/" + customer)
             .pipe(
               finalize(() => this.isLoading = false),
               catchError(error => {

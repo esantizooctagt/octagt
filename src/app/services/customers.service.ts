@@ -15,7 +15,7 @@ export class CustomerService {
     constructor(private http: HttpClient) { }
 
     getCustomers(formData): Observable<CustomerList[]> {
-      return this.http.get<CustomerList[]>(this.apiURL + '/customers?' + formData)
+      return this.http.get<CustomerList[]>(this.apiURL + '/customers/' + formData)
                       .pipe(catchError(this.errorHandler));
     }
 

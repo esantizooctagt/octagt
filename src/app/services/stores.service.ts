@@ -18,7 +18,7 @@ export class StoresService {
     }
 
     getStores(companyId): Observable<Store[]> {
-        return this.http.get<Store[]>(this.apiURL + '/stores?companyId=' + companyId)
+        return this.http.get<Store[]>(this.apiURL + '/stores/' + companyId)
                         .pipe(catchError(this.errorHandler));
     }
 

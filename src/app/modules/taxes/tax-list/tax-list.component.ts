@@ -83,7 +83,7 @@ export class TaxListComponent implements OnInit {
   loadTaxes(crPage, crNumber, crValue) {
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Taxes...");
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + (crValue === '' ? '/_' : '/' + crValue);
 
     this.taxes$ = this.taxService.getTaxes(data).pipe(
       map((res: any) => {

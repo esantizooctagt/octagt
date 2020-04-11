@@ -14,7 +14,7 @@ export class TaxService {
     constructor(private http: HttpClient) { }
   
     getTaxes(formData): Observable<Tax[]> {
-      return this.http.get<Tax[]>(this.apiURL + '/taxes?' + formData)
+      return this.http.get<Tax[]>(this.apiURL + '/taxes/' + formData)
                       .pipe(catchError(this.errorHandler));
     }
   

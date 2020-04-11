@@ -107,7 +107,7 @@ export class CustomerbasicComponent implements OnInit, ControlValueAccessor, OnD
         filter(customer => typeof customer === 'string' && customer != ''),
         tap(() => this.isLoading = true),
         switchMap(customer =>  
-          this.customerService.getCustomers("companyId=" + this.companyId + "&currPage=1&perPage=5&searchValue=" + customer)
+          this.customerService.getCustomers(this.companyId + "/1/5/" + customer)
             .pipe(
               finalize(() => this.isLoading = false),
               catchError(error => {
