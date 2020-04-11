@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { AuthService } from '@core/services';
@@ -13,12 +13,32 @@ export class JwtInterceptor implements HttpInterceptor {
         let currentUser = this.authService.currentUserValue;
         let currentUserTkn = this.authService.currentUserTknValue;
         if (currentUser && currentUserTkn) {
-            request = request.clone({
-                setHeaders: { 
-                    Authorization: `Bearer ${currentUserTkn}` //Bearer
-                }
-            });
+            if (this.searchUrl(request.url)){
+                request = request.clone({headers: new HttpHeaders({
+                    'Cache-Control': 'no-store',
+                    // 'Cache-Control': 'no-cache, max-age=0',
+                    'Authorization': `Bearer ${currentUserTkn}`
+                  })
+                });
+            } else {
+                request = request.clone({
+                    setHeaders: { 
+                        Authorization: `Bearer ${currentUserTkn}`
+                    }
+                });
+            }
         }
         return next.handle(request);
+    }
+
+    searchUrl(url: string) : boolean{
+        let values: any [] = ['apps','products'];
+        let exclude = false;
+        let res: any = values.filter(option => option === url.split("/")[3]);
+
+        if (res.length > 0){
+            exclude = true;
+        }
+        return exclude;
     }
 }
