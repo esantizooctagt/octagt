@@ -7,9 +7,9 @@
             <ng-container *ngFor="let tax of taxes$ | async; trackBy: trackById">
                 <mat-list-item>
                     <div class="pr-0 pl-0">
-                        <h3 class="mb-1" mat-line>{{ 'Name: ' + tax.Name }}</h3>
-                        <p class="mb-1" mat-line>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
-                        <p class="mb-1" mat-line>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                        <h3 class="mb-1" mat-line>{{ tax.Name }}</h3>
+                        <p class="mb-1" mat-line>{{ tax.Percentage | number: '.2' }} %</p>
+                        <p class="mb-1" mat-line>{{ (tax.Include_Tax === 0 ? 'No' : 'Yes') }}</p>
                         <mat-action-list class="" mat-line>
                             <button mat-icon-button color="primary" (click)="onSelect(tax)">
                                 <mat-icon>edit</mat-icon>
@@ -40,10 +40,10 @@
                     <!-- </mat-card-header> -->
                     <!-- <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu"> -->
                     <mat-card-content>
-                        <mat-card-title>{{ 'Name: ' + tax.Name }}</mat-card-title>
+                        <mat-card-title>{{ tax.Name }}</mat-card-title>
                         <!-- <h2>{{ 'Name: ' + tax.Name }}</h2> -->
-                        <p>Percentage: {{ tax.Percentage | number: '.2' }} %</p>
-                        <p>{{ 'Include Tax: ' + (tax.Include_Tax === 0 ? 'No' : 'Si') }}</p>
+                        <p>{{ tax.Percentage | number: '.2' }} %</p>
+                        <p>{{ (tax.Include_Tax === 0 ? 'No' : 'Yes') }}</p>
                     </mat-card-content>
                     <mat-card-actions align="end">
                         <button mat-icon-button color="primary" (click)="onSelect(tax)">

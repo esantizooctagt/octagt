@@ -91,31 +91,46 @@ export class ProductListComponent implements OnInit {
     this.companyId = this.authService.companyId();
     this.storeId = this.authService.storeId();
     if (this.storeId === '' || this.storeId === undefined) {
-      this.stores$ = this.doctoService.getDoctosCompany(this.companyId);
-      this.stores$.forEach((next: any) => {
-        if (next.length > 0){
-          this.storeSelected.emit(next[0].StoreId);
-          this.doctoSelected.emit(next[0].DocumentId);
-          this.storeId = next[0].StoreId;
-          this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
-          if (this.view === "salesView"){
-            this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
-            if (this.cashier != ''){
-              this.cashierId = this.cashier;
-              this.checkOut = true;
+      this.stores$ = this.doctoService.getDoctosCompany(this.companyId).pipe(
+        map((res: any) => {
+          if (res.length > 0){
+            this.storeSelected.emit(res[0].StoreId);
+            this.doctoSelected.emit(res[0].DocumentId);
+            this.storeId = res[0].StoreId;
+            this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
+            if (this.view === "salesView"){
+              this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+              if (this.cashier != ''){
+                this.cashierId = this.cashier;
+                this.checkOut = true;
+              }
             }
           }
-        }
-      })
+          return res;
+        })
+      )
+      // this.stores$.forEach((next: any) => {
+      //   if (next.length > 0){
+      //     this.storeSelected.emit(next[0].StoreId);
+      //     this.doctoSelected.emit(next[0].DocumentId);
+      //     this.storeId = next[0].StoreId;
+      //     this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
+      //     if (this.view === "salesView"){
+      //       this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+      //       if (this.cashier != ''){
+      //         this.cashierId = this.cashier;
+      //         this.checkOut = true;
+      //       }
+      //     }
+      //   }
+      // })
     } else {
       this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
       this.stores$ = this.doctoService.getDoctosCompany(this.companyId).pipe(
-        map(res => { return res.filter(store => store.StoreId === this.storeId); })
-      );
-      this.stores$.forEach((next: any) => {
-        if (next.length > 0){
+        map(res => { return res.filter(store => store.StoreId === this.storeId); }),
+        map((res: any )=> {
           this.storeSelected.emit(this.storeId);
-          this.doctoSelected.emit(next[0].DocumentId);
+          this.doctoSelected.emit(res[0].DocumentId);
           if (this.view === "salesView"){
             this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
             if (this.cashier != ''){
@@ -123,8 +138,22 @@ export class ProductListComponent implements OnInit {
               this.checkOut = true;
             }
           }
-        }
-      });
+          return res;
+        })
+      );
+      // this.stores$.forEach((next: any) => {
+      //   if (next.length > 0){
+      //     this.storeSelected.emit(this.storeId);
+      //     this.doctoSelected.emit(next[0].DocumentId);
+      //     if (this.view === "salesView"){
+      //       this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
+      //       if (this.cashier != ''){
+      //         this.cashierId = this.cashier;
+      //         this.checkOut = true;
+      //       }
+      //     }
+      //   }
+      // });
     }
 
     let currencyId = this.authService.currency();

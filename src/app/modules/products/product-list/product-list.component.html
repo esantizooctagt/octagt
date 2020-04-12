@@ -26,10 +26,15 @@
             <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
                 <mat-list-item>
                     <div class="pr-0 pl-0">
-                        <h3 matLine class="mb-1">{{ 'Name: ' + product.Name }}</h3>
+                        <h3 matLine class="mb-1">{{ product.Name }}</h3>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
-                        <p matLine class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">Price: {{ currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
-                        <p matLine class="mb-1">Available : {{ product.Qty | number: '.4' }}</p>
+                        <p matLine class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">{{ currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
+                        <!-- <p matLine class="mb-1">Available : {{ product.Qty | number: '.4' }}</p> -->
+                        <p class="card-stores mb-1">Stores:</p>
+                            <ul class="mb-1">
+                                <li *ngFor="let store of product.Stores">
+                                    {{store.StoreName + ' : ' + (store.Qty | number: '.4')}}</li>
+                            </ul>
                         <input matInput id="{{'qtyValue'+i}}" *ngIf="view" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Qty" min="0.01" max="99999999.90" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                         <mat-action-list class="" matLine *ngIf="!view">
                             <button mat-icon-button color="primary" (click)="onSelect(product)">
@@ -60,9 +65,6 @@
             <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
                 <mat-card class="card grid-card mt-1 mb-1 mr-2">
                     <img mat-card-image *ngIf="product.Img_Path != ''" src="{{ bucketURL + product.Img_Path}}">
-                    <!-- <mat-card-header>
-                        <mat-card-title>{{ product.Name }}</mat-card-title>
-                    </mat-card-header> -->
                     <mat-card-content class="mb-2">
                         <p class="card-title mb-1">{{ product.Name }}</p>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>

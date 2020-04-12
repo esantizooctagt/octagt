@@ -7,10 +7,10 @@
             <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
                 <mat-list-item>
                     <div class="pr-0 pl-0">
-                        <h3 matLine>{{ 'Name: ' + customer.Name }}</h3>
-                        <p matLine class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
-                        <p matLine class="mb-1">{{ 'Email : ' + customer.Email }}</p>
-                        <p matLine class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
+                        <h3 matLine>{{ customer.Name }}</h3>
+                        <p matLine class="mb-1">{{ customer.Tax_Number }}</p>
+                        <p matLine class="mb-1">{{ customer.Email }}</p>
+                        <p matLine class="mb-1">{{ customer.Phone }}</p>
                         <mat-action-list class="" matLine>
                             <button mat-icon-button color="primary" (click)="onSelect(customer)">
                                 <mat-icon>edit</mat-icon>
@@ -35,12 +35,12 @@
             <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
                 <mat-card class="card grid-card mt-1 mb-1 mr-2">
                     <mat-card-header>
-                        <mat-card-title>{{ 'Name: ' + customer.Name }}</mat-card-title>
+                        <mat-card-title>{{ customer.Name }}</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <p class="mb-1">{{ 'Tax Number: ' + customer.Tax_Number }}</p>
-                        <p class="mb-1">{{ 'Email : ' + customer.Email }}</p>
-                        <p class="mb-1">{{ 'Phone : ' + customer.Phone }}</p>
+                        <p class="mb-1">{{ customer.Tax_Number }}</p>
+                        <p class="mb-1">{{ customer.Email }}</p>
+                        <p class="mb-1">{{ customer.Phone }}</p>
                     </mat-card-content>
                     <mat-card-actions align="end">
                         <button mat-icon-button color="primary" (click)="onSelect(customer)">

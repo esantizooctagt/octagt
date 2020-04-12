@@ -176,7 +176,7 @@
                               [cdkDropListConnectedTo]="connectedTo"
                               class="element-list"
                               (cdkDropListDropped)="drop($event)">
-                              <div class="item-box" *ngFor="let det of item.Cashiers"  [cdkDragDisabled]="det.Disabled == 1" cdkDrag>{{det.Description}}</div>
+                              <div class="item-box" *ngFor="let det of item.Cashiers"  [cdkDragDisabled]="det.Disabled" cdkDrag>{{det.Description}}</div>
                             </div>
                         </div>
                     </form>

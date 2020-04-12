@@ -12,12 +12,12 @@
                 <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
                     <mat-card class="card grid-card mt-1 mb-1 mr-2">
                         <mat-card-header>
-                            <mat-card-title>{{ 'Name: ' + product.Name }}</mat-card-title>
+                            <mat-card-title>{{ product.Name }}</mat-card-title>
                         </mat-card-header>
                         <img mat-card-image *ngIf="product.Img_Path != ''"
                             src="{{ bucketURL + product.Img_Path}}">
                         <mat-card-content>
-                            <p>Price: {{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
+                            <p>{{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
                             <mat-divider></mat-divider>
                             <p class="title-stores">Stores:</p>
                             <ul class="">

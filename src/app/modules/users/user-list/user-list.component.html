@@ -7,9 +7,8 @@
             <ng-container *ngFor="let user of users$ | async; trackBy: trackById">
                 <mat-list-item>
                     <div class="pr-0 pl-0">
-                        <h3 class="mb-1" mat-line>{{ 'First Name: ' + user.First_Name }}</h3>
-                        <p class="mb-1" mat-line>{{ 'Last Name: ' + user.Last_Name }}</p>
-                        <p class="mb-1" mat-line>{{ 'Username: ' + user.User_Name }}</p>
+                        <h3 class="mb-1" mat-line>{{ user.First_Name + ' ' + user.Last_Name }}</h3>
+                        <p class="mb-1" mat-line>{{ user.User_Name }}</p>
                         <mat-action-list class="" mat-line>
                             <button mat-icon-button color="primary" (click)="onSelect(user)">
                                 <mat-icon>edit</mat-icon>
@@ -34,9 +33,8 @@
             <ng-container *ngFor="let user of users$ | async; trackBy: trackById">
                 <mat-card class="card grid-card mt-1 mb-1 mr-2">
                     <mat-card-content>
-                        <mat-card-title>{{ 'First Name: ' + user.First_Name }}</mat-card-title>
-                        <p>{{ 'Last Name: ' + user.Last_Name }}</p>
-                        <p>{{ 'Username: ' + user.User_Name }}</p>
+                        <mat-card-title>{{ user.First_Name + ' ' + user.Last_Name }}</mat-card-title>
+                        <p>{{ user.User_Name }}</p>
                     </mat-card-content>
                     <mat-card-actions align="end">
                         <button mat-icon-button color="primary" (click)="onSelect(user)">

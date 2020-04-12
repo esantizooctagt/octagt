@@ -208,7 +208,7 @@ export class CompanyComponent implements OnInit {
               CashierId:'',
               StoreId:'',
               CompanyId:'',
-              Description:'Caja No. ' + i, 
+              Description:'No. ' + i, 
               Status: 1
             }
             this.listCashiers.push(data);
@@ -511,6 +511,8 @@ export class CompanyComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.subsCompany.unsubscribe();
+    if (this.subsCompany){
+      this.subsCompany.unsubscribe();
+    }
   }
 }

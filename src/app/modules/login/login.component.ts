@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { ConfirmValidParentMatcher } from '@app/validators';
 import { AuthService } from '@core/services';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',

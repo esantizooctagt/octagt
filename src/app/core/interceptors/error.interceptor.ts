@@ -22,11 +22,11 @@ export class ErrorInterceptor implements HttpInterceptor {
                         //     this.authService.logout();
                         //     location.reload(true);
                         // }
-                        // if (err.status === 401) {
-                        //     // auto logout if 401 response returned from api
-                        //     this.authService.logout();
-                        //     location.reload(true);
-                        // }
+                        if (err.status === 401) {
+                            // auto logout if 401 response returned from api
+                            this.authService.logout();
+                            location.reload(true);
+                        }
                         message = err.error.message || err.statusText;
                         if (err.status === 404) {
                             message = err.error.Message;

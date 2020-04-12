@@ -94,7 +94,7 @@ export class InventoryQueryComponent implements OnInit {
   loadProducts(crPage, crNumber, crValue){
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Products..."); 
-    let data = "companyId=" + this.companyId + "&currPage=" + (crValue === '' ? crPage : 1) + "&perPage=" + crNumber + (crValue === '' ? '' : '&searchValue=' + crValue);
+    let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + '/_' + (crValue === '' ? '/_' : '/' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
       map((res: any) => {
