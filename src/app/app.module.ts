@@ -75,7 +75,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
     CustomerbasicComponent,
     DialogComponent,
     CategoriesComponent,
-    DashboardComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

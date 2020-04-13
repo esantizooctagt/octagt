@@ -10,13 +10,14 @@
             </app-search>
             <div class="card-columns mx-auto p-md-0 justify-content-center">
                 <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
-                    <mat-card class="card grid-card mt-1 mb-1 mr-2">
-                        <mat-card-header>
+                    <mat-card class="card mt-1 mb-1 mr-2">
+                        <!-- <mat-card-header>
                             <mat-card-title>{{ product.Name }}</mat-card-title>
-                        </mat-card-header>
+                        </mat-card-header> -->
                         <img mat-card-image *ngIf="product.Img_Path != ''"
                             src="{{ bucketURL + product.Img_Path}}">
                         <mat-card-content>
+                            <p class="card-title mb-1">{{ product.Name }}</p>
                             <p>{{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
                             <mat-divider></mat-divider>
                             <p class="title-stores">Stores:</p>

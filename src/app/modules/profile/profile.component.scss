@@ -56,3 +56,14 @@
 .mat-radio-button ~ .mat-radio-button {
     margin-left: 16px;
 }
+mat-card{
+    margin-left: 16px;
+}
+@media only screen and (max-width: 600px) {
+    .header-route{
+        padding-left: 0;
+    }
+    mat-card{
+        margin-left: 0;
+    }
+}

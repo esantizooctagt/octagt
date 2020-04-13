@@ -33,3 +33,23 @@ ul li {
     list-style-type: none;
     margin: 5px;
 }
+.list-width{
+    max-width: 100%;
+}
+@media only screen and (max-width: 600px) {
+    mat-card {
+        min-width: 100%;
+    }
+    .card-columns {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .label-data-cashier{
+        font-size: 0.83em;
+        text-align: left;
+        padding-top: 0px !important;
+    }
+    .label-data{
+        padding-top: 0px !important;
+    }
+}

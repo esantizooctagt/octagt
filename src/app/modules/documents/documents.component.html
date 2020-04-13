@@ -3,7 +3,8 @@
         <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
             <h4>Documents</h4>
         </div>
-        <mat-card class="col-md-6 ml-3" *ngIf="(document$ | async) || displayForm">
+        <!-- col-md-6  -->
+        <mat-card class="col-sm col-md col-lg-7" *ngIf="(document$ | async) || displayForm">
             <ng-container *ngIf="documentSave$ | async"></ng-container>
             <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
                 <div class="form-field pl-3 pr-3 col-md">

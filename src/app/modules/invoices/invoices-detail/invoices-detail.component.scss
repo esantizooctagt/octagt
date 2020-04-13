@@ -91,3 +91,11 @@ mat-card{
     margin-left: 15px;
     margin-right: 15px;
 }
+@media only screen and (max-width: 600px) {
+    .card-invoice{
+        margin-left: 0;
+    }
+    .header-route{
+        padding-left: 0;
+    }
+}

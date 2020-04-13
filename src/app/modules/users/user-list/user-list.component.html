@@ -7,7 +7,8 @@
             <ng-container *ngFor="let user of users$ | async; trackBy: trackById">
                 <mat-list-item>
                     <div class="pr-0 pl-0">
-                        <h3 class="mb-1" mat-line>{{ user.First_Name + ' ' + user.Last_Name }}</h3>
+                        <h3 class="mb-1" mat-line>{{ user.First_Name }}</h3>
+                        <p class="mb-1" mat-line>{{ user.Last_Name }}</p>
                         <p class="mb-1" mat-line>{{ user.User_Name }}</p>
                         <mat-action-list class="" mat-line>
                             <button mat-icon-button color="primary" (click)="onSelect(user)">

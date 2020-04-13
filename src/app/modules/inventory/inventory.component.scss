@@ -36,3 +36,14 @@ input.values-right-align::-webkit-inner-spin-button {
 input.values-right-align {
     -moz-appearance: textfield;
 }
+mat-card{
+    margin-left:16px;
+}
+@media only screen and (max-width: 600px) {
+    mat-card{
+        margin-left: 0px;
+    }
+    .header-route{
+        padding-left: 0px;
+    }
+}

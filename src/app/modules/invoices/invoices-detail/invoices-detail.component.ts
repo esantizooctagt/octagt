@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SalesService } from '@app/services';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { map, catchError, tap, shareReplay } from 'rxjs/operators';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { AuthService } from '@app/core/services';
 import { SpinnerService } from '@app/shared/spinner.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatTable } from '@angular/material/table';
 
 @Component({
   selector: 'app-invoices-detail',
@@ -15,6 +17,8 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
   styleUrls: ['./invoices-detail.component.scss']
 })
 export class InvoicesDetailComponent implements OnInit {
+  @ViewChild(MatTable) invoiceTable :MatTable<any>;
+  
   public invoice$: Observable<any>;
   public invoicePayed$: Observable<any>;
   public invoiceId: string = '';
@@ -24,13 +28,39 @@ export class InvoicesDetailComponent implements OnInit {
   public currency: string = '';
   private companyId: string = '';
 
+  displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
+
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => { 
+        if (result.matches) {
+          this.displayedColumns = ['Product', 'Qty', 'Total'];
+          if (this.invoiceTable){
+            this.invoiceTable.renderRows();
+          }
+        } else {
+          if (this.country === 'DEU'){
+            this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
+          } else {
+            this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'Discount', 'Total', 'Delivery_Date'];
+          }
+          if (this.invoiceTable){
+            this.invoiceTable.renderRows();
+          }
+        }
+        return result.matches; 
+      }),
+      shareReplay()
+    );
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private authService: AuthService,
     private spinnerService: SpinnerService,
     private salesService: SalesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private breakpointObserver: BreakpointObserver
   ) { }
 
   invoiceForm = this.fb.group({
@@ -88,8 +118,6 @@ export class InvoicesDetailComponent implements OnInit {
     return lineDet;
   }
 
-  displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
-
   ngOnInit() {
     var spinnerRef = this.spinnerService.start("Loading Invoice...");  
     this.invoiceId = this.route.snapshot.paramMap.get('idInvoice');
@@ -97,11 +125,11 @@ export class InvoicesDetailComponent implements OnInit {
     this.country = this.authService.country();
     this.currency = this.authService.currency();
 
-    if (this.country === 'DEU'){
-      this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
-    } else {
-      this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'Discount', 'Total', 'Delivery_Date'];
-    }
+    // if (this.country === 'DEU'){
+    //   this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
+    // } else {
+    //   this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'Discount', 'Total', 'Delivery_Date'];
+    // }
     if (this.invoiceId != undefined) {
       this.invoice$ = this.salesService.getInvoice(this.invoiceId).pipe(
         map((res: any) => {

@@ -2,7 +2,7 @@
     <h4>Users</h4>
 </div>
 <ng-container *ngIf="(userSave$ | async) && savingUser"></ng-container>
-<mat-card *ngIf="(user$ | async) || displayForm">
+<mat-card class="col-sm col-md col-lg-7" *ngIf="(user$ | async) || displayForm">
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
         <div class="form-field pl-3 pr-3">
             <mat-form-field hintLabel="Email format">

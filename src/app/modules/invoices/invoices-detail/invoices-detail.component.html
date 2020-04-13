@@ -4,7 +4,8 @@
             <h4>Invoice</h4>
         </div>
         <ng-container *ngIf="invoicePayed$ | async"></ng-container>
-        <mat-card class="col-md" *ngIf="(invoice$ | async) || displayForm">
+        <ng-container *ngIf="isHandset$ | async"></ng-container>
+        <mat-card class="card-invoice col-md" *ngIf="(invoice$ | async) || displayForm">
             <form [formGroup]="invoiceForm">
                 <div class="invoice-actions">
                     <button mat-icon-button id="back" type="button" [routerLink]="['/invoices']" class="ml-0 mr-3 mt-2">

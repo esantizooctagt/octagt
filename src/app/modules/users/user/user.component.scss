@@ -4,3 +4,14 @@
 .icon-green{
     color: green;
 }
+mat-card{
+    margin-left:0px;
+}
+@media only screen and (max-width: 600px) {
+    mat-card{
+        margin-left: 0px;
+    }
+    .header-route{
+        padding-left: 0px;
+    }
+}

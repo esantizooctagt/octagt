@@ -172,3 +172,11 @@ input.values-right-align {
     color: white;
     background: red;
 }
+@media only screen and (max-width: 600px) {
+    .offline {
+        width: 100%;
+    }
+    .online {
+        width: 100%;
+    }
+}

@@ -192,7 +192,7 @@ export class CompanyComponent implements OnInit {
                   CompanyId: res.CompanyId,
                   Description: res.Description,
                   Status: res.Status,
-                  Disabled: res.Disabled
+                  Disabled: (res.Disabled  == 0 ? true : false)
                 }
               })
             }

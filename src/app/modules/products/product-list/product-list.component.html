@@ -25,13 +25,13 @@
         <mat-list *ngIf="onError==''">
             <ng-container *ngFor="let product of products$ | async; let i=index; trackBy: trackById">
                 <mat-list-item>
-                    <div class="pr-0 pl-0">
-                        <h3 matLine class="mb-1">{{ product.Name }}</h3>
+                    <div class="list-width pr-0 pl-0">
+                        <h3 matLine class="card-title mb-1">{{ product.Name }}</h3>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                         <p matLine class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">{{ currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
                         <!-- <p matLine class="mb-1">Available : {{ product.Qty | number: '.4' }}</p> -->
-                        <p class="card-stores mb-1">Stores:</p>
-                            <ul class="mb-1">
+                        <p matLine class="card-stores mb-0">Stores:</p>
+                            <ul matLine class="mb-1 pt-0 pb-0">
                                 <li *ngFor="let store of product.Stores">
                                     {{store.StoreName + ' : ' + (store.Qty | number: '.4')}}</li>
                             </ul>
@@ -69,8 +69,8 @@
                         <p class="card-title mb-1">{{ product.Name }}</p>
                         <input matInput id="{{'unitPrice'+i}}" *ngIf="view && product.Type === 'services'" (keypress)="onKeyPress($event, $event.target.value)" pattern="^[0-9]{0,8}\.?[0-9]{0,2}$" placeholder="Unit Price" min="0.0001" max="99999999.9990" value="" [errorStateMatcher]="confirmValidParentMatcher" required>
                         <p class="mb-1" *ngIf="!view || (product.Type === 'goods' && view)">{{currencyCompany + ' ' + (product.Unit_Price | number: '.2') }}</p>
-                        <p class="card-stores mb-1">Stores:</p>
-                            <ul class="mb-1">
+                        <p class="card-stores mb-0">Stores:</p>
+                            <ul class="mb-1 pt-0 pb-0">
                                 <li *ngFor="let store of product.Stores">
                                     {{store.StoreName + ' : ' + (store.Qty | number: '.4')}}</li>
                             </ul>

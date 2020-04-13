@@ -6,8 +6,8 @@
         <mat-list *ngIf="onError==''">
             <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
                 <mat-list-item>
-                    <div class="pr-0 pl-0">
-                        <h3 matLine>{{ customer.Name }}</h3>
+                    <div class="list-width pr-0 pl-0">
+                        <h3 matLine class="card-title mb-1">{{ customer.Name }}</h3>
                         <p matLine class="mb-1">{{ customer.Tax_Number }}</p>
                         <p matLine class="mb-1">{{ customer.Email }}</p>
                         <p matLine class="mb-1">{{ customer.Phone }}</p>
@@ -34,9 +34,10 @@
         <ng-container *ngIf="onError==''">
             <ng-container *ngFor="let customer of customers$ | async; trackBy: trackById">
                 <mat-card class="card grid-card mt-1 mb-1 mr-2">
-                    <mat-card-header>
-                        <mat-card-title>{{ customer.Name }}</mat-card-title>
-                    </mat-card-header>
+                    <!-- <mat-card-header>
+                        <mat-card-title></mat-card-title>
+                    </mat-card-header> -->
+                    <div class="mat-card-header mat-card-header-text ml-0 mr-0">{{ customer.Name }}</div>
                     <mat-card-content>
                         <p class="mb-1">{{ customer.Tax_Number }}</p>
                         <p class="mb-1">{{ customer.Email }}</p>

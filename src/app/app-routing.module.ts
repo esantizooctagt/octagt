@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent, DashboardComponent } from '@modules/index';
+import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent, DashboardComponent, ResetComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -56,6 +56,10 @@ const routes: Routes = [
     path: 'forgotpassword',
     component: ForgotpassComponent
   },
+  {
+    path: 'resetpassword',
+    component: ResetComponent
+  },
   { 
     path: '**', 
     component: NotFoundComponent //redirectTo: '' 
@@ -93,6 +97,7 @@ export const routingComponents = [
   SalesComponent,
   HelpComponent,
   ForgotpassComponent,
+  ResetComponent,
   InvoicesComponent, 
   InventoryComponent, 
   InventoryQueryComponent, 

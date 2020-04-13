@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { AuthService } from '@app/core/services';
 import { SalesService, RolesService } from '@app/services';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, shareReplay } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatTable } from '@angular/material/table';
 
 @Component({
   selector: 'app-invoices',
@@ -13,6 +15,8 @@ import { SpinnerService } from '@app/shared/spinner.service';
   styleUrls: ['./invoices.component.scss']
 })
 export class InvoicesComponent implements OnInit {
+  @ViewChild(MatTable) invoiceTable :MatTable<any>;
+
   private companyId: string = '';
   private storeId: string = '';
 
@@ -24,11 +28,31 @@ export class InvoicesComponent implements OnInit {
   public access$: Observable<any>;
   public pages: number[];
   public loading: boolean = false;
+  public isSmartPhone: boolean = false;
 
   private _currentPage: number = 1;
   private _currentSearchValue: string = '';
 
   public displayedColumns = ['Invoice_Number', 'Invoice_Date', 'Name', 'Payment_Status', 'User_Name', 'Total_Taxes', 'Total', 'Store_Name', 'Actions'];
+
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => { 
+        if (result.matches) {
+          this.displayedColumns = ['Invoice_Number', 'Name', 'Total', 'Actions'];
+          if (this.invoiceTable){
+            this.invoiceTable.renderRows();
+          }
+        } else {
+          this.displayedColumns = ['Invoice_Number', 'Invoice_Date', 'Name', 'Payment_Status', 'User_Name', 'Total_Taxes', 'Total', 'Store_Name', 'Actions'];
+          if (this.invoiceTable){
+            this.invoiceTable.renderRows();
+          }
+        }
+        return result.matches; 
+      }),
+      shareReplay()
+    );
 
   constructor(
     private authService: AuthService,
@@ -36,7 +60,8 @@ export class InvoicesComponent implements OnInit {
     private spinnerService: SpinnerService,
     private roleService: RolesService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private breakpointObserver: BreakpointObserver
   ) { }
 
   get fData(){

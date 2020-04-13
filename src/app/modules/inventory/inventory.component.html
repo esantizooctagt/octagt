@@ -3,7 +3,7 @@
         <div class="pl-15 pt-1 pb-2 col-md-12 mt-1 mb-1 header-route">
             <h4>Inventory</h4>
         </div>
-        <mat-card class="col-md-9 ml-3" *ngIf="(inventory$ | async) || displayForm">
+        <mat-card class="col-sm col-md col-lg-9" *ngIf="(inventory$ | async) || displayForm">
             <form [formGroup]="inventoryForm">
                 <div class="form-field pl-3 pr-3">
                     <mat-form-field class="col-md-9 pl-0">

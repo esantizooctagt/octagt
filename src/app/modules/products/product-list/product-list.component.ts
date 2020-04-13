@@ -109,21 +109,6 @@ export class ProductListComponent implements OnInit {
           return res;
         })
       )
-      // this.stores$.forEach((next: any) => {
-      //   if (next.length > 0){
-      //     this.storeSelected.emit(next[0].StoreId);
-      //     this.doctoSelected.emit(next[0].DocumentId);
-      //     this.storeId = next[0].StoreId;
-      //     this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
-      //     if (this.view === "salesView"){
-      //       this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
-      //       if (this.cashier != ''){
-      //         this.cashierId = this.cashier;
-      //         this.checkOut = true;
-      //       }
-      //     }
-      //   }
-      // })
     } else {
       this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue, this.storeId);
       this.stores$ = this.doctoService.getDoctosCompany(this.companyId).pipe(
@@ -141,19 +126,6 @@ export class ProductListComponent implements OnInit {
           return res;
         })
       );
-      // this.stores$.forEach((next: any) => {
-      //   if (next.length > 0){
-      //     this.storeSelected.emit(this.storeId);
-      //     this.doctoSelected.emit(next[0].DocumentId);
-      //     if (this.view === "salesView"){
-      //       this.cashiers$ = this.cashierService.getCashiersStore(this.storeId);
-      //       if (this.cashier != ''){
-      //         this.cashierId = this.cashier;
-      //         this.checkOut = true;
-      //       }
-      //     }
-      //   }
-      // });
     }
 
     let currencyId = this.authService.currency();
@@ -177,7 +149,6 @@ export class ProductListComponent implements OnInit {
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Products...");
     let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + "/" + crStoreId + (crValue === '' ? '/_' : '/' + crValue);
-    //let data = "companyId/" + this.companyId + "/currPage" + (crValue === '' ? crPage : 1) + "/perPage" + crNumber + (crStoreId === '' ? '' : "&storeId=" + crStoreId) + (crValue === '' ? '' : '&searchValue=' + crValue);
 
     this.products$ = this.productService.getProducts(data).pipe(
       map((res: any) => {
