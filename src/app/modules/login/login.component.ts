@@ -41,6 +41,7 @@ export class LoginComponent implements OnInit {
 
     // get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    console.log(this.returnUrl);
   }
 
   // convenience getter for easy access to form fields
@@ -60,7 +61,9 @@ export class LoginComponent implements OnInit {
       .subscribe(
           data => {
             if (data.Code == 100){
-              this.router.navigate([this.returnUrl]);
+              let languageId = this.authService.language();
+              window.location.href = 'https://portal.cashier2go.com/' + languageId + this.returnUrl;
+              // this.router.navigate([this.returnUrl]);
             }
             if (data.Code == 300){
               this.showAuth = true;

@@ -53,9 +53,9 @@
         <img [src]="language" width="20"/>
       </button>
       <mat-menu #languageMenu="matMenu" xPosition="before">
-        <button mat-menu-item [routerLink]="['/en']"><img class="mr-4 ml-1" src="assets/images/icon/EN.svg" width="30"/>  English</button>
-        <button mat-menu-item [routerLink]="['/es']"><img class="mr-4 ml-1" src="assets/images/icon/ES.svg" width="30"/>  Español</button>
-        <button mat-menu-item [routerLink]="['/de']"><img class="mr-4 ml-1" src="assets/images/icon/DE.svg" width="30"/>  Deutsch</button>
+        <a class="item-language" mat-menu-item href="https://portal.cashier2go.com/en"><img class="mr-4 ml-1" src="assets/images/icon/EN.svg" width="30"/>  English</a>
+        <a class="item-language" mat-menu-item href="https://portal.cashier2go.com/es"><img class="mr-4 ml-1" src="assets/images/icon/ES.svg" width="30"/>  Español</a>
+        <a class="item-language" mat-menu-item href="https://portal.cashier2go.com/de"><img class="mr-4 ml-1" src="assets/images/icon/DE.svg" width="30"/>  Deutsch</a>
       </mat-menu>
       <button mat-icon-button class="mr-1" [routerLink]="['/help']">
         <mat-icon>help</mat-icon>
