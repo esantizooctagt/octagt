@@ -34,7 +34,6 @@ export class InventoryQueryComponent implements OnInit {
 
   companyId: string = '';
   currencyCompany: string ='';
-  currencyValue: Currency[]=[{"n":"Q", "c":"GTQ"},{"n":"EUR", "c":"EUR"}];
 
   constructor(
     private authService: AuthService,
@@ -84,10 +83,7 @@ export class InventoryQueryComponent implements OnInit {
 
   initData(){
     this.companyId = this.authService.companyId();
-    let currencyId = this.authService.currency();
-    let currencyVal: Currency[];
-    currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
-    this.currencyCompany = currencyVal[0].n;
+    this.currencyCompany = this.authService.currency();
     this.loadProducts(this._currentPage, this.pageSize, this._currentSearchValue);
   }
 

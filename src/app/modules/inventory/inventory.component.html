@@ -5,7 +5,7 @@
         </div>
         <mat-card class="col-sm col-md col-lg-9" *ngIf="(inventory$ | async) || displayForm">
             <form [formGroup]="inventoryForm">
-                <div class="form-field pl-3 pr-3">
+                <div class="form-field">
                     <mat-form-field class="col-md-9 pl-0">
                         <mat-label>Store *</mat-label>
                         <mat-select formControlName="StoreId" (selectionChange)="getProducts($event.value)">

@@ -39,11 +39,19 @@ input.values-right-align {
 mat-card{
     margin-left:16px;
 }
+.form-field{
+    padding-left: 16px;
+    padding-right: 16px;
+}
 @media only screen and (max-width: 600px) {
     mat-card{
         margin-left: 0px;
     }
     .header-route{
         padding-left: 0px;
+    }
+    .form-field{
+        padding-left: 0px;
+        padding-right: 0px;
     }
 }

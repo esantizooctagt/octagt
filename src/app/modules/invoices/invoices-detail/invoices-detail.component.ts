@@ -125,11 +125,6 @@ export class InvoicesDetailComponent implements OnInit {
     this.country = this.authService.country();
     this.currency = this.authService.currency();
 
-    // if (this.country === 'DEU'){
-    //   this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'To_Go', 'Discount', 'Total', 'Delivery_Date'];
-    // } else {
-    //   this.displayedColumns = ['Product', 'Qty', 'Unit_Price', 'Percentage', 'Discount', 'Total', 'Delivery_Date'];
-    // }
     if (this.invoiceId != undefined) {
       this.invoice$ = this.salesService.getInvoice(this.invoiceId).pipe(
         map((res: any) => {

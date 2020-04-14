@@ -64,7 +64,7 @@
                                 <mat-error *ngIf="fCompany.Currency.invalid && fCompany.Currency.touched">{{getErrorMessage('Currency')}}</mat-error>
                                 <mat-autocomplete #autoCurrency="matAutocomplete" [displayWith]="displayFnCurrency" activeOption="activeOption">
                                     <mat-option *ngFor="let currency of filteredCurrencies$ | async" [value]="currency">
-                                    {{currency.n}}
+                                    {{ currency.name + ' - ' + currency.n}}
                                     </mat-option>
                                 </mat-autocomplete>
                             </mat-form-field>

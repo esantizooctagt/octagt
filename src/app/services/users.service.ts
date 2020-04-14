@@ -52,6 +52,16 @@ export class UserService {
                       .pipe(catchError(this.errorHandler));
     }
 
+    getResetCode(resetId): Observable<string>{
+      return this.http.get<string>(this.apiURL + '/user/reset/' + resetId)
+                      .pipe(catchError(this.errorHandler));
+    }
+
+    putResetPass(userId, formData){
+      return this.http.put(this.apiURL + '/user/reset/' + userId, formData)
+                      .pipe(catchError(this.errorHandler));
+    }
+
     errorHandler(error) {
       return throwError(error || 'Server Error');
     }

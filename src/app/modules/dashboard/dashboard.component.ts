@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportsService } from '@app/services';
 import { AuthService } from '@app/core/services';
 
+import { SpinnerService } from '@app/shared/spinner.service';
 import { graphic } from 'echarts';
 import { Subscription } from 'rxjs';
 
@@ -30,6 +31,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private spinnerService: SpinnerService,
     private reportService: ReportsService
   ) { }
 
@@ -49,6 +51,7 @@ export class DashboardComponent implements OnInit {
     let yMaxDoctos = 0;
     let dataShadow = [];
 
+    var spinnerRef = this.spinnerService.start("Loading Dashboard...");
     this.bars = this.reportService.getSalesbyDay(this.companyId).subscribe(res => {
       if (res != null){
         let maxVal = 0;
@@ -270,7 +273,6 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    
     this.scalar = this.reportService.getSalesByMonth(this.companyId).subscribe(res => {
       if (res != null){
         res.forEach(element => {
@@ -324,6 +326,7 @@ export class DashboardComponent implements OnInit {
             }
           ]
         }
+        this.spinnerService.stop(spinnerRef);
       }
     });
   }

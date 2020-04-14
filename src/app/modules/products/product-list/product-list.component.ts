@@ -50,7 +50,7 @@ export class ProductListComponent implements OnInit {
   deleted: boolean = false;
   displayYesNo: boolean = false;
   checkOut: boolean = false;
-  currencyValue: Currency[]=[{"n":"Q", "c":"GTQ"},{"n":"EUR", "c":"EUR"}];
+  currencyValue: Currency[]=environment.currencies.sort((a, b) => (a.name > b.name) ? 1 : -1);
   currencyCompany: string ='';
   message$: Observable<string>;
   products$: Observable<Product[]>;
@@ -128,11 +128,7 @@ export class ProductListComponent implements OnInit {
       );
     }
 
-    let currencyId = this.authService.currency();
-    let currencyVal: Currency[];
-    currencyVal = this.currencyValue.filter(currency => currency.c.indexOf(currencyId) === 0);
-    this.currencyCompany = currencyVal[0].n;
-    
+    this.currencyCompany = this.authService.currency();
     this.message$ = this.data.monitorMessage.pipe(
       map(res => {
         this.message = 'init';

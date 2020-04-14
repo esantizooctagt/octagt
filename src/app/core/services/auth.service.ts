@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { User } from '@app/_models';
+import { User, Currency } from '@app/_models';
 import { environment } from '@environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -15,6 +15,7 @@ export class AuthService {
     public currentUser: Observable<User>;
     public currentTkn: Observable<any>;
     readonly apiURL = environment.apiUrl;
+    currencies: Currency[]=environment.currencies.sort((a, b) => (a.name > b.name) ? 1 : -1);
 
     constructor(private http: HttpClient) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(sessionStorage.getItem('OCT_USS')));
@@ -80,7 +81,13 @@ export class AuthService {
 
     currency() {
         let user = JSON.parse(sessionStorage.getItem('OCT_USS'));
-        return user.Currency;
+        let curr: Currency[];
+        let curStr = '';
+        curr = this.currencies.filter(currency => currency.c.indexOf(user.Currency) === 0);
+        if (curr.length > 0) {
+            curStr = curr[0].n;
+        }
+        return curStr;
     }
 
     language() {
