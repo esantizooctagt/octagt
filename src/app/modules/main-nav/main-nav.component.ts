@@ -73,13 +73,13 @@ export class MainNavComponent implements OnInit {
     if (this.router.url != '/' && this.router.url != '/en' && this.router.url != '/es' && this.router.url != '/de'){
       this.dispHome = false;
     }
-    if (this.localeId.toLowerCase() == 'en-us'){
+    if (this.localeId.toLowerCase() == 'en'){
       this.language = 'assets/images/icon/EN.svg';
     }
-    if (this.localeId.toLowerCase() == 'de-de'){
+    if (this.localeId.toLowerCase() == 'de'){
       this.language = 'assets/images/icon/DE.svg';
     }
-    if (this.localeId.toLowerCase() == 'es-es'){
+    if (this.localeId.toLowerCase() == 'es'){
       this.language = 'assets/images/icon/ES.svg';
     }
     this.companyId = this.authService.companyId();
