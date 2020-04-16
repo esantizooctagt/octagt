@@ -69,19 +69,10 @@ export class MainNavComponent implements OnInit {
   }
 
   ngOnInit(){
-    console.log('Locale ' + this.localeId);
     if (this.router.url != '/' && this.router.url != '/en' && this.router.url != '/es' && this.router.url != '/de'){
       this.dispHome = false;
     }
-    if (this.localeId.toLowerCase() == 'en'){
-      this.language = 'assets/images/icon/EN.svg';
-    }
-    if (this.localeId.toLowerCase() == 'de'){
-      this.language = 'assets/images/icon/DE.svg';
-    }
-    if (this.localeId.toLowerCase() == 'es'){
-      this.language = 'assets/images/icon/ES.svg';
-    }
+    this.language = 'assets/images/icon/'+this.localeId.toUpperCase()+'.svg';
     this.companyId = this.authService.companyId();
     this.roleId = this.authService.roleId();
     this.userId = this.authService.userId();

@@ -218,7 +218,8 @@ export class UserComponent implements OnInit {
           "UserLogId": userLoggedId,
           "RoleId": this.userForm.value.RoleId,
           "MFact_Auth": this.userForm.value.MFact_Auth,
-          "Status": this.userForm.value.Status
+          "Status": this.userForm.value.Status,
+          "LanguageId": ''
         }
         this.userSave$ = this.usersService.updateUser(userId, dataForm).pipe(
           tap(res => { 
@@ -249,7 +250,8 @@ export class UserComponent implements OnInit {
           "StoreId": this.userForm.value.StoreId,
           "RoleId": this.userForm.value.RoleId,
           "MFact_Auth": this.userForm.value.MFact_Auth,
-          "UserLogId": userLoggedId
+          "UserLogId": userLoggedId,
+          "LanguageId": ''
         }
         this.userSave$ = this.usersService.postUser(dataForm).pipe(
           tap(res => { 
