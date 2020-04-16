@@ -11,7 +11,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialogComponent } from '@app/shared/dialog/dialog.component';
 
 import * as cloneDeep  from 'lodash/cloneDeep';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { map, shareReplay, delay, tap, catchError, debounceTime, distinctUntilChanged, filter, switchMap, finalize } from 'rxjs/operators';
 
@@ -20,6 +20,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { SpinnerService } from '@app/shared/spinner.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sales',
@@ -701,18 +702,18 @@ export class SalesComponent implements OnInit {
           this.invoiceNumber = res.Invoice_Id;
           codigo = 100;
         }
-        return codigo;
+        return res;
       }),
       delay(500),
       map((res: any) => {
-        if (res === 100){
+        if (res.Codigo === 100){
           window.print();
-          return res;
         }
+        return res;
       }),
       delay(500),
       tap((res: any)  => {
-        if (res === 100){
+        if (res.Codigo === 100){
           this.salesForm.reset({Invoice_Date:formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Document_Id: this.doctoId, Company_Id: this.companyId, Cashier_Id: this.cashierId, Status: 1, User_Id: this.userId, Payment_Status: '', Payment_Date: '', Payment_Auth: '', Total: 0, Total_Taxes: 0, Total_Discount:0, Store_Id: this.storeId, Customer_Id:'', Name:'', Address:'', State:'', Email: '', Tax_Number:'', Is_Exent: 0, Reason: '',  Cash_Value: '', Credit_Auth: '', Credit_Digits: '', Guest: false, detail: this.fb.array([], ArrayValidators.minLength(1)) });
           if (this.subCustomer){
             this.subCustomer.unsubscribe();
@@ -723,14 +724,24 @@ export class SalesComponent implements OnInit {
           (<FormArray>this.salesForm.get('detail')).clear(); 
           (<FormArray>this.salesForm.get('detail')).push(this.createDetail());
           this.savingSale = false;
+        } else if (res.Codigo === 400) {
+          this.savingSale = false;
+          this.openDialog('Sales', 'You select and item without inventory, please check', false, true, false);
         } else {
           this.savingSale = false;
           this.openDialog('Sales', 'An error occurred try again', false, true, false);
         }
-      })
+      }),
+      catchError(this.errorHandler)
     );
   }
 
+  errorHandler(error: HttpErrorResponse) {
+    this.savingSale = false;
+    this.openDialog('Sales', error.message, false, true, false);
+    return throwError(error.message || "server error.");
+  }
+  
   onCancel(){
     this.salesForm.reset({Invoice_Date:formatDate(this.invoiceDate, 'yyyy-MM-dd hh:mm:ss', 'en-US'), Document_Id: this.doctoId, Company_Id: this.companyId, Cashier_Id: this.cashierId, Status: 1, User_Id: this.userId, Payment_Status: '', Payment_Date: '', Payment_Auth: '', Total: 0, Total_Taxes: 0, Total_Discount:0, Store_Id: this.storeId, Customer_Id:'', Name:'', Address:'', State:'', Email: '', Tax_Number:'', Is_Exent: 0, Reason: '',  Cash_Value: '', Credit_Auth: '', Credit_Digits: '', Guest: false, detail: this.fb.array([], ArrayValidators.minLength(1)) });
     if (this.subCustomer){

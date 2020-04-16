@@ -281,6 +281,9 @@ export class DashboardComponent implements OnInit {
         });
 
         this.salesbymonth = {
+          title: {
+            text: 'Sales by Month ' + this.currency
+          },
           tooltip: {
             trigger: 'axis',
             axisPointer: {

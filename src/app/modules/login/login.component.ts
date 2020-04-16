@@ -62,7 +62,11 @@ export class LoginComponent implements OnInit {
           data => {
             if (data.Code == 100){
               let languageId = this.authService.language();
-              window.location.href = 'https://portal.cashier2go.com/' + languageId + this.returnUrl;
+              if (languageId != ''){
+                window.location.href = 'https://portal.cashier2go.com/' + languageId + this.returnUrl;
+              } else {
+                window.location.href = 'https://portal.cashier2go.com/en' + this.returnUrl;
+              }
               // this.router.navigate([this.returnUrl]);
             }
             if (data.Code == 300){

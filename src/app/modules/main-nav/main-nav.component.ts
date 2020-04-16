@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, LOCALE_ID, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
@@ -25,6 +25,7 @@ export class MainNavComponent implements OnInit {
   language: string='';
   isAdmin: boolean=false;
   collapse: boolean=false;
+  dispHome: boolean=true;
   cashierId: string='';
 
   apps$: Observable<Access[]>;
@@ -41,6 +42,7 @@ export class MainNavComponent implements OnInit {
     );
 
   constructor(
+    @Inject(LOCALE_ID) protected localeId: string,
     private breakpointObserver: BreakpointObserver,
     public authService: AuthService,
     private roleService: RolesService,
@@ -67,11 +69,24 @@ export class MainNavComponent implements OnInit {
   }
 
   ngOnInit(){
+    console.log('Locale ' + this.localeId);
+    if (this.router.url != '/' && this.router.url != '/en' && this.router.url != '/es' && this.router.url != '/de'){
+      this.dispHome = false;
+    }
+    if (this.localeId.toLowerCase() == 'en-us'){
+      this.language = 'assets/images/icon/EN.svg';
+    }
+    if (this.localeId.toLowerCase() == 'de-de'){
+      this.language = 'assets/images/icon/DE.svg';
+    }
+    if (this.localeId.toLowerCase() == 'es-es'){
+      this.language = 'assets/images/icon/ES.svg';
+    }
     this.companyId = this.authService.companyId();
     this.roleId = this.authService.roleId();
     this.userId = this.authService.userId();
     this.isAdmin = this.authService.isAdmin();
-    this.language = (this.authService.language() != '' ? 'assets/images/icon/'+ this.authService.language()+'.svg' : '');
+    //this.language = (this.authService.language() != '' ? 'assets/images/icon/'+ this.authService.language()+'.svg' : '');
     if (this.authService.avatar() != '') {
       this.avatar = this.imgPath + this.authService.avatar();
     }
@@ -107,6 +122,12 @@ export class MainNavComponent implements OnInit {
 
   OnCollapse(){
     this.collapse = !this.collapse;
+  }
+
+  displayHome(event){
+    if (event != '') {
+      this.dispHome = false;
+    }
   }
 
 }

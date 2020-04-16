@@ -57,6 +57,7 @@ import { CustomerbasicComponent } from '@shared/customerbasic/customerbasic.comp
 import { LayoutModule } from '@angular/cdk/layout';
 import { CategoriesComponent } from '@modules/categories/categories.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
+import { HomeComponent } from './modules/home/home.component';
 
 // import { registerLocaleData } from '@angular/common';
 // import localeEs from '@angular/common/locales/es';
@@ -75,7 +76,8 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
     CustomerbasicComponent,
     DialogComponent,
     CategoriesComponent,
-    DashboardComponent
+    DashboardComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

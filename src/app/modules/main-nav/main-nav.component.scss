@@ -24,16 +24,21 @@
   width: 40px;
 }
 .item-list{
-  background-color: darkgrey;
+  background-color: #092e66;
   color: white;
   height: 40px !important;
 }
 .item-list:hover{
-  background-color: darkgrey;
+  background-color: #092e66;
   color: white;
   cursor: context-menu;
   height: 40px;
 }
 .item-language{
   color:black !important;
+}
+.menu-active{
+  border-color: #092e66 !important;
+  border-left: 3px solid;
+  background-color: #e3e7ef;
 }
