@@ -1,17 +1,17 @@
-.panel-lt-reset{
+.panel-lt-ver{
     width: 100%;
     min-height: 180px;
 }
-.panel-rt-reset{
+.panel-rt-ver{
     width: 100%;;
     min-height: 280px;
 }
-.spinner-reset{
+.spinner-ver{
     position: absolute;
     left: 50%;
     top: 50%;
 }
-.overlay-reset{
+.overlay-ver{
     height:100%;
     width:100%;
     background-color:rgba(0, 0, 0, 0.418);
@@ -19,6 +19,10 @@
     top:        0; 
     left:       0; 
     position: absolute;
+}
+.ver-forgot{
+    text-align: right;
+    cursor: pointer;
 }
 .img-back{
     background-image: url('https://previews.123rf.com/images/melpomen/melpomen1902/melpomen190200571/116956656-online-shopping-theme-with-woman-using-her-smartphone-in-a-living-room.jpg');
@@ -30,7 +34,7 @@
     height: 100%;
     width: 100%;
 }
-.reset-form{
+.ver-form{
     position: absolute; 
     background-color: white;
 }

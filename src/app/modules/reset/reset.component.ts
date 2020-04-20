@@ -18,10 +18,11 @@ import { DialogComponent } from '@app/shared/dialog/dialog.component';
 export class ResetComponent implements OnInit {
   resetForm: FormGroup;
 
-  user$:Observable<any>;
+  // user$:Observable<any>;
   userReset$:Observable<any>;
   resetId:string = '';
   userId:string = '';
+  code:string = '';
   loading = false;
   hide = true;
   hideconf = true;
@@ -30,7 +31,7 @@ export class ResetComponent implements OnInit {
   confirmValidParentMatcher = new ConfirmValidParentMatcher();
 
   constructor(
-    private formBuilder: FormBuilder,
+    private fb: FormBuilder,
     private authService: AuthService,
     private spinnerService: SpinnerService,
     private route: ActivatedRoute,
@@ -42,10 +43,10 @@ export class ResetComponent implements OnInit {
       this.router.navigate(['/']);
     }
 
-    this.resetForm = this.formBuilder.group({
-      Passwords : this.formBuilder.group({
-        password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]],
-        confpassword: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]]
+    this.resetForm = this.fb.group({
+      Passwords : this.fb.group({
+        password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20), Validators.pattern("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&?])[a-zA-Z0-9!#$%&?]{8,}")]],
+        confpassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20), Validators.pattern("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&?])[a-zA-Z0-9!#$%&?]{8,}")]]
       }, {validator: this.checkPasswords})
     });
   }
@@ -70,18 +71,19 @@ export class ResetComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.resetId = this.route.snapshot.paramMap.get('idReset');
-    this.user$ = this.usersService.getResetCode(this.resetId).pipe(
-      map((result: any) => { 
-        if (result != null){
-          if (result.Code == 100){
-            this.userId = result.User_Id;
-          }
-        }
-        if (this.userId == '') { this.router.navigate(['/']); }
-        return result; 
-      })
-    );
+    this.userId = this.route.snapshot.paramMap.get('user');
+    this.code = this.route.snapshot.paramMap.get('code');
+    // this.user$ = this.usersService.getResetCode(this.resetId).pipe(
+    //   map((result: any) => { 
+    //     if (result != null){
+    //       if (result.Code == 100){
+    //         this.userId = result.User_Id;
+    //       }
+    //     }
+    //     if (this.userId == '') { this.router.navigate(['/']); }
+    //     return result; 
+    //   })
+    // );
   }
 
   checkPasswords(fb: FormGroup) {
@@ -101,10 +103,16 @@ export class ResetComponent implements OnInit {
     if (this.resetForm.touched){
       var spinnerRef = this.spinnerService.start("Reseting Password...");
       if (this.userId !== '') {  
+        var CryptoJS = require("crypto-js");
+        var data = this.resetForm.get('Passwords.password').value;
+        var password = "K968G66S4dC1Y5tNA5zKGT5KIjeMcpc8";
+        var ctObj = CryptoJS.AES.encrypt(data, password);
+        var ctStr = ctObj.toString();
+
         let dataForm =  {
-          "Password": this.resetForm.get('Passwords.password').value
+          Password: ctStr
         }
-        this.userReset$ = this.usersService.putResetPass(this.userId, dataForm).pipe(
+        this.userReset$ = this.usersService.putResetPass(this.userId, this.code, dataForm).pipe(
           tap((res: any) => { 
             if (res.Code == 200){
               this.spinnerService.stop(spinnerRef);

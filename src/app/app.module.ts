@@ -58,6 +58,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { CategoriesComponent } from '@modules/categories/categories.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { HomeComponent } from './modules/home/home.component';
+import { VerificationComponent } from './modules/verification/verification.component';
 
 // import { registerLocaleData } from '@angular/common';
 // import localeEs from '@angular/common/locales/es';
@@ -77,7 +78,8 @@ import { HomeComponent } from './modules/home/home.component';
     DialogComponent,
     CategoriesComponent,
     DashboardComponent,
-    HomeComponent
+    HomeComponent,
+    VerificationComponent
   ],
   imports: [
     BrowserModule,

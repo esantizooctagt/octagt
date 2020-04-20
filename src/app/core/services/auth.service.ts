@@ -6,14 +6,18 @@ import { map } from 'rxjs/operators';
 import { User, Currency } from '@app/_models';
 import { environment } from '@environments/environment';
 
+
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {
     private currentUserSubject: BehaviorSubject<User>;
     private currentUserTknSubject: BehaviorSubject<any>;
+    private currentAccessTknSubject: BehaviorSubject<any>;
 
     public currentUser: Observable<User>;
     public currentTkn: Observable<any>;
+    public currentAccessTkn: Observable<any>;
+
     readonly apiURL = environment.apiUrl;
     currencies: Currency[]=environment.currencies.sort((a, b) => (a.name > b.name) ? 1 : -1);
 
@@ -23,6 +27,9 @@ export class AuthService {
 
         this.currentUserTknSubject = new BehaviorSubject<User>(JSON.parse(sessionStorage.getItem('OCT_TKN')));
         this.currentTkn = this.currentUserTknSubject.asObservable();
+
+        this.currentAccessTknSubject = new BehaviorSubject<User>(JSON.parse(sessionStorage.getItem('OCT_ACT')));
+        this.currentAccessTkn = this.currentAccessTknSubject.asObservable();
     }
 
     public get currentUserValue(): User {
@@ -31,6 +38,10 @@ export class AuthService {
 
     public get currentUserTknValue(): any {
         return this.currentUserTknSubject.value;
+    }
+
+    public get currentAccessValue(): any{
+        return this.currentAccessTknSubject.value;
     }
 
     login(userName: string, password: string, authCode: string) {
@@ -44,6 +55,8 @@ export class AuthService {
                         this.currentUserSubject.next(user.user);
                         sessionStorage.setItem('OCT_TKN', JSON.stringify(user.token));
                         this.currentUserTknSubject.next(user.token);
+                        sessionStorage.setItem('OCT_ACT', JSON.stringify(user.access));
+                        this.currentAccessTknSubject.next(user.access);
                     }
                     return user;
                 })
@@ -72,6 +85,10 @@ export class AuthService {
 
     currentToken() {
         return this.currentUserTknSubject.value;
+    }
+
+    currentAccessToken(){
+        return this.currentAccessTknSubject.value;
     }
 
     roleId(){
@@ -153,5 +170,7 @@ export class AuthService {
         this.currentUserSubject.next(null);
         sessionStorage.removeItem('OCT_TKN');
         this.currentUserTknSubject.next(null);
+        sessionStorage.removeItem('OCT_ACT');
+        this.currentAccessTknSubject.next(null);
     }
 }

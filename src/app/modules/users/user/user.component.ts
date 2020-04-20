@@ -25,7 +25,10 @@ export class UserComponent implements OnInit {
     return this.userForm.controls;
   }
 
+  userData: string = '';
+  statTemp: number = 0;
   message$: Observable<string>;
+  userAct$: Observable<any>;
   companyId: string='';
   changesUser: Subscription;
   stores$: Observable<StoreDocto[]>;
@@ -61,7 +64,7 @@ export class UserComponent implements OnInit {
     UserName: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
     First_Name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     Last_Name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-    Password: ['',[Validators.minLength(6), Validators.maxLength(20)]],
+    Password: ['',[Validators.minLength(8), Validators.maxLength(20), Validators.pattern("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&?])[a-zA-Z0-9!#$%&?]{8,}")]],
     Avatar: [''],
     StoreId: [''],
     RoleId: ['', [Validators.required]],
@@ -121,11 +124,6 @@ export class UserComponent implements OnInit {
             this.f.Last_Name.hasError('maxlength') ? 'Maximun length 100' :
               '';
     }
-    if (component === 'Password'){
-      return this.f.Password.hasError('minlength') ? 'Minimun length 6' :
-        this.f.Password.hasError('maxlength') ? 'Maximun length 20' :
-          '';
-    }
     if (component === 'RoleId'){
       return this.f.RoleId.hasError('required') ? 'You must select a value' :
         '';
@@ -152,6 +150,8 @@ export class UserComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     // changes.prop contains the old and the new value...
     if (changes.user.currentValue != undefined) {
+      this.userData = '';
+      this.statTemp = 0;
       var spinnerRef = this.spinnerService.start("Loading User...");
       let userResult = changes.user.currentValue;
       this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', MFact_Auth: '', Is_Admin: 0, Status: 1});
@@ -179,6 +179,8 @@ export class UserComponent implements OnInit {
               Is_Admin: user.Is_Admin,
               Status: user.Status
             });
+            this.userData = user.User_Name;
+            this.statTemp = user.Status;
             this.spinnerService.stop(spinnerRef);
           }),
           catchError(err => {
@@ -188,6 +190,8 @@ export class UserComponent implements OnInit {
           })
         );
     } else {
+      this.userData = '';
+      this.statTemp = 0;
       this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', MFact_Auth: '', Is_Admin: 0, Status: 1});
     }
   }
@@ -213,12 +217,12 @@ export class UserComponent implements OnInit {
           "Email": this.userForm.value.Email,
           "First_Name": this.userForm.value.First_Name,
           "Last_Name": this.userForm.value.Last_Name,
-          "Password": this.userForm.value.Password,
+          "Password": '', //this.userForm.value.Password,
           "StoreId": this.userForm.value.StoreId,
           "UserLogId": userLoggedId,
           "RoleId": this.userForm.value.RoleId,
           "MFact_Auth": this.userForm.value.MFact_Auth,
-          "Status": this.userForm.value.Status,
+          "Status": (this.statTemp === 3 ? 3 : this.userForm.value.Status),
           "LanguageId": ''
         }
         this.userSave$ = this.usersService.updateUser(userId, dataForm).pipe(
@@ -227,6 +231,8 @@ export class UserComponent implements OnInit {
             this.spinnerService.stop(spinnerRef);
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
+            this.userData = '';
+            this.statTemp = 0;
             this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', MFact_Auth: '', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User updated successful', true, false, false);
@@ -240,13 +246,18 @@ export class UserComponent implements OnInit {
         );
       } else {
         let userLoggedId = this.authService.userId();
+        var CryptoJS = require("crypto-js");
+        var data = this.userForm.value.Password;
+        var password = "K968G66S4dC1Y5tNA5zKGT5KIjeMcpc8";
+        var ctObj = CryptoJS.AES.encrypt(data, password);
+        var ctStr = ctObj.toString();
         let dataForm = { 
           "CompanyId": this.companyId,
           "Email": this.userForm.value.Email,
           "UserName": this.userForm.value.UserName,
           "First_Name": this.userForm.value.First_Name,
           "Last_Name": this.userForm.value.Last_Name,
-          "Password": this.userForm.value.Password,
+          "Password": ctStr,
           "StoreId": this.userForm.value.StoreId,
           "RoleId": this.userForm.value.RoleId,
           "MFact_Auth": this.userForm.value.MFact_Auth,
@@ -259,6 +270,8 @@ export class UserComponent implements OnInit {
             this.spinnerService.stop(spinnerRef);
             this.userNameValidated = false;
             this.userForm.controls.UserName.enable();
+            this.userData = '';
+            this.statTemp = 0;
             this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', MFact_Auth: '', Is_Admin: 0, Status: 1});
             this.data.changeData('users');
             this.openDialog('Users', 'User created successful', true, false, false);
@@ -277,6 +290,8 @@ export class UserComponent implements OnInit {
   onCancel(){
     this.userForm.controls['RoleId'].setValidators([Validators.required]);
     this.userNameValidated = false;
+    this.userData = '';
+    this.statTemp = 0;
     this.userForm.controls.UserName.enable();
     this.userForm.reset({UserId:'', CompanyId: '', Email: '', UserName: '', First_Name: '', Last_Name: '', Password: '', Avatar: '', StoreId: '', RoleId: 'None', MFact_Auth: '', Is_Admin: 0, Status: 1});
   }
@@ -298,6 +313,31 @@ export class UserComponent implements OnInit {
 
   ngOnDestroy() {
     this.changesUser.unsubscribe();
+  }
+
+  onSendCode(){
+    let userId = this.userForm.value.UserId;
+    let userName = this.userData;
+    if (userName == '' && userId == '') {
+      return;
+    }
+    
+    var spinnerRef = this.spinnerService.start("Sending activation code...");
+    this.userAct$ = this.usersService.putVerifCode(userName, '0', '').pipe(
+      tap((res: any) => { 
+        this.spinnerService.stop(spinnerRef);
+        if (res.Code == 200){
+          this.openDialog('Users', 'Code send successfully', true, false, false);
+        } else {
+          this.openDialog('Users', 'Error activating account try again', false, true, false);
+        }
+      }),
+      catchError(err => {
+        this.spinnerService.stop(spinnerRef);
+        this.openDialog('Error !', err.Message, false, true, false);
+        return throwError(err || err.message);
+      })
+    );
   }
 
   checkUserNameAvailability(data) { 

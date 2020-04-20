@@ -53,28 +53,36 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.invalid) {
         return;
     }
-
     this.loading = true;
-    this.authService.login(this.f.username.value, this.f.password.value, this.f.authcode.value)
+
+    var CryptoJS = require("crypto-js");
+    var data = this.f.password.value;
+    var password = "K968G66S4dC1Y5tNA5zKGT5KIjeMcpc8";
+    var ctObj = CryptoJS.AES.encrypt(data, password);
+    var ctStr = ctObj.toString();
+
+    this.authService.login(this.f.username.value, ctStr, this.f.authcode.value)
       .pipe(first())
       .subscribe(
           data => {
+            this.loading = false;
             if (data.Code == 100){
               let languageId = this.authService.language();
               if (languageId != ''){
-                window.location.href = 'https://portal.cashier2go.com/' + languageId + this.returnUrl;
+                window.location.href = window.location.origin + '/' + languageId.toLowerCase() + this.returnUrl;
               } else {
-                window.location.href = 'https://portal.cashier2go.com/en' + this.returnUrl;
+                window.location.href = window.location.origin + '/en' + this.returnUrl;
               }
+              return;
               // this.router.navigate([this.returnUrl]);
             }
             if (data.Code == 300){
               this.showAuth = true;
-              this.loading = false;
-            }
-            if (data.Code == 200){
+              this.error = '';
+              return;
+            } else {
               this.error = data.Message;
-              this.loading = false;
+              return;
             }
           },
           error => {
