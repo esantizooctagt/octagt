@@ -18,8 +18,8 @@ export class TaxService {
                       .pipe(catchError(this.errorHandler));
     }
   
-    getTax(taxId): Observable<Tax> {
-      return this.http.get<Tax>(this.apiURL + '/tax/' + taxId)//, { headers: new HttpHeaders().set('Authorization', token) })
+    getTax(taxId, companyId): Observable<Tax> {
+      return this.http.get<Tax>(this.apiURL + '/tax/' + taxId + '/' + companyId)//, { headers: new HttpHeaders().set('Authorization', token) })
                       .pipe(catchError(this.errorHandler));
     }
   

@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators';
 import { User, Currency } from '@app/_models';
 import { environment } from '@environments/environment';
 
-
 @Injectable({ providedIn: 'root' })
 
 export class AuthService {

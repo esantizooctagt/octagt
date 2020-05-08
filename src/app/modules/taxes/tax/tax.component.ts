@@ -129,7 +129,7 @@ export class TaxComponent implements OnInit {
       var spinnerRef = this.spinnerService.start("Loading Tax..");
       let taxResult = changes.tax.currentValue;
       this.taxForm.reset({Include_Tax:0, To_To: 0, Status:1, Name:'', Percentage:'', CompanyId:'', TaxId:''});
-      this.tax$ = this.taxService.getTax(taxResult.Tax_Id).pipe(
+      this.tax$ = this.taxService.getTax(taxResult.Tax_Id, this.companyId).pipe(
         tap(res => {
           if (res != null) {
             this.taxForm.setValue({
