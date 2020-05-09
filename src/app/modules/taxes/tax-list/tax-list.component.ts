@@ -153,7 +153,7 @@ export class TaxListComponent implements OnInit {
         if (this.deleted){
           let delTax: Tax;
           this.deleted = false; 
-          this.deleteTax$ = this.taxService.deleteTax(tax.Tax_Id).pipe(
+          this.deleteTax$ = this.taxService.deleteTax(tax.Tax_Id, this.companyId).pipe(
             tap(res => {
               this.taxSelected.emit(delTax);
               this.spinnerService.stop(spinnerRef);

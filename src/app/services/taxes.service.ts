@@ -28,13 +28,13 @@ export class TaxService {
                         .pipe(catchError(this.errorHandler));
     }
 
-    updateTax(taxId, formData) {
-      return this.http.patch(this.apiURL + '/tax/'  + taxId, formData)
+    updateTax(taxId, companyId, formData) {
+      return this.http.patch(this.apiURL + '/tax/'  + taxId + '/' + companyId, formData)
                       .pipe(catchError(this.errorHandler));
     }
   
-    deleteTax(taxId) {
-      return this.http.delete(this.apiURL + '/tax/' + taxId)
+    deleteTax(taxId, companyId) {
+      return this.http.delete(this.apiURL + '/tax/' + taxId + '/' + companyId)
                       .pipe(catchError(this.errorHandler));
     }
 

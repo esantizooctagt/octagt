@@ -174,7 +174,7 @@ export class TaxComponent implements OnInit {
           "UserId": userId,
           "Status": this.taxForm.value.Status
         }
-        this.taxSave$ = this.taxService.updateTax(taxId, dataForm).pipe(
+        this.taxSave$ = this.taxService.updateTax(taxId, this.companyId, dataForm).pipe(
           tap(res => { 
             this.savingTax = true;
             this.spinnerService.stop(spinnerRef);
