@@ -22,11 +22,11 @@ export class TaxListComponent implements OnInit {
   public length: number = 0;
   public pageSize: number = 10;
   public taxes: Tax[] = [];
-  public pages: number[];
   public listView:boolean=true;
   public onError: string='';
 
-  private _currentPage: number = 1;
+  public _page: number;
+  private _currentPage: any[] = [];
   private _currentSearchValue: string = '';
 
   companyId: string = '';
@@ -67,29 +67,42 @@ export class TaxListComponent implements OnInit {
   ngOnInit() {
     // this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
-    this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
+    this.length = 1;
+    this._page = 1;
+    this._currentPage.push({page: 1, taxId: ''});
+    this.loadTaxes(this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId);
     this.message$ = this.data.monitorMessage.pipe(
       map(res => {
         this.message = 'init';
         if (res === 'taxes') {
           this.message = res;
-          this.loadTaxes(this._currentPage, this.pageSize, this._currentSearchValue);
+          this.loadTaxes(this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId);
         }
         return this.message;
       })
     );
   }
+
+  ngAfterViewChecked() {
+    const list = document.getElementsByClassName('mat-paginator-range-label');
+    list[0].innerHTML = 'Page: ' + this._page.toString();
+  }
   
-  loadTaxes(crPage, crNumber, crValue) {
+  loadTaxes(crPage, crNumber, crValue, crItem) {
     this.onError = '';
     var spinnerRef = this.spinnerService.start("Loading Taxes...");
-    let data = this.companyId + "/" + (crValue === '' ? crPage : 1) + "/" + crNumber + (crValue === '' ? '/_' : '/' + crValue);
+    let data = this.companyId + "/" + crNumber + (crValue === '' ? '/_' : '/' + crValue) + (crItem === '' ? '/_' : '/' +  crItem);
 
     this.taxes$ = this.taxService.getTaxes(data).pipe(
       map((res: any) => {
         if (res != null) {
-          this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
-          this.length = res.pagesTotal.count;
+          if (res.lastItem != ''){
+            this._currentPage.push({page: this.length++, taxId: res.lastItem})
+            this.length += 1;
+          }
+          // this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
+          // this.length = res.pagesTotal.count;
+          
           // this.modLoading.emit('none');
           this.spinnerService.stop(spinnerRef);
         }
@@ -107,9 +120,7 @@ export class TaxListComponent implements OnInit {
   public filterList(searchParam: string): void {
     this._currentSearchValue = searchParam;
     this.loadTaxes(
-      this._currentPage,
-      this.pageSize,
-      this._currentSearchValue
+      this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId
     );
   }
 
@@ -160,9 +171,7 @@ export class TaxListComponent implements OnInit {
               this.displayYesNo = false;
               this.deletingTax = true;
               this.loadTaxes(
-                this._currentPage,
-                this.pageSize,
-                this._currentSearchValue
+                this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId
               );
               this.openDialog('Tax', 'Tax deleted successful', true, false, false);
               window.scroll(0,0);
@@ -183,14 +192,15 @@ export class TaxListComponent implements OnInit {
   public goToPage(page: number, elements: number): void {
     if (this.pageSize != elements){
       this.pageSize = elements;
-      this._currentPage = 1;
+      this._page = 1;
     } else {
-      this._currentPage = page+1;
+      this._page = page+1;
     }
     this.loadTaxes(
-      this._currentPage,
+      this._currentPage[this._page-1].page,
       this.pageSize,
-      this._currentSearchValue
+      this._currentSearchValue,
+      this._currentPage[this._page-1].taxId
     );
   }
 
