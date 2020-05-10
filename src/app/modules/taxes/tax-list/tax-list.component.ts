@@ -67,9 +67,8 @@ export class TaxListComponent implements OnInit {
   ngOnInit() {
     // this.modLoading.emit('display');
     this.companyId = this.authService.companyId();
-    this.length = 1;
     this._page = 1;
-    this._currentPage.push({page: 1, taxId: ''});
+    this._currentPage.push({page: this._page, taxId: ''});
     this.loadTaxes(this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId);
     this.message$ = this.data.monitorMessage.pipe(
       map(res => {
@@ -83,10 +82,10 @@ export class TaxListComponent implements OnInit {
     );
   }
 
-  ngAfterViewChecked() {
-    const list = document.getElementsByClassName('mat-paginator-range-label');
-    list[0].innerHTML = 'Page: ' + this._page.toString();
-  }
+  // ngAfterViewChecked() {
+  //   const list = document.getElementsByClassName('mat-paginator-range-label');
+  //   list[0].innerHTML = 'Page: ' + this._page.toString();
+  // }
   
   loadTaxes(crPage, crNumber, crValue, crItem) {
     this.onError = '';
@@ -97,8 +96,10 @@ export class TaxListComponent implements OnInit {
       map((res: any) => {
         if (res != null) {
           if (res.lastItem != ''){
-            this._currentPage.push({page: this.length++, taxId: res.lastItem})
-            this.length += 1;
+            console.log(this._currentPage);
+            this.length = (this.pageSize*this._page)+1;
+            this._currentPage.push({page: this._page+1, taxId: res.lastItem})
+            console.log(this.length);
           }
           // this.pages = Array(res.pagesTotal.pages).fill(0).map((x, i) => i);
           // this.length = res.pagesTotal.count;
@@ -119,6 +120,9 @@ export class TaxListComponent implements OnInit {
 
   public filterList(searchParam: string): void {
     this._currentSearchValue = searchParam;
+    this._currentPage = [];
+    this._page = 1;
+    this._currentPage.push({page: this._page, taxId: ''});
     this.loadTaxes(
       this._currentPage[0].page, this.pageSize, this._currentSearchValue, this._currentPage[0].taxId
     );
@@ -196,6 +200,7 @@ export class TaxListComponent implements OnInit {
     } else {
       this._page = page+1;
     }
+    console.log(this._page);
     this.loadTaxes(
       this._currentPage[this._page-1].page,
       this.pageSize,
