@@ -16,7 +16,7 @@ export class SpinnerService {
             data: message == ''|| message == undefined ? "Loading..." : message  
         });  
         return dialogRef;  
-      };  
+    };  
   
     stop(ref:MatDialogRef<SpinnerComponent>){  
         ref.close();  

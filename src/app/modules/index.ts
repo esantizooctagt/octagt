@@ -20,3 +20,4 @@ export * from './inventory-query/inventory-query.component';
 export * from './dashboard/dashboard.component';
 export * from './reset/reset.component';
 export * from './verification/verification.component';
+export * from './home/home.component';

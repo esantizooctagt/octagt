@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '@modules/authentication/guards/auth.guard';
 
 /**Main Componenets**/
-import { LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent, DashboardComponent, ResetComponent, VerificationComponent } from '@modules/index';
+import { HomeComponent, LoginComponent, TaxesComponent, SalesComponent, CustomersComponent, ProductsComponent, ProfileComponent, MainNavComponent, CompanyComponent, DocumentsComponent, UsersComponent, CategoriesComponent, HelpComponent, ForgotpassComponent, InvoicesComponent, InventoryComponent, InventoryQueryComponent, ReportsComponent, RolesComponent, DashboardComponent, ResetComponent, VerificationComponent } from '@modules/index';
 
 /**Secondary Components**/
 import { TaxComponent } from '@modules/taxes/tax/tax.component';
@@ -78,6 +78,8 @@ export class AppRoutingModule { }
 export const routingComponents = [
   LoginComponent,
   MainNavComponent,
+  HomeComponent,
+  CategoriesComponent,
   CompanyComponent,
   TaxesComponent,
   TaxComponent,

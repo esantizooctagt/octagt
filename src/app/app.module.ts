@@ -55,10 +55,6 @@ import { ClickOutsideDirective } from '@shared/clickoutside.directive';
 import { SearchFilterPipe } from '@shared/filterpipe';
 import { CustomerbasicComponent } from '@shared/customerbasic/customerbasic.component';
 import { LayoutModule } from '@angular/cdk/layout';
-import { CategoriesComponent } from '@modules/categories/categories.component';
-import { DashboardComponent } from './modules/dashboard/dashboard.component';
-import { HomeComponent } from './modules/home/home.component';
-import { VerificationComponent } from './modules/verification/verification.component';
 
 // import { registerLocaleData } from '@angular/common';
 // import localeEs from '@angular/common/locales/es';
@@ -75,11 +71,7 @@ import { VerificationComponent } from './modules/verification/verification.compo
     ClickOutsideDirective,
     SearchFilterPipe,
     CustomerbasicComponent,
-    DialogComponent,
-    CategoriesComponent,
-    DashboardComponent,
-    HomeComponent,
-    VerificationComponent
+    DialogComponent
   ],
   imports: [
     BrowserModule,

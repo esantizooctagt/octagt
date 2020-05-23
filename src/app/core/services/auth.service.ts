@@ -134,7 +134,7 @@ export class AuthService {
           }
         }
         return null;
-      }
+    }
 
     getUserProfile() {
         if (sessionStorage.getItem('OCT_USS') != null) {
