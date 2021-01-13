@@ -12,7 +12,7 @@ import { environment } from '@environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { SpinnerService } from '@app/shared/spinner.service';
-import { QRCodeModule } from 'angularx-qrcode';
+// import { QRCodeModule } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-profile',
@@ -32,7 +32,7 @@ export class ProfileComponent implements OnInit {
   displayForm: boolean=true;
 
   readonly imgPath = environment.bucket;
-  public qrCode: string = null;
+  // public qrCode: string = null;
 
   get f(){
     return this.profileForm.controls;
@@ -87,7 +87,7 @@ export class ProfileComponent implements OnInit {
           Password: res.Password
         });
         //Cashier2GoOCTAGT2020 Base 32 --> INQXG2DJMVZDER3PJ5BVIQKHKQZDAMRQ
-        this.qrCode = "otpauth://totp/Cashier%202Go:" + res.User_Name  + "?secret=INQXG2DJMVZDER3PJ5BVIQKHKQZDAMRQ&issuer=Cashier%202Go"; //&counter=1
+        // this.qrCode = "otpauth://totp/Cashier%202Go:" + res.User_Name  + "?secret=INQXG2DJMVZDER3PJ5BVIQKHKQZDAMRQ&issuer=Cashier%202Go"; //&counter=1
         this.spinnerService.stop(spinnerRef);
       }),
       catchError(err => {

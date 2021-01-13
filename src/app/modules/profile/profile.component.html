@@ -78,7 +78,7 @@
                 <div class="form-field pl-3 pr-3">
                     <mat-slide-toggle formControlName="MFact_Auth">{{ '2 Factor authentication ' + (f.MFact_Auth.value ? ' enabled' : ' disabled') }}</mat-slide-toggle>
                     <div *ngIf="f.MFact_Auth.value" class="profile-qr">
-                        <qrcode [qrdata]="qrCode" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+                        <!-- <qrcode [qrdata]="qrCode" [width]="256" [errorCorrectionLevel]="'M'"></qrcode> -->
                         <mat-label class="">
                             Scan QR Code with Google Authenticator App available for iOS or Android
                         </mat-label>

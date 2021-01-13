@@ -28,7 +28,6 @@
     "@angular/router": "^9.1.0",
     "@ng-toolkit/serverless": "^8.1.0",
     "acorn": "^7.1.1",
-    "angularx-qrcode": "^2.1.0",
     "bootstrap": "^4.4.1",
     "cropperjs": "^1.5.6",
     "crypto-js": "^4.0.0",
