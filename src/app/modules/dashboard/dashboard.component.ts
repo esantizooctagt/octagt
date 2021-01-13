@@ -6,8 +6,6 @@ import { SpinnerService } from '@app/shared/spinner.service';
 import { graphic } from 'echarts';
 import { Subscription } from 'rxjs';
 
-declare const require: any;
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
